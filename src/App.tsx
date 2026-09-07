@@ -1,110 +1,34 @@
-import { lazy, Suspense, useCallback, useDeferredValue, useEffect, useMemo, useState } from 'react';
-import { ArrowLeft, RefreshCw } from 'lucide-react';
-import { RestaurantHeader } from './components/RestaurantHeader';
-import { CategoryNavigation } from './components/CategoryNavigation';
-import { MenuSection } from './components/MenuSection';
-import { Footer } from './components/Footer';
-import { CartBar } from './components/CartBar';
-import { CartDrawer } from './components/CartDrawer';
-import { WelcomePage } from './components/WelcomePage';
-import { CartProvider } from './context/CartContext';
-import { AppErrorBoundary } from './components/AppErrorBoundary';
-import { RESTAURANT_INFO } from './config/restaurant';
-import { MENU_DATA } from './data/menu';
-import type { MenuItemData } from './data/menu';
+import { useMemo, useState } from 'react';
 
-const MenuItemDetails = lazy(() => import('./components/MenuItemDetails').then((module) => ({ default: module.MenuItemDetails })));
-export type MenuFilter = 'all' | 'veg' | 'nonveg';
-export type AppPage = 'welcome' | 'menu';
+type Item = { name: string; price?: number; half?: number; full?: number; veg?: boolean };
+type Category = { name: string; items: Item[] };
+const C = (name: string, items: Item[]): Category => ({ name, items });
+const v = (name: string, price: number): Item => ({ name, price, veg: true });
+const n = (name: string, price: number): Item => ({ name, price, veg: false });
+const hf = (name: string, half: number, full: number, veg = false): Item => ({ name, half, full, veg });
 
-function App() {
-  const [page, setPage] = useState<AppPage>('welcome');
-  const [searchQuery, setSearchQuery] = useState('');
-  const deferredSearchQuery = useDeferredValue(searchQuery);
-  const [menuFilter, setMenuFilter] = useState<MenuFilter>('all');
-  const [selectedItem, setSelectedItem] = useState<MenuItemData | null>(null);
-  const [cartOpen, setCartOpen] = useState(false);
+const MENU: Category[] = [
+C('Non Veg Soups',[n('Chicken Hot & Sour Soup',100),n('Chicken Manchow Soup',100),n('Chicken Sweet Corn Soup',100),n('Chicken Clear Soup',100),n('Chicken Coriander Clear Soup',100)]),
+C('Veg Soups',[v('Veg Soup',100),v('Veg Hot Sour Soup',100),v('Veg Manchow Soup',100),v('Veg Sweet Corn Soup',100),v('Veg Coriander Clear Soup',100),v('Lemon Corn Soup',100)]),
+C('Veg Starters',[v('Veg Manchuria',100),v('Veg 65',100),v('Paneer Manchuria',180),v('Paneer Chilli',180),v('Paneer 65',180),v('Mushroom Chilli',200),v('Mushroom Manchuria',200),v('Mushroom 65',200),v('Baby Corn Chilli',200),v('Baby Corn 65',200),v('Baby Corn Manchuria',200)]),
+C('Non Veg Starters',[n('Egg Manchuria',150),n('Egg 65',150),n('Chilli Chicken',200),n('Chicken Manchuria',200),n('Chicken 65',200),n('Ginger Chicken',200),n('Dragon Chicken',250),n('Chicken Majesty',250),n('Chicken 555',250),n('Kaju Chicken',250),n('Chicken Lollipop (6)',180),n('Chicken Wings (15)',200),n('Lemon Chicken',250),n('Chicken Gulzar',300),n('Stick Chicken',250),n('Schezwan Chicken',200),n('Garlic Chicken',200),n('Chicken Keema Balls',300),n('Guntur Mirapakay Kodi',300)]),
+C('Tandoori Starter',[hf('Tandoori Chicken',220,400),hf('Tandoori Kabab',140,280),hf('Chicken Tikka',150,300),hf('Pudina Kabab',250,500),hf('Pudina Tikka',150,300),hf('Garlic Kabab',250,500),hf('Garlic Tikka',150,300),hf('Lahori Kabab',250,500),hf('Lahori Tikka',150,300)]),
+C('Veg Tandoori Starter',[v('Paneer Tikka',200),v('Mushroom Tikka',200),v('Baby Corn Tikka',200)]),
+C("Biryani's",[hf('Chicken Dum Biryani',150,250),hf('Chicken Fry Biryani',150,250),hf('Chicken Rost Biryani',150,250),hf('Mutton Dum Biryani',300,400),hf('Mutton Rost Biryani',300,400),n('Rambo Biryani',300),n('Chicken Boneless Biryani',300),n('Kabab Biryani',300),hf('Prawns Biryani',300,400),hf('Mixed Biryani',300,400),n('Mughalai Biryani',350),n('Punjabi Chicken Biryani',300),n('Biryani Spot Special Biryani',350),n('Family Pack Biryani',600)]),
+C('Veg Friedrice',[v('Veg Friedrice',80),v('SP. Veg Friedrice',200),v('Schezwan Friedrice',120),v('Paneer Friedrice',160),v('Kaju Friedrice',160),v('Sweet Corn Friedrice',160),v('Mushroom Friedrice',160)]),
+C('Noodles',[v('Veg Noodles',80),n('Chicken Noodles',100)]),
+C('Non Veg Friedrice',[hf('Chicken Friedrice',100,150),hf('Double Egg Friedrice',100,150),n('SP. Chicken Friedrice',250),hf('Chicken Schezwan Friedrice',120,160),hf('Mixed Friedrice',300,400),n('Triple Friedrice',250),hf('Mutton Friedrice',300,400)]),
+C('Roti & Nons',[v('Tandoori Roti',20),v('Tandoori Butter Roti',25),v('Butter Naan',40),v('Plain Naan',30),v('Garlic Naan',50),v('Cheese Naan',60),v('Masala Kulcha',70)]),
+C('Veg Curries',[v('Paneer Curry',150),v('Paneer Butter Masala',150),v('Kaju Paneer',200),v('Kaju Tamota',150),v('Kaju Masala',200),v('Palak Paneer',150),v('Mushroom Curry',200),v('Baby Corn Curry',180)]),
+C('Non Veg Curries',[n('Chicken Boneless Curry',150),n('Butter Chicken',150),n('Chicken Kohlapuri',150),n('Kadai Chicken',150),n('Hyderabadi Curry',150),n('Mogalai Chicken',200),n('Chicken Patiala Curry',200),n('Chicken Tikka Masala',200),n('Mutton Curry',250),n('Prwans Curry',250),n('Chicken Keema Masala',250),n('Palak Chicken',200),n('Methi Chicken',200)])
+];
 
-  useEffect(() => {
-    const root = document.documentElement;
-    root.style.setProperty('--color-primary', RESTAURANT_INFO.theme.primary);
-    root.style.setProperty('--color-primary-hover', RESTAURANT_INFO.theme.hover);
-    root.style.setProperty('--color-primary-light', RESTAURANT_INFO.theme.light);
-    root.style.setProperty('--color-accent', RESTAURANT_INFO.theme.accent);
-    root.style.setProperty('--menu-bg', RESTAURANT_INFO.theme.pageBackground);
-    root.style.setProperty('--menu-surface', RESTAURANT_INFO.theme.surface);
-  }, []);
+const priceText=(i:Item)=>i.half!=null?`₹${i.half} / ₹${i.full}`:`₹${i.price}`;
 
-  const filteredCategories = useMemo(() => {
-    const query = deferredSearchQuery.trim().toLowerCase();
-    return MENU_DATA.map((category) => {
-      const items = category.items.filter((item) => {
-        const searchable = `${category.name} ${item.name} ${item.description ?? ''} ${item.badge ?? ''}`.toLowerCase();
-        if (query && !searchable.includes(query)) return false;
-        if (menuFilter === 'veg') return item.isVeg;
-        if (menuFilter === 'nonveg') return !item.isVeg;
-        return true;
-      });
-      return items.length ? { ...category, items } : null;
-    }).filter((category): category is NonNullable<typeof category> => category !== null);
-  }, [deferredSearchQuery, menuFilter]);
-
-  const totalVisibleItems = useMemo(() => filteredCategories.reduce((total, category) => total + category.items.length, 0), [filteredCategories]);
-  const hasActiveFilter = searchQuery.trim().length > 0 || menuFilter !== 'all';
-  const clearFilters = useCallback(() => { setSearchQuery(''); setMenuFilter('all'); }, []);
-  const handleItemClick = useCallback((item: MenuItemData) => setSelectedItem(item), []);
-  const handleSpecialItemClick = useCallback((item: MenuItemData) => setSelectedItem(item), []);
-  const handleCloseDetails = useCallback(() => setSelectedItem(null), []);
-  const openMenu = useCallback(() => { setPage('menu'); window.scrollTo({ top: 0, behavior: 'auto' }); }, []);
-  const openWelcome = useCallback(() => { setPage('welcome'); setSearchQuery(''); setMenuFilter('all'); window.scrollTo({ top: 0, behavior: 'auto' }); }, []);
-  const refreshPage = useCallback(() => { window.location.reload(); }, []);
-
-  useEffect(() => {
-    if (!selectedItem) return;
-    const old = document.body.style.overflow;
-    document.body.style.overflow = 'hidden';
-    return () => { document.body.style.overflow = old; };
-  }, [selectedItem]);
-
-  return (
-    <AppErrorBoundary>
-      <CartProvider>
-        <div className="min-h-screen bg-[var(--menu-bg)] text-[var(--menu-text)]">
-          {page === 'menu' && <RestaurantHeader />}
-          {page === 'welcome' ? (
-            <WelcomePage restaurant={RESTAURANT_INFO} categories={MENU_DATA} onViewMenu={openMenu} onSpecialItemClick={handleSpecialItemClick} />
-          ) : (
-            <main id="menu" className="bg-[var(--menu-bg)]">
-              <div className="sticky top-[66px] z-30 border-b border-[#eadfd7] bg-white/95 px-4 py-1.5 backdrop-blur-md md:top-[59px]">
-                <div className="mx-auto flex max-w-5xl items-center justify-between gap-2">
-                  <button type="button" onClick={openWelcome} className="inline-flex items-center gap-1.5 rounded-full px-2 py-1 text-[10px] font-bold text-[#73594d] transition hover:bg-[#fff7f2] hover:text-[var(--color-primary)]"><ArrowLeft className="h-3 w-3" /> Back to specials</button>
-                  <button type="button" onClick={refreshPage} aria-label="Refresh menu" title="Refresh menu" className="inline-flex items-center gap-1.5 rounded-full border border-[#eadfd7] bg-white px-3 py-1 text-[10px] font-bold text-[#73594d] shadow-sm transition hover:border-[var(--color-primary)] hover:text-[var(--color-primary)]"><RefreshCw className="h-3 w-3" /> Refresh</button>
-                </div>
-              </div>
-              <section className="menu-hero">
-                <div className="mx-auto max-w-4xl px-4 py-4 text-center sm:px-5 sm:py-10">
-                  <p className="mb-1 text-[8px] font-bold uppercase tracking-[.24em] text-[#8F241B] sm:mb-2 sm:text-[10px] sm:tracking-[.28em]">{RESTAURANT_INFO.name}</p>
-                  <h1 className="font-display text-[30px] font-bold leading-tight tracking-tight text-[#3b2922] sm:text-[46px]">Our Menu</h1>
-                  <p className="mx-auto mt-1 max-w-2xl text-[11px] leading-4 text-[#8c6d5f] sm:mt-2 sm:text-[15px]">{RESTAURANT_INFO.description}</p>
-                </div>
-              </section>
-              <CategoryNavigation categories={filteredCategories} searchQuery={searchQuery} onSearchChange={setSearchQuery} menuFilter={menuFilter} onFilterChange={setMenuFilter} />
-              {filteredCategories.length > 0 ? <div className="animate-menu-enter">{filteredCategories.map((category) => <MenuSection key={category.id} category={category} onItemClick={handleItemClick} />)}</div> : <section className="flex min-h-[40vh] items-center justify-center px-5 py-16"><div className="text-center"><p className="text-xs font-bold uppercase tracking-[.16em] text-[#b78d7a]">Menu search</p><h2 className="font-display mt-2 text-2xl font-bold">No dishes found</h2><p className="mt-2 text-sm text-[var(--menu-muted)]">Try another dish name or reset the filters.</p><button type="button" onClick={clearFilters} className="mt-5 rounded-full bg-[var(--color-primary)] px-5 py-3 text-sm font-bold text-white">Show all dishes</button></div></section>}
-              {hasActiveFilter && filteredCategories.length > 0 && <div className="border-t border-[#eadfd7] px-4 py-4"><div className="mx-auto flex max-w-4xl items-center justify-between rounded-xl border border-[#eadfd7] bg-white px-4 py-3"><p className="text-sm text-[var(--menu-muted)]">Showing <strong className="text-[var(--menu-text)]">{totalVisibleItems}</strong> {totalVisibleItems === 1 ? 'dish' : 'dishes'}</p><button type="button" onClick={clearFilters} className="text-sm font-bold text-[var(--color-primary)]">Clear</button></div></div>}
-            </main>
-          )}
-          <Footer logoOverride={page === 'welcome' ? RESTAURANT_INFO.specialLogo : RESTAURANT_INFO.logo} />
-          <CartBar onOpen={() => setCartOpen(true)} />
-          <CartDrawer open={cartOpen} onClose={() => setCartOpen(false)} />
-          {selectedItem && (
-            <Suspense fallback={<div className="fixed inset-0 z-[100] grid place-items-center bg-[#3a170d]/50 backdrop-blur-sm" role="status"><div className="rounded-2xl bg-white px-6 py-5 text-sm font-bold shadow-2xl">Loading dish details…</div></div>}>
-              <MenuItemDetails item={selectedItem} onClose={handleCloseDetails} />
-            </Suspense>
-          )}
-        </div>
-      </CartProvider>
-    </AppErrorBoundary>
-  );
+export default function App(){
+ const [query,setQuery]=useState(''); const [filter,setFilter]=useState<'all'|'veg'|'nonveg'>('all'); const [cart,setCart]=useState<Record<string,number>>({}); const [welcome,setWelcome]=useState(true);
+ const visible=useMemo(()=>MENU.map(c=>({...c,items:c.items.filter(i=>(!query||i.name.toLowerCase().includes(query.toLowerCase())||c.name.toLowerCase().includes(query.toLowerCase()))&&(filter==='all'||(filter==='veg'?i.veg:!i.veg)))})).filter(c=>c.items.length),[query,filter]);
+ const count=Object.values(cart).reduce((a,b)=>a+b,0); const add=(name:string)=>setCart(x=>({...x,[name]:(x[name]||0)+1}));
+ if(welcome)return <div className="welcome"><div className="brand-mark">🍛</div><p className="eyebrow">DIGITAL MENU</p><h1>Biryani Spot</h1><p>Authentic biryani, tandoori starters, curries, fried rice, noodles and more.</p><button onClick={()=>setWelcome(false)}>View Menu →</button><div className="welcome-note">Menu prices shown as provided by the restaurant.</div></div>;
+ return <div className="app"><header><div><span className="eyebrow">DIGITAL MENU</span><h1>Biryani Spot</h1></div><button className="cart" onClick={()=>alert(`Cart: ${count} item${count===1?'':'s'}`)}>🛒 {count}</button></header><section className="hero"><span>🍽️ BIRYANI • TANDOORI • MULTI CUISINE</span><h2>Our Menu</h2><p>Choose your favourites and explore the complete menu.</p></section><div className="controls"><input value={query} onChange={e=>setQuery(e.target.value)} placeholder="Search dishes..."/><div className="filters"><button className={filter==='all'?'active':''} onClick={()=>setFilter('all')}>All</button><button className={filter==='veg'?'active':''} onClick={()=>setFilter('veg')}>Veg</button><button className={filter==='nonveg'?'active':''} onClick={()=>setFilter('nonveg')}>Non-Veg</button></div></div><main>{visible.map(c=><section className="category" key={c.name}><div className="cat-title"><h2>{c.name}</h2><span>{c.items.length} items</span></div><div className="grid">{c.items.map(i=><article className="card" key={`${c.name}-${i.name}`}><div className="food-image">{i.veg?'🥗':'🍗'}</div><div className="card-body"><div className="dish-row"><h3>{i.name}</h3><span className={i.veg?'veg-dot':'nonveg-dot'}></span></div><p className="price">{priceText(i)}</p><button onClick={()=>add(i.name)}>Add to order</button></div></article>)}</div></section>)}</main><footer><strong>Biryani Spot</strong><p>Digital menu • Prices from restaurant menu</p></footer></div>;
 }
-
-export default App;
