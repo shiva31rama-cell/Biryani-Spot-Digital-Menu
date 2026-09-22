@@ -97,7 +97,6 @@ const MENU: Category[] = [
 ];
 
 const allItems = MENU.flatMap((category) => category.items);
-const itemMap = new Map(allItems.map((item) => [item.id, item]));
 const money = (value: number) => `₹${value}`;
 const sizeLabel = (size: Size) => size === 'half' ? 'Half' : size === 'full' ? 'Full' : '';
 
@@ -288,5 +287,3 @@ export default function App() {
     </div>
   );
 }
-
-void itemMap;
