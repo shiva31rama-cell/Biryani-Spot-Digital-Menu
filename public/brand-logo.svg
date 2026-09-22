@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 720" role="img" aria-labelledby="title desc">
+<title id="title">Biryani Spot Family Restaurant</title><desc id="desc">A warm maroon, cream and gold restaurant emblem featuring a traditional biryani handi.</desc>
+<defs><linearGradient id="gold" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#a96f1f"/><stop offset=".5" stop-color="#d7ad57"/><stop offset="1" stop-color="#9a631d"/></linearGradient><linearGradient id="copper" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#d59b56"/><stop offset="1" stop-color="#8f4e27"/></linearGradient></defs>
+<circle cx="360" cy="360" r="344" fill="#fffaf0" stroke="url(#gold)" stroke-width="10"/><circle cx="360" cy="360" r="315" fill="none" stroke="#6e241e" stroke-width="22"/>
+<path d="M118 320 A245 245 0 0 1 602 320" fill="#6e241e"/><path d="M143 320 A217 217 0 0 1 577 320" fill="#8b2d24"/>
+<ellipse cx="360" cy="295" rx="178" ry="45" fill="#8a4d28" stroke="#6a361f" stroke-width="5"/><path d="M194 296 Q207 418 360 430 Q513 418 526 296 Q486 331 360 336 Q234 331 194 296Z" fill="url(#copper)" stroke="#71391f" stroke-width="6"/>
+<ellipse cx="360" cy="298" rx="174" ry="42" fill="#d8a461" stroke="#7a3c20" stroke-width="6"/><path d="M218 291 Q250 265 280 285 T340 282 T400 284 T460 285 T502 292" fill="none" stroke="#f6e1ae" stroke-width="15" stroke-linecap="round"/>
+<circle cx="260" cy="292" r="9" fill="#6b241e"/><circle cx="316" cy="280" r="8" fill="#557044"/><circle cx="397" cy="289" r="8" fill="#6b241e"/><circle cx="456" cy="278" r="8" fill="#557044"/>
+<path d="M332 255 C300 225 338 207 322 177 M365 250 C395 220 360 202 378 169 M394 254 C426 228 392 207 411 184" fill="none" stroke="#eadfc9" stroke-width="10" stroke-linecap="round" opacity=".8"/>
+<path d="M112 392 Q360 478 608 392" fill="#fffaf0"/>
+<text x="360" y="420" text-anchor="middle" font-family="Georgia,serif" font-size="72" font-weight="700" fill="#6e241e">Biryani</text><text x="360" y="478" text-anchor="middle" font-family="Georgia,serif" font-size="66" font-weight="700" fill="#b17b28">Spot</text>
+<line x1="174" y1="505" x2="306" y2="505" stroke="#c4933f" stroke-width="4"/><line x1="414" y1="505" x2="546" y2="505" stroke="#c4933f" stroke-width="4"/><circle cx="360" cy="505" r="7" fill="#6e241e"/>
+<text x="360" y="544" text-anchor="middle" font-family="Arial,sans-serif" font-size="22" font-weight="700" letter-spacing="6" fill="#49653e">FAMILY RESTAURANT</text><text x="360" y="590" text-anchor="middle" font-family="Arial,sans-serif" font-size="16" font-weight="700" letter-spacing="2.5" fill="#7a6657">GOOD FOOD • GREAT PEOPLE</text>
+<path d="M130 617 Q360 680 590 617" fill="none" stroke="#6e241e" stroke-width="24"/><text x="360" y="638" text-anchor="middle" font-family="Arial,sans-serif" font-size="15" font-weight="700" letter-spacing="1.5" fill="#fffaf0">MORE THAN FOOD, IT'S A FEELING</text>
+</svg>
