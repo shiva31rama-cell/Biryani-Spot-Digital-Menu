@@ -1,0 +1,17 @@
+{
+  "name": "Biryani Spot Digital Menu",
+  "short_name": "Biryani Spot",
+  "description": "Digital menu for Biryani Spot restaurant.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#fffaf3",
+  "theme_color": "#7b241d",
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
