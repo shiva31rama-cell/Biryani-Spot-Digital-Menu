@@ -2,13 +2,13 @@
   "name": "Biryani Spot Family Restaurant",
   "short_name": "Biryani Spot",
   "description": "Digital menu for Biryani Spot Family Restaurant.",
-  "start_url": "/",
+  "start_url": "./",
   "display": "standalone",
   "background_color": "#fbf7f0",
   "theme_color": "#70251e",
   "icons": [
     {
-      "src": "/brand-logo.svg",
+      "src": "./brand-logo.svg",
       "sizes": "any",
       "type": "image/svg+xml",
       "purpose": "any maskable"
