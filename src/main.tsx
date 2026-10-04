@@ -15,11 +15,10 @@ ReactDOM.createRoot(root).render(
   </React.StrictMode>,
 );
 
-
-if ('serviceWorker' in navigator) {
+if ('serviceWorker' in navigator && import.meta.env.PROD) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('./sw.js').catch(() => {
-      // Offline support is optional; the menu remains fully usable online.
+      // Offline support is optional; the menu remains usable online.
     });
   });
 }
