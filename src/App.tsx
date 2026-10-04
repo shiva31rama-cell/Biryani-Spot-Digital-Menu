@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 
 type SizeOption = {
   label: 'Half' | 'Full';
@@ -237,6 +237,60 @@ export default function App() {
   const [section, setSection] = useState('All');
   const [selection, setSelection] = useState<Selection>({});
   const [selectionOpen, setSelectionOpen] = useState(false);
+  const [favorites, setFavorites] = useState<string[]>(() => {
+    try {
+      return JSON.parse(localStorage.getItem('biryani-spot-favorites') ?? '[]');
+    } catch {
+      return [];
+    }
+  });
+
+  useEffect(() => {
+    try {
+      localStorage.setItem('biryani-spot-favorites', JSON.stringify(favorites));
+    } catch {
+      // Storage can be unavailable in private/restricted browser contexts.
+    }
+  }, [favorites]);
+
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem('biryani-spot-selection');
+      if (saved) setSelection(JSON.parse(saved) as Selection);
+    } catch {
+      // Ignore invalid or unavailable saved selections.
+    }
+  }, []);
+
+  useEffect(() => {
+    try {
+      localStorage.setItem('biryani-spot-selection', JSON.stringify(selection));
+    } catch {
+      // Storage can be unavailable in private/restricted browser contexts.
+    }
+  }, [selection]);
+
+  const toggleFavorite = (id: string) => {
+    setFavorites((current) =>
+      current.includes(id) ? current.filter((value) => value !== id) : [...current, id],
+    );
+  };
+
+  const shareMenu = async () => {
+    const shareData = {
+      title: 'Biryani Spot — Digital Menu',
+      text: 'Explore the Biryani Spot family restaurant menu.',
+      url: window.location.href,
+    };
+    try {
+      if (navigator.share) await navigator.share(shareData);
+      else await navigator.clipboard.writeText(window.location.href);
+    } catch {
+      // Sharing was cancelled or clipboard access is unavailable.
+    }
+  };
+
+  const printMenu = () => window.print();
 
   const visibleSections = useMemo(() => {
     const q = query.trim().toLowerCase();
