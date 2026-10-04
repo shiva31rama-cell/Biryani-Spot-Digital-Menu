@@ -326,7 +326,7 @@ export default function App() {
       <div className="welcome-screen">
         <div className="welcome-card">
           <img
-            src="/brand-logo.svg"
+            src="./brand-logo.svg"
             className="welcome-logo"
             alt="Biryani Spot Family Restaurant"
           />
@@ -378,7 +378,7 @@ export default function App() {
           }}
           aria-label="Biryani Spot home"
         >
-          <img src="/brand-logo.svg" alt="" />
+          <img src="./brand-logo.svg" alt="" />
           <span>
             <strong>Biryani Spot</strong>
             <small>Family Restaurant</small>
@@ -432,7 +432,7 @@ export default function App() {
           </div>
 
           <div className="hero-brand-panel">
-            <img src="/brand-logo.svg" alt="Biryani Spot" />
+            <img src="./brand-logo.svg" alt="Biryani Spot" />
             <div>
               <strong>Family Restaurant</strong>
               <span>Good food • Great people</span>
@@ -693,7 +693,7 @@ export default function App() {
 
       <footer className="footer">
         <div>
-          <img src="/brand-logo.svg" alt="" />
+          <img src="./brand-logo.svg" alt="" />
           <strong>Biryani Spot</strong>
         </div>
         <p>
