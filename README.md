@@ -2,27 +2,29 @@
 
 A responsive, family-friendly digital restaurant menu built with React, TypeScript and Vite.
 
-## Current features
+## What is implemented
 
-- Biryani Spot family-restaurant branding with the refined production logo
-- 111 menu items transcribed from the supplied restaurant menu photographs
+- Professional light, warm family-restaurant visual system
+- Biryani Spot brand logo integrated across the menu
+- Complete menu transcription from the supplied printed menu photographs
 - Veg / Non-Veg filtering
 - Search across dishes and categories
-- Category quick-navigation buttons
-- Responsive mobile-first menu cards
-- Half / Full pricing display where supplied
-- Add-to-selection list with quantity controls
-- Selection side panel with live item count and menu total
-- Empty-state and reset controls
-- Warm, professional, non-neon restaurant-focused UI
-- Accessible button labels and keyboard focus states
-- SEO-friendly page title and description
-- PWA manifest and SPA fallback support
-- GitHub Actions CI for TypeScript build and lint checks on `main`
+- Category quick navigation
+- Responsive mobile-first layout
+- Half / Full pricing where the printed menu provides both sizes
+- Useful table-selection helper with quantity controls and live total
+- Clear empty states and reset controls
+- Keyboard focus states and accessible labels
+- Portable asset paths for GitHub Pages and other static hosts
+- PWA manifest and SEO metadata
+- Automated CI validation
+- Automated CD deployment to GitHub Pages from main
 
-## Menu data
+## Menu source
 
-The prices and item names currently shown are based on the restaurant's supplied printed menu photographs. Restaurant staff should perform a final spelling and price verification before public launch.
+The displayed item names and prices are based on the restaurant's supplied printed menu photographs. Before public launch, the restaurant owner should perform a final spelling and price verification.
+
+The app intentionally does not invent dish photographs. Real restaurant/food photography can be added later when the owner supplies approved images.
 
 ## Local development
 
@@ -37,7 +39,7 @@ Production build:
 npm run build
 ```
 
-Preview the production build:
+Preview:
 
 ```bash
 npm run preview
@@ -49,22 +51,38 @@ Lint:
 npm run lint
 ```
 
-## CI/CD
+## CI / CD
 
-GitHub Actions runs the production build and lint checks for pushes and pull requests targeting `main`.
+The project uses only the main branch, as requested.
 
-The project is intentionally kept on the `main` branch as requested. No feature branch is required for the current workflow.
+### CI
 
-## Final restaurant information still required
+Every push and pull request targeting main runs:
 
-These should be added only after confirmation from the restaurant owner:
+1. Dependency installation
+2. TypeScript production build
+3. Oxlint validation
+
+### CD
+
+Every push to main builds the Vite production bundle and deploys the generated dist/ directory through GitHub Pages.
+
+GitHub Pages must be enabled in Settings → Pages → Build and deployment → Source → GitHub Actions for the repository.
+
+Expected project-site URL:
+
+https://shiva31rama-cell.github.io/Biryani-Spot-Digital-Menu/
+
+## Final owner information still required
+
+These should only be added after confirmation from the restaurant owner:
 
 - Confirmed restaurant address
 - Confirmed phone number
 - Google Maps location
 - Official social media links
 - Final menu spelling and price approval
-- Real restaurant / food photographs
-- Final hosting domain and deployment configuration
+- Approved real restaurant / food photographs
+- Final hosting domain, if a custom domain is preferred
 
-Cloudflare deployment is intentionally not configured until the final restaurant details and owner approval are available.
+No unconfirmed contact details or fake restaurant information are included in the application.
