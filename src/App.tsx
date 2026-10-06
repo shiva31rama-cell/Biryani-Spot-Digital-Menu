@@ -1,15 +1,14 @@
 import { useEffect, useMemo, useState } from 'react';
-import { ALL_ITEMS, MENU, type MenuItem, type SizeOption } from './data/menu';
+import { MENU, MENU_ITEM_COUNT, type MenuItem, type SizeOption } from './data/menu';
+import { RESTAURANT } from './config/restaurant';
 
 type SelectionEntry = { item: MenuItem; option?: SizeOption; qty: number };
 type Selection = Record<string, SelectionEntry>;
 
 const BRAND_IMAGE = './brand-logo.svg';
-const WHATSAPP_NUMBER = ''; // Add the verified restaurant WhatsApp number before launch.
 const INTRO_KEY = 'biryani-spot-intro-seen';
-
-const formatPrice = (item: MenuItem) =>
-  item.sizes ? `₹${item.sizes[0].price} / ₹${item.sizes[1].price}` : `₹${item.price}`;
+const FAVORITES_KEY = 'biryani-spot-favorites';
+const SELECTION_KEY = 'biryani-spot-selection';
 
 const selectionKey = (item: MenuItem, option?: SizeOption) =>
   `${item.id}-${option?.label ?? 'single'}`;
@@ -23,15 +22,16 @@ export default function App() {
   const [filter, setFilter] = useState<'all' | 'veg' | 'nonveg'>('all');
   const [category, setCategory] = useState('All');
   const [favorites, setFavorites] = useState<string[]>(() => {
-    try { return JSON.parse(localStorage.getItem('biryani-spot-favorites') ?? '[]'); } catch { return []; }
+    try { return JSON.parse(localStorage.getItem(FAVORITES_KEY) ?? '[]'); } catch { return []; }
   });
   const [selection, setSelection] = useState<Selection>(() => {
-    try { return JSON.parse(localStorage.getItem('biryani-spot-selection') ?? '{}') as Selection; } catch { return {}; }
+    try { return JSON.parse(localStorage.getItem(SELECTION_KEY) ?? '{}') as Selection; } catch { return {}; }
   });
   const [selectionOpen, setSelectionOpen] = useState(false);
   const [feedbackOpen, setFeedbackOpen] = useState(false);
   const [feedback, setFeedback] = useState('');
   const [notice, setNotice] = useState('');
+  const [printSelection, setPrintSelection] = useState(false);
 
   useEffect(() => {
     const media = window.matchMedia('(prefers-reduced-motion: reduce)');
@@ -51,8 +51,35 @@ export default function App() {
     return () => window.clearTimeout(timer);
   }, [introVisible, reducedMotion]);
 
-  useEffect(() => { localStorage.setItem('biryani-spot-favorites', JSON.stringify(favorites)); }, [favorites]);
-  useEffect(() => { localStorage.setItem('biryani-spot-selection', JSON.stringify(selection)); }, [selection]);
+  useEffect(() => { localStorage.setItem(FAVORITES_KEY, JSON.stringify(favorites)); }, [favorites]);
+  useEffect(() => { localStorage.setItem(SELECTION_KEY, JSON.stringify(selection)); }, [selection]);
+
+  useEffect(() => {
+    document.body.classList.toggle('modal-open', selectionOpen || feedbackOpen);
+    return () => document.body.classList.remove('modal-open');
+  }, [selectionOpen, feedbackOpen]);
+
+  useEffect(() => {
+    const closeWithEscape = (event: KeyboardEvent) => {
+      if (event.key !== 'Escape') return;
+      setSelectionOpen(false);
+      setFeedbackOpen(false);
+    };
+    window.addEventListener('keydown', closeWithEscape);
+    return () => window.removeEventListener('keydown', closeWithEscape);
+  }, []);
+
+  useEffect(() => {
+    if (!printSelection) return;
+    const timer = window.setTimeout(() => window.print(), 80);
+    return () => window.clearTimeout(timer);
+  }, [printSelection]);
+
+  useEffect(() => {
+    const afterPrint = () => setPrintSelection(false);
+    window.addEventListener('afterprint', afterPrint);
+    return () => window.removeEventListener('afterprint', afterPrint);
+  }, []);
 
   const finishIntro = () => {
     try { sessionStorage.setItem(INTRO_KEY, '1'); } catch { /* optional */ }
@@ -106,17 +133,38 @@ export default function App() {
 
   const shareMenu = async () => {
     try {
-      if (navigator.share) await navigator.share({ title: 'Biryani Spot — Digital Menu', text: 'Explore the Biryani Spot menu.', url: window.location.href });
-      else {
+      if (navigator.share) {
+        await navigator.share({
+          title: 'Biryani Spot — Digital Menu',
+          text: 'Explore the Biryani Spot Family Restaurant menu.',
+          url: window.location.href,
+        });
+      } else if (navigator.clipboard) {
         await navigator.clipboard.writeText(window.location.href);
         showNotice('Menu link copied.');
+      } else {
+        showNotice('Copy the menu link from your browser.');
       }
-    } catch { /* cancelled */ }
+    } catch {
+      // Sharing can be cancelled by the user.
+    }
+  };
+
+  const openWhatsApp = (message: string) => {
+    if (!RESTAURANT.whatsapp) {
+      showNotice('WhatsApp will be enabled after the restaurant number is confirmed.');
+      return;
+    }
+    window.open(
+      `https://wa.me/${RESTAURANT.whatsapp}?text=${encodeURIComponent(message)}`,
+      '_blank',
+      'noopener,noreferrer',
+    );
   };
 
   const sendWhatsApp = () => {
-    if (!WHATSAPP_NUMBER) {
-      showNotice('WhatsApp number will be enabled after restaurant confirmation.');
+    if (!selected.length) {
+      showNotice('Add at least one dish before sending an enquiry.');
       return;
     }
     const lines = selected.map((entry, index) => {
@@ -134,7 +182,7 @@ export default function App() {
       'Please confirm availability and details.',
       'Thank you.',
     ].join('\n');
-    window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(message)}`, '_blank', 'noopener,noreferrer');
+    openWhatsApp(message);
   };
 
   const sendFeedback = () => {
@@ -142,12 +190,24 @@ export default function App() {
       showNotice('Please enter your feedback first.');
       return;
     }
-    if (!WHATSAPP_NUMBER) {
-      showNotice('WhatsApp number will be enabled after restaurant confirmation.');
+    const message = `Hello Biryani Spot,\n\nI would like to share feedback:\n\n${feedback.trim()}\n\nThank you.`;
+    openWhatsApp(message);
+    setFeedback('');
+    setFeedbackOpen(false);
+  };
+
+  const printSelectionNow = () => {
+    if (!selected.length) {
+      showNotice('Your selection is empty.');
       return;
     }
-    const message = `Hello Biryani Spot,\n\nI would like to share feedback:\n\n${feedback.trim()}\n\nThank you.`;
-    window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(message)}`, '_blank', 'noopener,noreferrer');
+    setSelectionOpen(false);
+    setPrintSelection(true);
+  };
+
+  const replayIntro = () => {
+    try { sessionStorage.removeItem(INTRO_KEY); } catch { /* optional */ }
+    setIntroVisible(true);
   };
 
   const jumpToMenu = () => document.getElementById('menu')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -230,8 +290,6 @@ export default function App() {
               <div className="dish-grid">
                 {group.items.map((item) => {
                   const singleKey = selectionKey(item);
-                  const halfKey = selectionKey(item, item.sizes?.[0]);
-                  const fullKey = selectionKey(item, item.sizes?.[1]);
                   const favorite = favorites.includes(item.id);
                   return (
                     <article className="dish-card" key={item.id}>
@@ -265,30 +323,49 @@ export default function App() {
           ))}
         </section>
 
-        <section className="restaurant-info">
+        <section className="restaurant-info" id="contact">
           <div className="info-brand"><img src={BRAND_IMAGE} alt="" /><div><span className="eyebrow">BIRYANI SPOT</span><h2>Family Restaurant</h2><p>TRADITION • TASTE • TOGETHER</p></div></div>
           <div className="info-grid">
-            <div><span>📍</span><strong>Restaurant Address</strong><p>To be added after owner confirmation.</p></div>
-            <div><span>📞</span><strong>Call Restaurant</strong><p>Verified phone number required.</p></div>
-            <div><span>🗺️</span><strong>Get Directions</strong><p>Verified Google Maps link required.</p></div>
-            <div><span>💬</span><strong>WhatsApp</strong><p>Verified WhatsApp number required.</p></div>
+            <div className="info-card"><span>📍</span><strong>Visit Us</strong><p>{RESTAURANT.address || 'Restaurant address will be added after owner confirmation.'}</p>{RESTAURANT.mapsUrl && <a className="info-link" href={RESTAURANT.mapsUrl} target="_blank" rel="noreferrer">Get Directions →</a>}</div>
+            <div className="info-card"><span>📞</span><strong>Call</strong><p>{RESTAURANT.phone ? 'Speak with the restaurant.' : 'Verified phone number required.'}</p>{RESTAURANT.phone && <a className="info-link" href={`tel:${RESTAURANT.phone}`}>Call Now →</a>}</div>
+            <div className="info-card"><span>💬</span><strong>WhatsApp</strong><p>{RESTAURANT.whatsapp ? 'Send an enquiry or feedback.' : 'Verified WhatsApp number required.'}</p>{RESTAURANT.whatsapp && <button className="info-link-button" onClick={() => openWhatsApp('Hello Biryani Spot, I have a question about the menu.')}>Chat on WhatsApp →</button>}</div>
+            <div className="info-card"><span>🕒</span><strong>Opening Hours</strong><p>{RESTAURANT.openingHours || 'Opening hours will be added after owner confirmation.'}</p></div>
           </div>
-          <button className="feedback-link" onClick={() => setFeedbackOpen(true)}>Send Feedback</button>
+          <div className="contact-actions">
+            {RESTAURANT.instagramUrl && <a className="secondary-button" href={RESTAURANT.instagramUrl} target="_blank" rel="noreferrer">Instagram</a>}
+            {RESTAURANT.facebookUrl && <a className="secondary-button" href={RESTAURANT.facebookUrl} target="_blank" rel="noreferrer">Facebook</a>}
+            <button className="secondary-button" onClick={() => setFeedbackOpen(true)}>Send Feedback</button>
+          </div>
         </section>
 
         <section className="family-note"><div><span className="eyebrow">A TABLE FOR EVERYONE</span><h2>Come hungry, leave happy.</h2><p>Choose your favourites, check the menu price and keep your table selection handy.</p></div><div className="note-actions"><button className="secondary-button" onClick={shareMenu}>Share Menu</button><button className="secondary-button" onClick={() => window.print()}>Print Menu</button><button className="secondary-button" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}>Back to top ↑</button></div></section>
       </main>
 
-      <footer className="footer"><img src={BRAND_IMAGE} alt="" /><div><strong>Biryani Spot</strong><span>Family Restaurant</span></div><p>Digital menu • 111 dishes • Prices from the supplied printed menu</p></footer>
+      <footer className="footer"><img src={BRAND_IMAGE} alt="" /><div><strong>Biryani Spot</strong><span>Family Restaurant</span></div><p>Digital menu • {MENU_ITEM_COUNT} dishes • Prices from the supplied printed menu</p><button className="footer-replay" onClick={replayIntro}>Replay brand intro</button></footer>
 
       {selectionOpen && <div className="overlay" onClick={() => setSelectionOpen(false)}><aside className="drawer" onClick={(e) => e.stopPropagation()}>
         <div className="drawer-head"><div><span className="eyebrow">YOUR TABLE LIST</span><h2>My Selection</h2></div><button className="close" onClick={() => setSelectionOpen(false)} aria-label="Close selection">×</button></div>
         {!selected.length ? <div className="drawer-empty"><h3>Your selection is empty</h3><p>Add dishes from the menu to keep a quick list for your table.</p><button className="primary-button" onClick={() => setSelectionOpen(false)}>Continue browsing</button></div> :
           <><div className="drawer-items">{selected.map((entry) => { const key = selectionKey(entry.item, entry.option); return <div className="drawer-item" key={key}><div className="drawer-main"><strong>{entry.item.name}</strong><small>{entry.option?.label ?? 'Regular'} • ₹{entry.option?.price ?? entry.item.price}</small></div><div className="qty"><button onClick={() => changeQty(key, -1)} aria-label="Decrease quantity">−</button><b>{entry.qty}</b><button onClick={() => changeQty(key, 1)} aria-label="Increase quantity">+</button></div></div>; })}</div>
-          <div className="drawer-summary"><div><span>{selectedCount} items</span><strong>₹{selectedTotal}</strong></div><p>This is a selection/enquiry helper, not a confirmed online order or payment.</p><div className="drawer-actions"><button className="secondary-button" onClick={() => setSelection({})}>Clear</button><button className="primary-button" onClick={sendWhatsApp}>WhatsApp Enquiry</button></div></div></>}
+          <div className="drawer-summary"><div><span>{selectedCount} items</span><strong>₹{selectedTotal}</strong></div><p>This is a selection/enquiry helper, not a confirmed online order or payment.</p><div className="drawer-actions"><button className="secondary-button" onClick={printSelectionNow}>Print Selection</button><button className="secondary-button" onClick={() => setSelection({})}>Clear</button><button className="primary-button" onClick={sendWhatsApp}>WhatsApp Enquiry</button></div></div></>}
       </aside></div>}
 
       {feedbackOpen && <div className="overlay" onClick={() => setFeedbackOpen(false)}><div className="feedback-modal" onClick={(e) => e.stopPropagation()}><div className="drawer-head"><div><span className="eyebrow">BIRYANI SPOT</span><h2>Send Feedback</h2></div><button className="close" onClick={() => setFeedbackOpen(false)}>×</button></div><textarea value={feedback} onChange={(e) => setFeedback(e.target.value)} placeholder="Tell us about your experience..." aria-label="Feedback" /><div className="drawer-actions"><button className="secondary-button" onClick={() => setFeedbackOpen(false)}>Cancel</button><button className="primary-button" onClick={sendFeedback}>Send on WhatsApp</button></div></div></div>}
+
+      {printSelection && (
+        <section className="print-selection" aria-hidden="true">
+          <div className="print-selection-brand"><img src={BRAND_IMAGE} alt="" /><div><strong>Biryani Spot</strong><span>Family Restaurant</span></div></div>
+          <h1>My Selection</h1>
+          <p>Menu selection • Please confirm final availability and prices with restaurant staff.</p>
+          <div className="print-selection-list">
+            {selected.map((entry) => {
+              const key = selectionKey(entry.item, entry.option);
+              return <div key={key}><span>{entry.item.name}{entry.option ? ` — ${entry.option.label}` : ''} × {entry.qty}</span><strong>₹{(entry.option?.price ?? entry.item.price ?? 0) * entry.qty}</strong></div>;
+            })}
+          </div>
+          <div className="print-selection-total"><span>Estimated total</span><strong>₹{selectedTotal}</strong></div>
+        </section>
+      )}
 
       {notice && <div className="toast" role="status">{notice}</div>}
     </div>
