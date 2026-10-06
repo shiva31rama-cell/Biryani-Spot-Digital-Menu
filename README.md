@@ -17,8 +17,15 @@ A responsive, family-friendly digital restaurant menu built with React, TypeScri
 - Keyboard focus states and accessible labels
 - Portable asset paths for GitHub Pages and other static hosts
 - PWA manifest and SEO metadata
-- Automated CI validation
+- Automated CI validation scoped to project source files
 - Automated CD deployment to GitHub Pages from main
+- Branded QR-entry intro with replay/skip support
+- Persistent favourites and table selection
+- Share menu and print menu actions
+- Print-ready table selection
+- Keyboard Escape handling and modal scroll locking
+- Production-safe offline caching with network-first navigation
+- Contact/WhatsApp/Maps/social configuration isolated in `src/config/restaurant.ts`
 
 ## Menu source
 
@@ -72,6 +79,20 @@ GitHub Pages must be enabled in Settings → Pages → Build and deployment → 
 Expected project-site URL:
 
 https://shiva31rama-cell.github.io/Biryani-Spot-Digital-Menu/
+
+## Phase 2 owner configuration
+
+Update `src/config/restaurant.ts` only with owner-confirmed information:
+
+- `address`
+- `phone`
+- `whatsapp` (digits only, including country code; no + or spaces)
+- `mapsUrl`
+- `instagramUrl`
+- `facebookUrl`
+- `openingHours`
+
+The UI automatically enables the corresponding Call, Directions, WhatsApp and social actions when a value exists. Empty values remain clearly marked as pending rather than using invented details.
 
 ## Final owner information still required
 
