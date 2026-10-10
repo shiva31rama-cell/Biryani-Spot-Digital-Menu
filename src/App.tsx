@@ -33,6 +33,7 @@ export default function App() {
   });
   const [selectionOpen, setSelectionOpen] = useState(false);
   const [feedbackOpen, setFeedbackOpen] = useState(false);
+  const [feedbackName, setFeedbackName] = useState('');
   const [feedback, setFeedback] = useState('');
   const [notice, setNotice] = useState('');
   const [printSelection, setPrintSelection] = useState(false);
@@ -259,8 +260,10 @@ export default function App() {
       showNotice('Please enter your feedback first.');
       return;
     }
-    const message = `Hello Biryani Spot,\n\nI would like to share feedback:\n\n${feedback.trim()}\n\nThank you.`;
+    const nameLine = feedbackName.trim() ? `Name: ${feedbackName.trim()}\\n\\n` : '';
+    const message = `Hello Biryani Spot,\\n\\n${nameLine}I would like to share feedback:\\n\\n${feedback.trim()}\\n\\nThank you.`;
     if (openWhatsApp(message)) {
+      setFeedbackName('');
       setFeedback('');
       setFeedbackOpen(false);
     }
@@ -433,8 +436,8 @@ export default function App() {
           <div className="info-brand"><img src={BRAND_IMAGE} alt="" /><div><span className="eyebrow">BIRYANI SPOT</span><h2>Family Restaurant</h2><p>TRADITION • TASTE • TOGETHER</p></div></div>
           <div className="info-grid">
             <div className="info-card"><span>📍</span><strong>Visit Us</strong><p>{RESTAURANT.address || 'Restaurant address will be added after owner confirmation.'}</p>{RESTAURANT.mapsUrl && <a className="info-link" href={RESTAURANT.mapsUrl} target="_blank" rel="noreferrer">Get Directions →</a>}</div>
-            <div className="info-card"><span>📞</span><strong>Call</strong><p>{RESTAURANT.phone ? 'Speak with the restaurant.' : 'Verified phone number required.'}</p>{RESTAURANT.phone && <a className="info-link" href={`tel:${RESTAURANT.phone}`}>Call Now →</a>}</div>
-            <div className="info-card"><span>💬</span><strong>WhatsApp</strong><p>{RESTAURANT.whatsapp ? 'Send an enquiry or feedback.' : 'Verified WhatsApp number required.'}</p>{RESTAURANT.whatsapp && <button className="info-link-button" onClick={() => openWhatsApp('Hello Biryani Spot, I have a question about the menu.')}>Chat on WhatsApp →</button>}</div>
+            <div className="info-card"><span>📞</span><strong>Call</strong><p>{RESTAURANT.phone || 'Verified phone number required.'}</p>{RESTAURANT.phone && <a className="info-link" href={`tel:${RESTAURANT.phone}`}>Call Now →</a>}</div>
+            <div className="info-card"><span>💬</span><strong>WhatsApp</strong><p>{RESTAURANT.whatsapp || 'Verified WhatsApp number required.'}</p>{RESTAURANT.whatsapp && <button className="info-link-button" onClick={() => openWhatsApp('Hello Biryani Spot, I have a question about the menu.')}>Chat on WhatsApp →</button>}</div>
             <div className="info-card"><span>🕒</span><strong>Opening Hours</strong><p>{RESTAURANT.openingHours || 'Opening hours will be added after owner confirmation.'}</p></div>
           </div>
           <div className="contact-actions">
@@ -466,7 +469,7 @@ export default function App() {
           <div className="drawer-summary"><div><span>{selectedCount} items</span><strong>₹{selectedTotal}</strong></div><p>This is a selection/enquiry helper, not a confirmed online order or payment.</p><div className="drawer-actions"><button className="secondary-button" onClick={printSelectionNow}>Print Selection</button><button className="secondary-button" onClick={shareSelection}>Share Selection</button><button className="secondary-button" onClick={() => setSelection({})}>Clear</button><button className="primary-button" onClick={sendWhatsApp}>WhatsApp Enquiry</button></div></div></>}
       </aside></div>}
 
-      {feedbackOpen && <div className="overlay" onClick={() => setFeedbackOpen(false)}><div className="feedback-modal" role="dialog" aria-modal="true" aria-label="Send Feedback" onClick={(e) => e.stopPropagation()}><div className="drawer-head"><div><span className="eyebrow">BIRYANI SPOT</span><h2>Send Feedback</h2></div><button className="close" onClick={() => setFeedbackOpen(false)} aria-label="Close feedback form">×</button></div><textarea value={feedback} onChange={(e) => setFeedback(e.target.value)} placeholder="Tell us about your experience..." aria-label="Feedback" /><div className="drawer-actions"><button className="secondary-button" onClick={() => setFeedbackOpen(false)}>Cancel</button><button className="primary-button" onClick={sendFeedback}>Send on WhatsApp</button></div></div></div>}
+      {feedbackOpen && <div className="overlay" onClick={() => setFeedbackOpen(false)}><div className="feedback-modal" role="dialog" aria-modal="true" aria-label="Send Feedback" onClick={(e) => e.stopPropagation()}><div className="drawer-head"><div><span className="eyebrow">BIRYANI SPOT</span><h2>Send Feedback</h2></div><button className="close" onClick={() => setFeedbackOpen(false)} aria-label="Close feedback form">×</button></div><label className="feedback-field"><span>Name (optional)</span><input value={feedbackName} onChange={(e) => setFeedbackName(e.target.value)} placeholder="Your name" autoComplete="name" /></label><label className="feedback-field"><span>Feedback <b>(required)</b></span><textarea value={feedback} onChange={(e) => setFeedback(e.target.value)} placeholder="Tell us about your experience..." aria-label="Feedback" required /></label><div className="drawer-actions"><button className="secondary-button" onClick={() => setFeedbackOpen(false)}>Cancel</button><button className="primary-button" onClick={sendFeedback}>Send on WhatsApp</button></div></div></div>}
 
       {printSelection && (
         <section className="print-selection" aria-hidden="true">
