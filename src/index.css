@@ -71,3 +71,24 @@ body.modal-open{overflow:hidden}
   .offline-banner,.mobile-selection-bar{display:none!important}
   .app-shell.with-mobile-selection{padding-bottom:0}
 }
+
+
+/* Final mobile/accessibility refinements */
+.top-action,.selection-button{min-height:44px}
+.category-pill{min-height:42px}
+.filter{min-height:44px;min-width:0}
+.size-button,.add-button{min-height:44px}
+.favorite{width:44px;height:44px;flex:0 0 44px;display:grid;place-items:center;border-radius:12px}
+.skip-intro{animation:fadeUp .45s ease .15s both}
+.info-link,.info-link-button{min-height:40px;padding:10px 0}
+.feedback-link{min-height:44px;padding:10px 0}
+.footer-install,.footer-replay{display:inline-block;margin:12px 4px 0;border:1px solid rgba(255,255,255,.4);background:transparent;color:#f8e9dd;border-radius:999px;padding:10px 14px;font-size:10px;font-weight:800}
+.footer-install:hover,.footer-replay:hover{background:rgba(255,255,255,.12)}
+@media(max-width:720px){
+  .filters{gap:5px}
+  .filter{padding:8px 5px;font-size:10px;letter-spacing:-.02em}
+  .category-pill{min-height:44px}
+}
+@media(prefers-reduced-motion:reduce){
+  .skip-intro{animation:none!important}
+}
