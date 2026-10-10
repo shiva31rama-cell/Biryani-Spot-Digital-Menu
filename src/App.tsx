@@ -196,7 +196,7 @@ export default function App() {
   };
 
   const openWhatsApp = (message: string) => {
-    const number = RESTAURANT.whatsapp.replace(/\\D/g, '');
+    const number = RESTAURANT.whatsapp.replace(/\D/g, '');
     if (number.length < 8 || number.length > 15) {
       showNotice('WhatsApp will be enabled after the verified restaurant number is added.');
       return false;
