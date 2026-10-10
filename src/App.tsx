@@ -19,7 +19,7 @@ export default function App() {
   });
   const [reducedMotion, setReducedMotion] = useState(false);
   const [query, setQuery] = useState('');
-  const [filter, setFilter] = useState<'all' | 'veg' | 'nonveg'>('all');
+  const [filter, setFilter] = useState<'all' | 'veg' | 'nonveg' | 'favorites'>('all');
   const [category, setCategory] = useState('All');
   const [favorites, setFavorites] = useState<string[]>(() => {
     try { return JSON.parse(localStorage.getItem(FAVORITES_KEY) ?? '[]'); } catch { return []; }
@@ -125,11 +125,11 @@ export default function App() {
       ...group,
       items: group.items.filter((item) => {
         const matchesSearch = !q || item.name.toLowerCase().includes(q) || group.name.toLowerCase().includes(q);
-        const matchesFilter = filter === 'all' || (filter === 'veg' ? item.veg : !item.veg);
+        const matchesFilter = filter === 'all' || (filter === 'veg' ? item.veg : filter === 'nonveg' ? !item.veg : favorites.includes(item.id));
         return matchesSearch && matchesFilter;
       }),
     })).filter((group) => group.items.length && (category === 'All' || group.name === category));
-  }, [query, filter, category]);
+  }, [query, filter, category, favorites]);
 
   const shareMenu = async () => {
     try {
@@ -147,6 +147,40 @@ export default function App() {
       }
     } catch {
       // Sharing can be cancelled by the user.
+    }
+  };
+
+  const shareSelection = async () => {
+    if (!selected.length) {
+      showNotice('Add at least one dish before sharing your selection.');
+      return;
+    }
+    const lines = selected.map((entry, index) => {
+      const size = entry.option ? ` — ${entry.option.label}` : '';
+      const price = entry.option?.price ?? entry.item.price ?? 0;
+      return `${index + 1}. ${entry.item.name}${size} × ${entry.qty} — ₹${price * entry.qty}`;
+    });
+    const text = [
+      'Biryani Spot — My Menu Selection',
+      '',
+      ...lines,
+      '',
+      `Estimated total: ₹${selectedTotal}`,
+      '',
+      'This is a menu selection only, not a confirmed order.',
+      window.location.href,
+    ].join('\\n');
+    try {
+      if (navigator.share) {
+        await navigator.share({ title: 'Biryani Spot — My Selection', text });
+      } else if (navigator.clipboard) {
+        await navigator.clipboard.writeText(text);
+        showNotice('Selection copied. You can paste it into a message.');
+      } else {
+        showNotice('Sharing is not available in this browser.');
+      }
+    } catch {
+      // User may cancel the native share sheet.
     }
   };
 
@@ -275,7 +309,7 @@ export default function App() {
             {query && <button type="button" onClick={() => setQuery('')} aria-label="Clear search">×</button>}
           </label>
           <div className="filters">
-            {(['all', 'veg', 'nonveg'] as const).map((value) => <button key={value} className={filter === value ? 'filter active' : 'filter'} onClick={() => setFilter(value)}>{value === 'all' ? 'All' : value === 'veg' ? '● Veg' : '● Non-Veg'}</button>)}
+            {(['all', 'veg', 'nonveg', 'favorites'] as const).map((value) => <button key={value} className={filter === value ? 'filter active' : 'filter'} onClick={() => setFilter(value)}>{value === 'all' ? 'All' : value === 'veg' ? '● Veg' : value === 'nonveg' ? '● Non-Veg' : `♥ Favourites (${favorites.length})`}</button>)}
           </div>
         </section>
 
@@ -347,7 +381,7 @@ export default function App() {
         <div className="drawer-head"><div><span className="eyebrow">YOUR TABLE LIST</span><h2>My Selection</h2></div><button className="close" onClick={() => setSelectionOpen(false)} aria-label="Close selection">×</button></div>
         {!selected.length ? <div className="drawer-empty"><h3>Your selection is empty</h3><p>Add dishes from the menu to keep a quick list for your table.</p><button className="primary-button" onClick={() => setSelectionOpen(false)}>Continue browsing</button></div> :
           <><div className="drawer-items">{selected.map((entry) => { const key = selectionKey(entry.item, entry.option); return <div className="drawer-item" key={key}><div className="drawer-main"><strong>{entry.item.name}</strong><small>{entry.option?.label ?? 'Regular'} • ₹{entry.option?.price ?? entry.item.price}</small></div><div className="qty"><button onClick={() => changeQty(key, -1)} aria-label="Decrease quantity">−</button><b>{entry.qty}</b><button onClick={() => changeQty(key, 1)} aria-label="Increase quantity">+</button></div></div>; })}</div>
-          <div className="drawer-summary"><div><span>{selectedCount} items</span><strong>₹{selectedTotal}</strong></div><p>This is a selection/enquiry helper, not a confirmed online order or payment.</p><div className="drawer-actions"><button className="secondary-button" onClick={printSelectionNow}>Print Selection</button><button className="secondary-button" onClick={() => setSelection({})}>Clear</button><button className="primary-button" onClick={sendWhatsApp}>WhatsApp Enquiry</button></div></div></>}
+          <div className="drawer-summary"><div><span>{selectedCount} items</span><strong>₹{selectedTotal}</strong></div><p>This is a selection/enquiry helper, not a confirmed online order or payment.</p><div className="drawer-actions"><button className="secondary-button" onClick={printSelectionNow}>Print Selection</button><button className="secondary-button" onClick={shareSelection}>Share Selection</button><button className="secondary-button" onClick={() => setSelection({})}>Clear</button><button className="primary-button" onClick={sendWhatsApp}>WhatsApp Enquiry</button></div></div></>}
       </aside></div>}
 
       {feedbackOpen && <div className="overlay" onClick={() => setFeedbackOpen(false)}><div className="feedback-modal" onClick={(e) => e.stopPropagation()}><div className="drawer-head"><div><span className="eyebrow">BIRYANI SPOT</span><h2>Send Feedback</h2></div><button className="close" onClick={() => setFeedbackOpen(false)}>×</button></div><textarea value={feedback} onChange={(e) => setFeedback(e.target.value)} placeholder="Tell us about your experience..." aria-label="Feedback" /><div className="drawer-actions"><button className="secondary-button" onClick={() => setFeedbackOpen(false)}>Cancel</button><button className="primary-button" onClick={sendFeedback}>Send on WhatsApp</button></div></div></div>}
