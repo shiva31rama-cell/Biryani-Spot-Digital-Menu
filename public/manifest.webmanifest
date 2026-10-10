@@ -8,9 +8,9 @@
   "theme_color": "#70251e",
   "icons": [
     {
-      "src": "./brand-logo.svg",
+      "src": "./biryani-spot-brand.webp",
       "sizes": "any",
-      "type": "image/svg+xml",
+      "type": "image/webp",
       "purpose": "any maskable"
     }
   ]
