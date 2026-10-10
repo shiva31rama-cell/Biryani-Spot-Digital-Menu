@@ -1,5 +1,5 @@
-const CACHE_NAME = 'biryani-spot-v2';
-const APP_SHELL = ['./', './index.html', './brand-logo.svg', './manifest.webmanifest'];
+const CACHE_NAME = 'biryani-spot-v3';
+const APP_SHELL = ['./', './index.html', './brand-logo.svg', './biryani-spot-brand.webp', './manifest.webmanifest'];
 
 self.addEventListener('install', (event) => {
   event.waitUntil(
