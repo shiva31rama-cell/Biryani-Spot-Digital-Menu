@@ -92,3 +92,21 @@ body.modal-open{overflow:hidden}
 @media(prefers-reduced-motion:reduce){
   .skip-intro{animation:none!important}
 }
+
+
+.feedback-field{display:block;margin:16px 22px 0;color:var(--wine);font-size:11px;font-weight:800}
+.feedback-field span{display:block;margin-bottom:7px}
+.feedback-field b{color:#907b70;font-weight:600}
+.feedback-field input,.feedback-field textarea{display:block;width:100%;min-height:44px;margin:0;padding:12px 13px;border:1px solid var(--line);border-radius:12px;background:#fff;color:var(--ink);font-weight:500}
+.feedback-field textarea{min-height:130px;resize:vertical}
+.feedback-modal .drawer-actions{padding:18px 22px 22px}
+@media print{
+  .restaurant-info{display:block!important;max-width:none;margin:18px 20px;padding:16px;border:1px solid #ccc;border-radius:0;background:#fff!important;break-inside:avoid}
+  .restaurant-info .info-brand img{width:52px;height:52px}
+  .restaurant-info .info-brand h2{font-size:18px}
+  .restaurant-info .info-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+  .restaurant-info .info-card{min-height:0;padding:10px;border:1px solid #ddd;background:#fff!important}
+  .restaurant-info .contact-actions,.restaurant-info .feedback-link,.restaurant-info .info-link,.restaurant-info .info-link-button{display:none!important}
+  .restaurant-info .info-grid p{margin:5px 0 0;color:#333;font-size:10px;overflow-wrap:anywhere}
+  .feedback-field input,.feedback-field textarea{display:none}
+}
