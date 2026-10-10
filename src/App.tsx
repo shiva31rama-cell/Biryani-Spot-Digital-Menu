@@ -180,7 +180,7 @@ export default function App() {
       '',
       'This is a menu selection only, not a confirmed order.',
       window.location.href,
-    ].join('\\n');
+    ].join('\n');
     try {
       if (navigator.share) {
         await navigator.share({ title: 'Biryani Spot — My Selection', text });
