@@ -4,6 +4,10 @@ import { RESTAURANT } from './config/restaurant';
 
 type SelectionEntry = { item: MenuItem; option?: SizeOption; qty: number };
 type Selection = Record<string, SelectionEntry>;
+type InstallPromptEvent = Event & {
+  prompt: () => Promise<void>;
+  userChoice: Promise<{ outcome: 'accepted' | 'dismissed'; platform: string }>;
+};
 
 const BRAND_IMAGE = './biryani-spot-brand.webp';
 const INTRO_KEY = 'biryani-spot-intro-seen';
@@ -33,6 +37,7 @@ export default function App() {
   const [notice, setNotice] = useState('');
   const [printSelection, setPrintSelection] = useState(false);
   const [isOnline, setIsOnline] = useState(() => navigator.onLine);
+  const [installPrompt, setInstallPrompt] = useState<InstallPromptEvent | null>(null);
 
   useEffect(() => {
     const media = window.matchMedia('(prefers-reduced-motion: reduce)');
@@ -51,6 +56,23 @@ export default function App() {
     const timer = window.setTimeout(finishIntro, 3000);
     return () => window.clearTimeout(timer);
   }, [introVisible, reducedMotion]);
+
+  useEffect(() => {
+    const onBeforeInstallPrompt = (event: Event) => {
+      event.preventDefault();
+      setInstallPrompt(event as InstallPromptEvent);
+    };
+    const onAppInstalled = () => {
+      setInstallPrompt(null);
+      showNotice('Biryani Spot is ready on your home screen.');
+    };
+    window.addEventListener('beforeinstallprompt', onBeforeInstallPrompt);
+    window.addEventListener('appinstalled', onAppInstalled);
+    return () => {
+      window.removeEventListener('beforeinstallprompt', onBeforeInstallPrompt);
+      window.removeEventListener('appinstalled', onAppInstalled);
+    };
+  }, []);
 
   useEffect(() => {
     const updateNetworkStatus = () => setIsOnline(navigator.onLine);
@@ -253,6 +275,19 @@ export default function App() {
     setPrintSelection(true);
   };
 
+  const installMenu = async () => {
+    if (!installPrompt) return;
+    try {
+      await installPrompt.prompt();
+      const result = await installPrompt.userChoice;
+      showNotice(result.outcome === 'accepted' ? 'Biryani Spot install accepted.' : 'Install prompt dismissed.');
+    } catch {
+      showNotice('Installation is not available in this browser right now.');
+    } finally {
+      setInstallPrompt(null);
+    }
+  };
+
   const replayIntro = () => {
     try { sessionStorage.removeItem(INTRO_KEY); } catch { /* optional */ }
     setIntroVisible(true);
@@ -262,13 +297,13 @@ export default function App() {
 
   if (introVisible) {
     return (
-      <div className="brand-intro" role="dialog" aria-label="Biryani Spot introduction">
+      <div className="brand-intro" role="dialog" aria-modal="true" aria-label="Biryani Spot introduction">
         <div className="intro-glow" />
         <div className="intro-content">
           <img src={BRAND_IMAGE} alt="Biryani Spot Family Restaurant" className="intro-brand-image" />
           <span className="intro-kicker">FAMILY RESTAURANT</span>
           <p>TRADITION • TASTE • TOGETHER</p>
-          <button className="skip-intro" onClick={finishIntro}>Skip Intro</button>
+          <button className="skip-intro" onClick={finishIntro} aria-label="Skip Biryani Spot brand introduction">Skip Intro</button>
         </div>
         <div className="intro-progress" aria-hidden="true" />
       </div>
@@ -328,7 +363,20 @@ export default function App() {
             {query && <button type="button" onClick={() => setQuery('')} aria-label="Clear search">×</button>}
           </label>
           <div className="filters">
-            {(['all', 'veg', 'nonveg', 'favorites'] as const).map((value) => <button key={value} className={filter === value ? 'filter active' : 'filter'} onClick={() => setFilter(value)}>{value === 'all' ? 'All' : value === 'veg' ? '● Veg' : value === 'nonveg' ? '● Non-Veg' : `♥ Favourites (${favorites.length})`}</button>)}
+            {(['all', 'veg', 'nonveg', 'favorites'] as const).map((value) => (
+              <button
+                key={value}
+                className={filter === value ? 'filter active' : 'filter'}
+                onClick={() => {
+                  setFilter(value);
+                  if (value === 'favorites') setCategory('All');
+                }}
+                aria-pressed={filter === value}
+                aria-label={value === 'all' ? 'Show all dishes' : value === 'veg' ? 'Show vegetarian dishes' : value === 'nonveg' ? 'Show non-vegetarian dishes' : 'Show favourite dishes'}
+              >
+                {value === 'all' ? 'All' : value === 'veg' ? '● Veg' : value === 'nonveg' ? '● Non-Veg' : '♥ Saved'}
+              </button>
+            ))}
           </div>
         </section>
 
@@ -358,7 +406,7 @@ export default function App() {
                         <div className="dish-title">
                           <i className={item.veg ? 'veg-dot' : 'nonveg-dot'} aria-hidden="true" />
                           <h4>{item.name}</h4>
-                          <button className={favorite ? 'favorite active' : 'favorite'} onClick={() => toggleFavorite(item.id)} aria-label={favorite ? `Remove ${item.name} from favorites` : `Add ${item.name} to favorites`}>{favorite ? '♥' : '♡'}</button>
+                          <button className={favorite ? 'favorite active' : 'favorite'} onClick={() => toggleFavorite(item.id)} aria-pressed={favorite} aria-label={favorite ? `Remove ${item.name} from favourites` : `Add ${item.name} to favourites`}>{favorite ? '♥' : '♡'}</button>
                         </div>
                         {item.sizes ? (
                           <div className="size-grid">
@@ -399,7 +447,7 @@ export default function App() {
         <section className="family-note"><div><span className="eyebrow">A TABLE FOR EVERYONE</span><h2>Come hungry, leave happy.</h2><p>Choose your favourites, check the menu price and keep your table selection handy.</p></div><div className="note-actions"><button className="secondary-button" onClick={shareMenu}>Share Menu</button><button className="secondary-button" onClick={() => window.print()}>Print Menu</button><button className="secondary-button" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}>Back to top ↑</button></div></section>
       </main>
 
-      <footer className="footer"><img src={BRAND_IMAGE} alt="" /><div><strong>Biryani Spot</strong><span>Family Restaurant</span></div><p>Digital menu • {MENU_ITEM_COUNT} dishes • Prices from the supplied printed menu</p><button className="footer-replay" onClick={replayIntro}>Replay brand intro</button></footer>
+      <footer className="footer"><img src={BRAND_IMAGE} alt="" /><div><strong>Biryani Spot</strong><span>Family Restaurant</span></div><p>Digital menu • {MENU_ITEM_COUNT} dishes • Prices from the supplied printed menu</p>{installPrompt && <button className="footer-install" onClick={installMenu}>Add to Home Screen</button>}<button className="footer-replay" onClick={replayIntro}>Replay brand intro</button></footer>
 
       {selectedCount > 0 && !selectionOpen && !printSelection && (
         <div className="mobile-selection-bar">
@@ -418,7 +466,7 @@ export default function App() {
           <div className="drawer-summary"><div><span>{selectedCount} items</span><strong>₹{selectedTotal}</strong></div><p>This is a selection/enquiry helper, not a confirmed online order or payment.</p><div className="drawer-actions"><button className="secondary-button" onClick={printSelectionNow}>Print Selection</button><button className="secondary-button" onClick={shareSelection}>Share Selection</button><button className="secondary-button" onClick={() => setSelection({})}>Clear</button><button className="primary-button" onClick={sendWhatsApp}>WhatsApp Enquiry</button></div></div></>}
       </aside></div>}
 
-      {feedbackOpen && <div className="overlay" onClick={() => setFeedbackOpen(false)}><div className="feedback-modal" role="dialog" aria-modal="true" aria-label="Send Feedback" onClick={(e) => e.stopPropagation()}><div className="drawer-head"><div><span className="eyebrow">BIRYANI SPOT</span><h2>Send Feedback</h2></div><button className="close" onClick={() => setFeedbackOpen(false)}>×</button></div><textarea value={feedback} onChange={(e) => setFeedback(e.target.value)} placeholder="Tell us about your experience..." aria-label="Feedback" /><div className="drawer-actions"><button className="secondary-button" onClick={() => setFeedbackOpen(false)}>Cancel</button><button className="primary-button" onClick={sendFeedback}>Send on WhatsApp</button></div></div></div>}
+      {feedbackOpen && <div className="overlay" onClick={() => setFeedbackOpen(false)}><div className="feedback-modal" role="dialog" aria-modal="true" aria-label="Send Feedback" onClick={(e) => e.stopPropagation()}><div className="drawer-head"><div><span className="eyebrow">BIRYANI SPOT</span><h2>Send Feedback</h2></div><button className="close" onClick={() => setFeedbackOpen(false)} aria-label="Close feedback form">×</button></div><textarea value={feedback} onChange={(e) => setFeedback(e.target.value)} placeholder="Tell us about your experience..." aria-label="Feedback" /><div className="drawer-actions"><button className="secondary-button" onClick={() => setFeedbackOpen(false)}>Cancel</button><button className="primary-button" onClick={sendFeedback}>Send on WhatsApp</button></div></div></div>}
 
       {printSelection && (
         <section className="print-selection" aria-hidden="true">
