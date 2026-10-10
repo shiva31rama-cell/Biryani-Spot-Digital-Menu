@@ -1,9 +1,10 @@
 import assert from 'node:assert/strict';
-import { readFile } from 'node:fs/promises';
+import { readFile, stat } from 'node:fs/promises';
 import vm from 'node:vm';
 import ts from 'typescript';
 
-const source = await readFile(new URL('../src/data/menu.ts', import.meta.url), 'utf8');
+const root = new URL('../', import.meta.url);
+const source = await readFile(new URL('src/data/menu.ts', root), 'utf8');
 const compiled = ts.transpileModule(source, {
   compilerOptions: {
     module: ts.ModuleKind.CommonJS,
@@ -70,4 +71,22 @@ assert.equal(byName.get('Tandoori Chicken')?.sizes?.[1]?.price, 400);
 assert.equal(byName.get('Veg Noodles')?.price, 80);
 assert.equal(byName.get('Family Pack Biryani')?.price, 600);
 
-console.log(`Menu validation passed: ${MENU.length} categories, ${ALL_ITEMS.length} unique dishes, ${halfFullCount} Half/Full-priced dishes.`);
+// Verify the offline runtime and install metadata remain syntactically valid.
+const workerSource = await readFile(new URL('public/sw.js', root), 'utf8');
+new vm.Script(workerSource, { filename: 'public/sw.js' });
+
+const manifestText = await readFile(new URL('public/manifest.webmanifest', root), 'utf8');
+const manifest = JSON.parse(manifestText);
+assert.equal(manifest.name, 'Biryani Spot Family Restaurant');
+assert.equal(manifest.start_url, './');
+assert.ok(Array.isArray(manifest.icons) && manifest.icons.length > 0, 'PWA manifest needs an icon');
+
+for (const icon of manifest.icons) {
+  const iconPath = icon.src.replace(/^\.\//, '');
+  await stat(new URL(`public/${iconPath}`, root));
+}
+const brand = await readFile(new URL('public/biryani-spot-brand.webp', root));
+assert.equal(brand.toString('ascii', 0, 4), 'RIFF', 'Official brand image must be a WebP asset');
+assert.equal(brand.toString('ascii', 8, 12), 'WEBP', 'Official brand image must be a valid WebP container');
+
+console.log(`Repository validation passed: ${MENU.length} categories, ${ALL_ITEMS.length} unique dishes, ${halfFullCount} Half/Full-priced dishes, valid PWA metadata, brand asset and service-worker syntax.`);
