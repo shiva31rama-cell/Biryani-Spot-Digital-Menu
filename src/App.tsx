@@ -260,8 +260,8 @@ export default function App() {
       showNotice('Please enter your feedback first.');
       return;
     }
-    const nameLine = feedbackName.trim() ? `Name: ${feedbackName.trim()}\\n\\n` : '';
-    const message = `Hello Biryani Spot,\\n\\n${nameLine}I would like to share feedback:\\n\\n${feedback.trim()}\\n\\nThank you.`;
+    const nameLine = feedbackName.trim() ? `Name: ${feedbackName.trim()}\n\n` : '';
+    const message = `Hello Biryani Spot,\n\n${nameLine}I would like to share feedback:\n\n${feedback.trim()}\n\nThank you.`;
     if (openWhatsApp(message)) {
       setFeedbackName('');
       setFeedback('');
