@@ -7,7 +7,8 @@
     "dev": "vite",
     "build": "tsc -b && vite build",
     "lint": "oxlint src vite.config.ts",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "test:menu": "node scripts/validate-menu.mjs"
   },
   "dependencies": {
     "lucide-react": "^1.31.0",
