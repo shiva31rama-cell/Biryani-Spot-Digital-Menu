@@ -5,7 +5,7 @@ A responsive, family-friendly digital restaurant menu built with React, TypeScri
 ## What is implemented
 
 - Professional light, warm family-restaurant visual system
-- Biryani Spot brand logo integrated across the menu
+- Official uploaded Biryani Spot brand image integrated across the menu, intro, metadata and PWA icon
 - Complete menu transcription from the supplied printed menu photographs
 - Veg / Non-Veg filtering
 - Search across dishes and categories
@@ -21,10 +21,13 @@ A responsive, family-friendly digital restaurant menu built with React, TypeScri
 - Automated CD deployment to GitHub Pages from main
 - Branded QR-entry intro with replay/skip support
 - Persistent favourites and table selection
+- Favourites-only filter and helpful empty state
+- Live offline banner and sticky mobile selection bar
+- Feedback text is preserved when WhatsApp contact details are not configured
 - Share menu and print menu actions
 - Print-ready table selection
 - Keyboard Escape handling and modal scroll locking
-- Production-safe offline caching with network-first navigation
+- Production-safe offline caching with network-first navigation and official brand asset precaching
 - Contact/WhatsApp/Maps/social configuration isolated in `src/config/restaurant.ts`
 
 ## Menu source
@@ -72,7 +75,7 @@ Every push and pull request targeting main runs:
 
 ### CD
 
-Every push to main builds the Vite production bundle and deploys the generated dist/ directory through GitHub Pages.
+Publishing is intentionally manual during development. When the restaurant is ready to launch, run the CD workflow from Actions. GitHub Pages must first be enabled in Settings → Pages → Build and deployment → Source → GitHub Actions.
 
 GitHub Pages must be enabled in Settings → Pages → Build and deployment → Source → GitHub Actions for the repository.
 
