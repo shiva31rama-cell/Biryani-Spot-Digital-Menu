@@ -1,8 +1,7 @@
 name: CD — Deploy Biryani Spot
 
 on:
-  push:
-    branches: [main]
+  # Deployment is intentionally manual until the owner is ready to publish.
   workflow_dispatch:
 
 permissions:
