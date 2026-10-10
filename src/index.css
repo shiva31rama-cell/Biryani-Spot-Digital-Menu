@@ -48,3 +48,26 @@ body.modal-open{overflow:hidden}
 .print-selection-list{border-top:1px solid #ddd}
 .print-selection-list>div{display:flex;justify-content:space-between;gap:20px;padding:10px 0;border-bottom:1px solid #eee;font-size:12px}
 .print-selection-total{display:flex;justify-content:space-between;padding-top:16px;font-size:14px;font-weight:800;color:var(--wine)}
+
+/* Phase 2 production UX: offline feedback and reachable mobile selection. */
+.offline-banner{position:relative;z-index:61;padding:9px 16px;text-align:center;background:#fff0cc;border-bottom:1px solid #e5c883;color:#694613;font-size:11px;line-height:1.5}
+.offline-banner strong{font-weight:900;margin-right:4px}
+.mobile-selection-bar{display:none}
+@media(max-width:720px){
+  .app-shell.with-mobile-selection{padding-bottom:calc(86px + env(safe-area-inset-bottom))}
+  .mobile-selection-bar{display:block;position:fixed;z-index:90;left:12px;right:12px;bottom:calc(10px + env(safe-area-inset-bottom));padding:7px;border:1px solid rgba(231,217,205,.95);border-radius:18px;background:rgba(255,253,249,.97);box-shadow:0 12px 38px rgba(50,26,19,.2);backdrop-filter:blur(14px)}
+  .mobile-selection-bar>button{width:100%;display:flex;align-items:center;justify-content:space-between;gap:10px;border:0;border-radius:12px;background:var(--wine);color:#fff;padding:12px 14px;text-align:left;min-height:48px}
+  .mobile-selection-count{font-size:10px;font-weight:800;color:#f6e8d9;white-space:nowrap}
+  .mobile-selection-bar strong{font-size:16px;white-space:nowrap}
+  .mobile-selection-view{font-size:10px;font-weight:800;white-space:nowrap}
+  .mobile-selection-view span{font-size:14px;margin-left:4px}
+}
+@media(max-width:380px){
+  .mobile-selection-bar>button{gap:7px;padding:11px}
+  .mobile-selection-count,.mobile-selection-view{font-size:9px}
+  .mobile-selection-bar strong{font-size:14px}
+}
+@media print{
+  .offline-banner,.mobile-selection-bar{display:none!important}
+  .app-shell.with-mobile-selection{padding-bottom:0}
+}
