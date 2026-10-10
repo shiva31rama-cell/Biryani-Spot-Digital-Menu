@@ -51,8 +51,8 @@ export default function App() {
     return () => window.clearTimeout(timer);
   }, [introVisible, reducedMotion]);
 
-  useEffect(() => { localStorage.setItem(FAVORITES_KEY, JSON.stringify(favorites)); }, [favorites]);
-  useEffect(() => { localStorage.setItem(SELECTION_KEY, JSON.stringify(selection)); }, [selection]);
+  useEffect(() => { try { localStorage.setItem(FAVORITES_KEY, JSON.stringify(favorites)); } catch { /* favourites remain usable for this session */ } }, [favorites]);
+  useEffect(() => { try { localStorage.setItem(SELECTION_KEY, JSON.stringify(selection)); } catch { /* selection remains usable for this session */ } }, [selection]);
 
   useEffect(() => {
     document.body.classList.toggle('modal-open', selectionOpen || feedbackOpen);
@@ -377,14 +377,14 @@ export default function App() {
 
       <footer className="footer"><img src={BRAND_IMAGE} alt="" /><div><strong>Biryani Spot</strong><span>Family Restaurant</span></div><p>Digital menu • {MENU_ITEM_COUNT} dishes • Prices from the supplied printed menu</p><button className="footer-replay" onClick={replayIntro}>Replay brand intro</button></footer>
 
-      {selectionOpen && <div className="overlay" onClick={() => setSelectionOpen(false)}><aside className="drawer" onClick={(e) => e.stopPropagation()}>
+      {selectionOpen && <div className="overlay" onClick={() => setSelectionOpen(false)}><aside className="drawer" role="dialog" aria-modal="true" aria-label="My Selection" onClick={(e) => e.stopPropagation()}>
         <div className="drawer-head"><div><span className="eyebrow">YOUR TABLE LIST</span><h2>My Selection</h2></div><button className="close" onClick={() => setSelectionOpen(false)} aria-label="Close selection">×</button></div>
         {!selected.length ? <div className="drawer-empty"><h3>Your selection is empty</h3><p>Add dishes from the menu to keep a quick list for your table.</p><button className="primary-button" onClick={() => setSelectionOpen(false)}>Continue browsing</button></div> :
           <><div className="drawer-items">{selected.map((entry) => { const key = selectionKey(entry.item, entry.option); return <div className="drawer-item" key={key}><div className="drawer-main"><strong>{entry.item.name}</strong><small>{entry.option?.label ?? 'Regular'} • ₹{entry.option?.price ?? entry.item.price}</small></div><div className="qty"><button onClick={() => changeQty(key, -1)} aria-label="Decrease quantity">−</button><b>{entry.qty}</b><button onClick={() => changeQty(key, 1)} aria-label="Increase quantity">+</button></div></div>; })}</div>
           <div className="drawer-summary"><div><span>{selectedCount} items</span><strong>₹{selectedTotal}</strong></div><p>This is a selection/enquiry helper, not a confirmed online order or payment.</p><div className="drawer-actions"><button className="secondary-button" onClick={printSelectionNow}>Print Selection</button><button className="secondary-button" onClick={shareSelection}>Share Selection</button><button className="secondary-button" onClick={() => setSelection({})}>Clear</button><button className="primary-button" onClick={sendWhatsApp}>WhatsApp Enquiry</button></div></div></>}
       </aside></div>}
 
-      {feedbackOpen && <div className="overlay" onClick={() => setFeedbackOpen(false)}><div className="feedback-modal" onClick={(e) => e.stopPropagation()}><div className="drawer-head"><div><span className="eyebrow">BIRYANI SPOT</span><h2>Send Feedback</h2></div><button className="close" onClick={() => setFeedbackOpen(false)}>×</button></div><textarea value={feedback} onChange={(e) => setFeedback(e.target.value)} placeholder="Tell us about your experience..." aria-label="Feedback" /><div className="drawer-actions"><button className="secondary-button" onClick={() => setFeedbackOpen(false)}>Cancel</button><button className="primary-button" onClick={sendFeedback}>Send on WhatsApp</button></div></div></div>}
+      {feedbackOpen && <div className="overlay" onClick={() => setFeedbackOpen(false)}><div className="feedback-modal" role="dialog" aria-modal="true" aria-label="Send Feedback" onClick={(e) => e.stopPropagation()}><div className="drawer-head"><div><span className="eyebrow">BIRYANI SPOT</span><h2>Send Feedback</h2></div><button className="close" onClick={() => setFeedbackOpen(false)}>×</button></div><textarea value={feedback} onChange={(e) => setFeedback(e.target.value)} placeholder="Tell us about your experience..." aria-label="Feedback" /><div className="drawer-actions"><button className="secondary-button" onClick={() => setFeedbackOpen(false)}>Cancel</button><button className="primary-button" onClick={sendFeedback}>Send on WhatsApp</button></div></div></div>}
 
       {printSelection && (
         <section className="print-selection" aria-hidden="true">
