@@ -5,7 +5,7 @@ import { RESTAURANT } from './config/restaurant';
 type SelectionEntry = { item: MenuItem; option?: SizeOption; qty: number };
 type Selection = Record<string, SelectionEntry>;
 
-const BRAND_IMAGE = './brand-logo.svg';
+const BRAND_IMAGE = './biryani-spot-brand.webp';
 const INTRO_KEY = 'biryani-spot-intro-seen';
 const FAVORITES_KEY = 'biryani-spot-favorites';
 const SELECTION_KEY = 'biryani-spot-selection';
@@ -32,6 +32,7 @@ export default function App() {
   const [feedback, setFeedback] = useState('');
   const [notice, setNotice] = useState('');
   const [printSelection, setPrintSelection] = useState(false);
+  const [isOnline, setIsOnline] = useState(() => navigator.onLine);
 
   useEffect(() => {
     const media = window.matchMedia('(prefers-reduced-motion: reduce)');
@@ -50,6 +51,16 @@ export default function App() {
     const timer = window.setTimeout(finishIntro, 3000);
     return () => window.clearTimeout(timer);
   }, [introVisible, reducedMotion]);
+
+  useEffect(() => {
+    const updateNetworkStatus = () => setIsOnline(navigator.onLine);
+    window.addEventListener('online', updateNetworkStatus);
+    window.addEventListener('offline', updateNetworkStatus);
+    return () => {
+      window.removeEventListener('online', updateNetworkStatus);
+      window.removeEventListener('offline', updateNetworkStatus);
+    };
+  }, []);
 
   useEffect(() => { try { localStorage.setItem(FAVORITES_KEY, JSON.stringify(favorites)); } catch { /* favourites remain usable for this session */ } }, [favorites]);
   useEffect(() => { try { localStorage.setItem(SELECTION_KEY, JSON.stringify(selection)); } catch { /* selection remains usable for this session */ } }, [selection]);
@@ -185,15 +196,17 @@ export default function App() {
   };
 
   const openWhatsApp = (message: string) => {
-    if (!RESTAURANT.whatsapp) {
-      showNotice('WhatsApp will be enabled after the restaurant number is confirmed.');
-      return;
+    const number = RESTAURANT.whatsapp.replace(/\\D/g, '');
+    if (number.length < 8 || number.length > 15) {
+      showNotice('WhatsApp will be enabled after the verified restaurant number is added.');
+      return false;
     }
     window.open(
-      `https://wa.me/${RESTAURANT.whatsapp}?text=${encodeURIComponent(message)}`,
+      `https://wa.me/${number}?text=${encodeURIComponent(message)}`,
       '_blank',
       'noopener,noreferrer',
     );
+    return true;
   };
 
   const sendWhatsApp = () => {
@@ -225,9 +238,10 @@ export default function App() {
       return;
     }
     const message = `Hello Biryani Spot,\n\nI would like to share feedback:\n\n${feedback.trim()}\n\nThank you.`;
-    openWhatsApp(message);
-    setFeedback('');
-    setFeedbackOpen(false);
+    if (openWhatsApp(message)) {
+      setFeedback('');
+      setFeedbackOpen(false);
+    }
   };
 
   const printSelectionNow = () => {
@@ -262,7 +276,12 @@ export default function App() {
   }
 
   return (
-    <div className="app-shell">
+    <div className={selectedCount > 0 && !selectionOpen && !printSelection ? 'app-shell with-mobile-selection' : 'app-shell'}>
+      {!isOnline && (
+        <div className="offline-banner" role="status">
+          <strong>You are offline.</strong> Showing the saved menu. WhatsApp and map links may need internet.
+        </div>
+      )}
       <header className="topbar">
         <button className="brand-button" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })} aria-label="Biryani Spot home">
           <img src={BRAND_IMAGE} alt="" />
@@ -317,7 +336,12 @@ export default function App() {
           <div className="section-title"><div><span className="eyebrow">OUR MENU</span><h2>{category === 'All' ? 'Something for everyone' : category}</h2></div><span>{visibleCategories.reduce((sum, group) => sum + group.items.length, 0)} dishes</span></div>
 
           {!visibleCategories.length ? (
-            <div className="empty"><div>⌕</div><h3>No dishes found</h3><p>Try another dish, category or filter.</p><button className="secondary-button" onClick={() => { setQuery(''); setFilter('all'); setCategory('All'); }}>Reset Menu</button></div>
+            <div className="empty">
+              <div>{filter === 'favorites' ? '♡' : '⌕'}</div>
+              <h3>{filter === 'favorites' ? 'No favourites saved yet' : 'No dishes found'}</h3>
+              <p>{filter === 'favorites' ? 'Tap the heart on any dish to save it here for next time.' : 'Try another dish, category or filter.'}</p>
+              <button className="secondary-button" onClick={() => { setQuery(''); setFilter('all'); setCategory('All'); }}>{filter === 'favorites' ? 'Browse menu' : 'Reset Menu'}</button>
+            </div>
           ) : visibleCategories.map((group) => (
             <section className="menu-section" key={group.name}>
               <div className="category-heading"><div className="category-mark">{group.short}</div><div><h3>{group.name}</h3><p>{group.description}</p></div><span>{group.items.length}</span></div>
@@ -376,6 +400,16 @@ export default function App() {
       </main>
 
       <footer className="footer"><img src={BRAND_IMAGE} alt="" /><div><strong>Biryani Spot</strong><span>Family Restaurant</span></div><p>Digital menu • {MENU_ITEM_COUNT} dishes • Prices from the supplied printed menu</p><button className="footer-replay" onClick={replayIntro}>Replay brand intro</button></footer>
+
+      {selectedCount > 0 && !selectionOpen && !printSelection && (
+        <div className="mobile-selection-bar">
+          <button onClick={() => setSelectionOpen(true)} aria-label={`View selection, ${selectedCount} items, estimated total ${selectedTotal} rupees`}>
+            <span className="mobile-selection-count">{selectedCount} {selectedCount === 1 ? 'item' : 'items'}</span>
+            <strong>₹{selectedTotal}</strong>
+            <span className="mobile-selection-view">View Selection <span aria-hidden="true">→</span></span>
+          </button>
+        </div>
+      )}
 
       {selectionOpen && <div className="overlay" onClick={() => setSelectionOpen(false)}><aside className="drawer" role="dialog" aria-modal="true" aria-label="My Selection" onClick={(e) => e.stopPropagation()}>
         <div className="drawer-head"><div><span className="eyebrow">YOUR TABLE LIST</span><h2>My Selection</h2></div><button className="close" onClick={() => setSelectionOpen(false)} aria-label="Close selection">×</button></div>
