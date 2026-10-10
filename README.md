@@ -1,112 +1,82 @@
 # Biryani Spot — Digital Menu
 
-A responsive, family-friendly digital restaurant menu built with React, TypeScript and Vite.
+A mobile-first QR digital menu for Biryani Spot Family Restaurant, built with React, TypeScript and Vite. The customer can scan a table QR code, see the official brand intro, browse the supplied menu and prepare a selection without creating an account.
 
-## What is implemented
+## Product features
 
-- Professional light, warm family-restaurant visual system
-- Official uploaded Biryani Spot brand image integrated across the menu, intro, metadata and PWA icon
-- Complete menu transcription from the supplied printed menu photographs
-- Veg / Non-Veg filtering
-- Search across dishes and categories
-- Category quick navigation
-- Responsive mobile-first layout
-- Half / Full pricing where the printed menu provides both sizes
-- Useful table-selection helper with quantity controls and live total
-- Clear empty states and reset controls
-- Keyboard focus states and accessible labels
-- Portable asset paths for GitHub Pages and other static hosts
-- PWA manifest and SEO metadata
-- Automated CI validation scoped to project source files
-- Automated CD deployment to GitHub Pages from main
-- Branded QR-entry intro with replay/skip support
-- Persistent favourites and table selection
-- Favourites-only filter and helpful empty state
-- Live offline banner and sticky mobile selection bar
-- Feedback text is preserved when WhatsApp contact details are not configured
-- Share menu and print menu actions
-- Print-ready table selection
-- Keyboard Escape handling and modal scroll locking
-- Production-safe offline caching with network-first navigation and official brand asset precaching
-- Contact/WhatsApp/Maps/social configuration isolated in `src/config/restaurant.ts`
-
-## Menu source
-
-The displayed item names and prices are based on the restaurant's supplied printed menu photographs. Before public launch, the restaurant owner should perform a final spelling and price verification.
-
-The app intentionally does not invent dish photographs. Real restaurant/food photography can be added later when the owner supplies approved images.
+- Official Biryani Spot brand image integrated into the intro, header, hero, footer, favicon/share metadata and PWA icon.
+- Three-second CSS brand animation with Skip Intro, reduced-motion support and once-per-session behavior. The menu appears automatically after the intro.
+- 111 menu items in 13 data-driven categories, with supplied prices and Half/Full sizes where applicable.
+- Instant dish/category search and All, Veg, Non-Veg and Saved/Favourites filters.
+- Persistent favourites and My Selection in local browser storage, with quantity controls and estimated total.
+- Share menu and share selection, including clipboard fallback where supported.
+- WhatsApp enquiry and feedback message preparation. The customer still reviews and sends the message; this is not an online order or payment system.
+- Optional restaurant contact, call, Maps, opening-hours and social actions configured from one owner-controlled file.
+- Printable menu and a dedicated print view for My Selection.
+- Responsive UI, accessible labels, visible focus, dialog semantics, Escape-to-close and mobile-friendly touch targets.
+- Live offline status, PWA manifest, offline app-shell caching and an install prompt where the browser supports it.
+- SEO/share metadata, portable relative assets, and manual-only deployment workflow.
 
 ## Local development
+
+Requires a supported Node.js version for the Vite toolchain.
 
 ```bash
 npm install
 npm run dev
 ```
 
-Production build:
+## Verification commands
+
+Run these before handoff:
 
 ```bash
+npm run test:menu
 npm run build
-```
-
-Preview:
-
-```bash
-npm run preview
-```
-
-Lint:
-
-```bash
 npm run lint
 ```
 
-## CI / CD
+`npm run test:menu` validates the menu's expected category/item counts, unique IDs, category references, explicit dietary flags, positive prices, Half/Full price structure and representative price checks. It also parses the PWA manifest, checks the official WebP brand asset and parses the service-worker JavaScript.
 
-The project uses only the main branch, as requested.
+The GitHub Actions CI workflow runs the menu validation, TypeScript/Vite production build and Oxlint. Check the [Actions page](https://github.com/shiva31rama-cell/Biryani-Spot-Digital-Menu/actions) for the latest result.
 
-### CI
+## Owner-confirmed restaurant configuration
 
-Every push and pull request targeting main runs:
+Edit `src/config/restaurant.ts` only with verified information:
 
-1. Dependency installation
-2. TypeScript production build
-3. Oxlint validation
+- `address`: full address customers should use
+- `phone`: phone number for the Call action
+- `whatsapp`: WhatsApp number including country code; digits only, no plus sign or spaces
+- `mapsUrl`: official Google Maps destination URL
+- `instagramUrl` and `facebookUrl`: official social profile URLs
+- `openingHours`: verified opening hours
 
-### CD
+Empty values intentionally remain unconfigured; they are not replaced with invented restaurant facts. The WhatsApp function also checks the configured number before creating a `wa.me` link.
 
-Publishing is intentionally manual during development. When the restaurant is ready to launch, run the CD workflow from Actions. GitHub Pages must first be enabled in Settings → Pages → Build and deployment → Source → GitHub Actions.
+## Menu and media verification
 
-GitHub Pages must be enabled in Settings → Pages → Build and deployment → Source → GitHub Actions for the repository.
+Menu names, classifications and prices were transcribed from the menu supplied for this project. The validation test protects the total item count and selected representative prices, but it cannot prove every transcription matches the latest physical menu. The restaurant owner should verify every dish name, category, dietary classification, size and price before public launch.
 
-Expected project-site URL:
+The official brand image is stored at `public/biryani-spot-brand.webp`. The current three-second intro is a CSS animation using this image; a separate MP4/WebM brand video has not been supplied or integrated. Dish-specific food photography is not fabricated; add real approved images when available.
 
-https://shiva31rama-cell.github.io/Biryani-Spot-Digital-Menu/
+## Offline/PWA behavior
 
-## Phase 2 owner configuration
+The service worker precaches the app shell and built JavaScript/CSS, caches successful same-origin assets, and uses a network-first strategy for page navigations. It removes only older cache keys beginning with `biryani-spot-`, so it does not clear unrelated apps' caches on a shared origin. On first-ever use while already offline, the app cannot be downloaded; open it successfully once online first.
 
-Update `src/config/restaurant.ts` only with owner-confirmed information:
+## Deployment is intentionally paused
 
-- `address`
-- `phone`
-- `whatsapp` (digits only, including country code; no + or spaces)
-- `mapsUrl`
-- `instagramUrl`
-- `facebookUrl`
-- `openingHours`
+Deployment is deliberately manual and does not run on ordinary pushes. The workflow can be triggered from GitHub Actions only when the restaurant is approved for launch. GitHub Pages also needs to be enabled in Settings → Pages → Build and deployment → Source → GitHub Actions. No deployment is being performed as part of this finalization pass.
 
-The UI automatically enables the corresponding Call, Directions, WhatsApp and social actions when a value exists. Empty values remain clearly marked as pending rather than using invented details.
+Static asset paths use Vite's relative base to support project subpaths on GitHub Pages and other static hosts.
 
-## Final owner information still required
+## Final launch checklist
 
-These should only be added after confirmation from the restaurant owner:
+- [ ] Owner confirms restaurant name and official brand asset.
+- [ ] Owner verifies all 111 menu entries, vegetarian/non-vegetarian classifications, spellings and prices against the current menu.
+- [ ] Owner provides verified address, phone, WhatsApp, Maps URL and opening hours.
+- [ ] Owner approves any social links and real food/restaurant photographs.
+- [ ] Latest CI validation, build and lint all pass.
+- [ ] Manually test QR entry, intro skip/reduced-motion, search, filters, favourites, sizes, quantities, totals, WhatsApp message contents, feedback, print and offline revisit on an actual phone.
+- [ ] Review the built site on phone, tablet and desktop before manually deploying.
 
-- Confirmed restaurant address
-- Confirmed phone number
-- Google Maps location
-- Official social media links
-- Final menu spelling and price approval
-- Approved real restaurant / food photographs
-- Final hosting domain, if a custom domain is preferred
-
-No unconfirmed contact details or fake restaurant information are included in the application.
+No credentials, payment collection, fake order confirmation, fake reviews, fake ratings or invented contact details are included.
