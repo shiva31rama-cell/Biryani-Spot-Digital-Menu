@@ -110,3 +110,133 @@ body.modal-open{overflow:hidden}
   .restaurant-info .info-grid p{margin:5px 0 0;color:#333;font-size:10px;overflow-wrap:anywhere}
   .feedback-field input,.feedback-field textarea{display:none}
 }
+
+
+/* Biryani Spot × Suprabhath × Chocodew-inspired UX refinement.
+   Keep Biryani Spot's own brand assets and menu data; borrow only design principles. */
+.hero-brand{
+  position:relative;
+  min-height:390px;
+  isolation:isolate;
+  overflow:hidden;
+  gap:0;
+  background:
+    radial-gradient(ellipse at 50% 48%,rgba(176,123,42,.13),transparent 48%),
+    linear-gradient(145deg,#fffdf9 0%,#f6e9dc 100%);
+}
+.hero-brand::before,.hero-brand::after{
+  content:"";
+  position:absolute;
+  z-index:-1;
+  border:1px solid rgba(112,37,30,.12);
+  border-radius:50%;
+  pointer-events:none;
+}
+.hero-brand::before{width:330px;height:330px;left:50%;top:42%;transform:translate(-50%,-50%)}
+.hero-brand::after{width:270px;height:270px;left:50%;top:42%;transform:translate(-50%,-50%);border-style:dashed;border-color:rgba(176,123,42,.24)}
+.hero-brand .hero-brand-topline{
+  width:100%;margin:0;padding:0;border:0;
+  display:flex;align-items:center;justify-content:center;gap:9px;
+  color:var(--wine);font-size:9px;font-weight:800;letter-spacing:.2em;
+}
+.hero-brand-seal{
+  display:grid;place-items:center;width:31px;height:31px;
+  border:1px solid #cba46b;border-radius:50%;
+  color:var(--wine);font:700 12px 'Playfair Display',Georgia,serif;
+  letter-spacing:0;
+}
+.hero-plate{
+  position:relative;display:grid;place-items:center;
+  width:200px;height:200px;margin:17px auto 13px;
+  border-radius:50%;border:1px solid rgba(112,37,30,.18);
+  background:radial-gradient(circle,#fffaf1 0 47%,#ead7c1 48% 50%,#fffaf1 51% 58%,#e0c39e 59% 60%,rgba(255,255,255,.4) 61%);
+  box-shadow:0 22px 36px rgba(76,37,25,.12),inset 0 0 0 8px rgba(255,255,255,.45);
+}
+.hero-plate span{width:106px;height:106px;border-radius:50%;background:radial-gradient(circle at 38% 34%,#cfa66b,#a86b3a 45%,#71351f 78%);box-shadow:inset 0 0 0 7px rgba(255,235,192,.32),0 5px 12px rgba(83,39,19,.2)}
+.hero-plate i,.dish-plate i{position:absolute;width:11px;height:11px;border-radius:50%;background:#557343;border:2px solid #f6e7bd;box-shadow:0 1px 3px #8b6441}
+.hero-plate i:nth-of-type(1){top:47px;left:64px}.hero-plate i:nth-of-type(2){right:50px;top:90px}.hero-plate i:nth-of-type(3){left:84px;bottom:44px}
+.hero-plate b,.dish-plate b{position:absolute;color:#e9c46a;font-size:20px;text-shadow:0 1px 4px rgba(70,30,15,.3)}
+.hero-brand .hero-brand-copy{width:100%;margin:0;padding:13px 0 0;border:0;border-top:1px solid #decdbd;text-align:center}
+.hero-brand-copy img{width:min(220px,70%);max-height:72px;margin:0 auto 8px;object-fit:contain}
+.hero-brand-copy strong{display:block;color:var(--wine);font:700 19px 'Playfair Display',Georgia,serif}
+.hero-brand-copy span{display:block;margin-top:5px;color:#8b776b;font-size:8px;letter-spacing:.16em;font-weight:800}
+
+.dish-art{height:96px;overflow:hidden}
+.dish-plate{
+  position:relative;display:grid;place-items:center;
+  width:64px;height:64px;border-radius:50%;
+  border:1px solid rgba(112,37,30,.16);
+  background:radial-gradient(circle,#fffaf1 0 47%,#e5d1bb 48% 52%,#fffdf9 53% 62%,#dfc7a8 63% 64%,rgba(255,255,255,.65) 65%);
+  box-shadow:0 5px 12px rgba(76,37,25,.1);
+}
+.dish-plate::before{content:"";width:34px;height:34px;border-radius:50%;background:radial-gradient(circle at 35% 30%,#d9b16e,#b4773e 52%,#8d4b2b);box-shadow:inset 0 0 0 4px rgba(255,235,192,.24)}
+.dish-plate i{width:6px;height:6px;border-width:1px}
+.dish-plate i:nth-of-type(1){top:13px;left:18px}.dish-plate i:nth-of-type(2){top:30px;right:12px}.dish-plate i:nth-of-type(3){bottom:12px;left:27px}
+.dish-plate b{font-size:11px}
+.dish-art.veg{background:linear-gradient(135deg,#eef1e3,#f8edda)}
+.dish-art.nonveg{background:linear-gradient(135deg,#f4e3d7,#ead4c8)}
+.dish-art small{z-index:1;letter-spacing:.08em}
+.dish-card{border-radius:16px;box-shadow:0 4px 15px rgba(72,35,24,.04)}
+.dish-card:hover{transform:translateY(-3px);box-shadow:0 12px 25px rgba(72,35,24,.09)}
+.dish-body{padding:13px}
+.dish-title h4{font-size:13px;line-height:1.42;overflow-wrap:anywhere}
+.category-heading h3{letter-spacing:-.025em}
+.category-mark{border-radius:50%;border:1px solid rgba(112,37,30,.08)}
+.category-pill{transition:background .18s ease,border-color .18s ease,color .18s ease}
+.search:focus-within{border-color:var(--gold);box-shadow:0 0 0 3px rgba(176,123,42,.12)}
+.add-button,.size-button,.filter,.top-action,.selection-button{transition:background .18s ease,border-color .18s ease,transform .18s ease}
+.add-button:hover,.size-button:hover{border-color:var(--gold);transform:translateY(-1px)}
+.section-title h2,.quick-nav h2,.restaurant-info h2,.family-note h2{letter-spacing:-.035em}
+.primary-button:focus-visible,.secondary-button:focus-visible,.add-button:focus-visible,.size-button:focus-visible,.category-pill:focus-visible,.filter:focus-visible{outline:3px solid rgba(176,123,42,.4);outline-offset:3px}
+
+@media(max-width:720px){
+  .hero{gap:24px;padding:38px 18px 34px}
+  .hero-brand{min-height:315px;padding:19px}
+  .hero-plate{width:150px;height:150px;margin:13px auto 10px}
+  .hero-plate span{width:80px;height:80px}
+  .hero-plate i:nth-of-type(1){top:35px;left:47px}.hero-plate i:nth-of-type(2){right:37px;top:67px}.hero-plate i:nth-of-type(3){left:62px;bottom:31px}
+  .hero-brand::before{width:260px;height:260px}
+  .hero-brand::after{width:218px;height:218px}
+  .hero-brand-copy img{width:min(180px,70%);max-height:56px}
+  .hero-brand-copy strong{font-size:16px}
+  .toolbar{padding:9px 12px}
+  .menu{padding-top:30px}
+  .menu-section{margin-bottom:32px}
+}
+@media(max-width:460px){
+  .hero{padding:30px 14px 28px}
+  .hero-copy h1{font-size:clamp(38px,10vw,45px);line-height:1.04}
+  .hero-copy p{font-size:14px;line-height:1.65}
+  .hero-brand{min-height:290px;padding:15px}
+  .quick-nav,.menu{padding-left:14px;padding-right:14px}
+  .category-pills{gap:6px;padding-top:15px}
+  .category-pill{padding:8px 10px;font-size:10px}
+  .dish-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}
+  .dish-art{height:78px}
+  .dish-plate{width:54px;height:54px}
+  .dish-plate::before{width:29px;height:29px}
+  .dish-plate i:nth-of-type(1){top:10px;left:15px}.dish-plate i:nth-of-type(2){top:25px;right:9px}.dish-plate i:nth-of-type(3){bottom:9px;left:22px}
+  .dish-body{padding:10px}
+  .dish-title{gap:5px;min-height:54px}
+  .dish-title h4{font-size:12px;line-height:1.35}
+  .favorite{font-size:17px}
+  .single-price{margin-top:7px}
+  .single-price strong{font-size:14px}
+  .add-button{padding:8px 9px;min-height:36px}
+  .size-grid{gap:5px}
+  .size-button{padding:7px 3px;font-size:9px}
+  .size-button b{font-size:11px}
+  .price-caption{font-size:8px}
+  .category-heading h3{font-size:21px}
+  .category-heading p{font-size:9px}
+  .section-title h2{font-size:27px}
+  .info-grid{gap:8px}
+}
+@media(max-width:360px){
+  .dish-grid{grid-template-columns:minmax(0,1fr)}
+  .dish-art{height:86px}
+  .dish-title{min-height:0}
+  .dish-body{padding:12px}
+  .dish-title h4{font-size:13px}
+  .hero-brand{min-height:270px}
+}
