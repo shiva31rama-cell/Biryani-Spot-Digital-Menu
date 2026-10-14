@@ -346,8 +346,13 @@ export default function App() {
             </div>
           </div>
           <div className="hero-brand">
-            <img src={BRAND_IMAGE} alt="Biryani Spot Family Restaurant" />
-            <div><strong>TRADITION • TASTE • TOGETHER</strong><span>Family Restaurant</span></div>
+            <div className="hero-brand-topline"><span className="hero-brand-seal">BS</span><span>MADE FOR SHARING</span></div>
+            <div className="hero-plate" aria-hidden="true"><span /><i /><i /><i /><b>✦</b></div>
+            <div className="hero-brand-copy">
+              <img src={BRAND_IMAGE} alt="Biryani Spot Family Restaurant" />
+              <strong>Good food. Great company.</strong>
+              <span>BIRYANI • TANDOORI • FAMILY FAVOURITES</span>
+            </div>
           </div>
         </section>
 
@@ -402,8 +407,9 @@ export default function App() {
                   const favorite = favorites.includes(item.id);
                   return (
                     <article className="dish-card" key={item.id}>
-                      <div className={item.veg ? 'dish-art veg' : 'dish-art nonveg'}>
-                        <span>{item.name.charAt(0)}</span><small>{item.veg ? 'VEG' : 'NON-VEG'}</small>
+                      <div className={item.veg ? 'dish-art veg' : 'dish-art nonveg'} aria-hidden="true">
+                        <span className="dish-plate"><i /><i /><i /><b>✦</b></span>
+                        <small>{item.veg ? 'VEG' : 'NON-VEG'}</small>
                       </div>
                       <div className="dish-body">
                         <div className="dish-title">
