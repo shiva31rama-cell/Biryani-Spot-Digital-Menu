@@ -1,4 +1,4 @@
-const CACHE_NAME = 'biryani-spot-v4';
+const CACHE_NAME = 'biryani-spot-v5';
 const CACHE_PREFIX = 'biryani-spot-';
 const APP_SHELL = [
   './',
