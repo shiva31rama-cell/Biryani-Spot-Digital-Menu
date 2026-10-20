@@ -4,7 +4,6 @@ import {
   ArrowRight,
   Check,
   Clock3,
-  Facebook,
   Heart,
   MapPin,
   Menu as MenuIcon,
@@ -17,7 +16,6 @@ import {
   ShoppingBag,
   X,
   Phone,
-  Instagram,
 } from 'lucide-react';
 import { MENU, MENU_ITEM_COUNT, type MenuItem, type SizeOption } from './data/menu';
 import { RESTAURANT } from './config/restaurant';
@@ -591,8 +589,8 @@ export default function App() {
             <div className="info-card"><span className="info-icon"><Clock3 size={20} /></span><strong>Opening hours</strong><p>{RESTAURANT.openingHours || 'Opening hours will be added after owner confirmation.'}</p></div>
           </div>
           <div className="contact-actions" id="contact">
-            {RESTAURANT.instagramUrl && <a className="secondary-button" href={RESTAURANT.instagramUrl} target="_blank" rel="noreferrer"><Instagram size={16} /> Instagram</a>}
-            {RESTAURANT.facebookUrl && <a className="secondary-button" href={RESTAURANT.facebookUrl} target="_blank" rel="noreferrer"><Facebook size={16} /> Facebook</a>}
+            {RESTAURANT.instagramUrl && <a className="secondary-button" href={RESTAURANT.instagramUrl} target="_blank" rel="noreferrer">Instagram <ArrowRight size={14} /></a>}
+            {RESTAURANT.facebookUrl && <a className="secondary-button" href={RESTAURANT.facebookUrl} target="_blank" rel="noreferrer">Facebook <ArrowRight size={14} /></a>}
             <button className="secondary-button" onClick={() => setFeedbackOpen(true)}>Send feedback</button>
             <button className="secondary-button" onClick={shareMenu}><Share2 size={16} /> Share menu</button>
           </div>
