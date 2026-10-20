@@ -17,6 +17,29 @@ const SELECTION_KEY = 'biryani-spot-selection';
 const selectionKey = (item: MenuItem, option?: SizeOption) =>
   `${item.id}-${option?.label ?? 'single'}`;
 
+
+const FOOD_PHOTOS = {
+  biryani: 'https://images.unsplash.com/photo-1631515243349-e0cb75fb8d3a?auto=format&fit=crop&w=900&q=82',
+  curry: 'https://images.unsplash.com/photo-1603894584373-5ac82b2ae398?auto=format&fit=crop&w=900&q=82',
+  tandoori: 'https://images.unsplash.com/photo-1641873933980-fcff60026f50?auto=format&fit=crop&w=900&q=82',
+  vegetarian: 'https://images.unsplash.com/photo-1757715376287-90f24dac4593?auto=format&fit=crop&w=900&q=82',
+};
+
+const dishImageFor = (item: MenuItem) => {
+  const name = item.name.toLowerCase();
+  const category = item.category.toLowerCase();
+
+  if (name.includes('biryani')) return FOOD_PHOTOS.biryani;
+  if (name.includes('tandoori') || name.includes('tikka') || name.includes('kabab') || name.includes('kebab') || name.includes('lollipop') || name.includes('wings')) {
+    return item.veg ? FOOD_PHOTOS.vegetarian : FOOD_PHOTOS.tandoori;
+  }
+  if (category.includes('curry') || name.includes('masala') || name.includes('gravy')) {
+    return item.veg ? FOOD_PHOTOS.vegetarian : FOOD_PHOTOS.curry;
+  }
+  if (item.veg) return FOOD_PHOTOS.vegetarian;
+  if (name.includes('chicken') || name.includes('mutton') || name.includes('prawn') || name.includes('egg')) return FOOD_PHOTOS.tandoori;
+  return FOOD_PHOTOS.curry;
+};
 export default function App() {
   const [introVisible, setIntroVisible] = useState(() => {
     try { return sessionStorage.getItem(INTRO_KEY) !== '1'; } catch { return true; }
@@ -407,9 +430,18 @@ export default function App() {
                   const favorite = favorites.includes(item.id);
                   return (
                     <article className="dish-card" key={item.id}>
-                      <div className={item.veg ? 'dish-art veg' : 'dish-art nonveg'} aria-hidden="true">
-                        <span className="dish-plate"><i /><i /><i /><b>✦</b></span>
-                        <small>{item.veg ? 'VEG' : 'NON-VEG'}</small>
+                      <div className={item.veg ? 'dish-art veg' : 'dish-art nonveg'}>
+                        <img
+                          className="dish-photo"
+                          src={dishImageFor(item)}
+                          alt={`${item.name} — representative food photo`}
+                          loading="lazy"
+                          decoding="async"
+                          onError={(event) => event.currentTarget.classList.add('dish-photo-failed')}
+                        />
+                        <span className={item.veg ? 'dish-type-badge veg-badge' : 'dish-type-badge nonveg-badge'} aria-label={item.veg ? 'Vegetarian' : 'Non-vegetarian'}>
+                          <i aria-hidden="true" /> {item.veg ? 'VEG' : 'NON-VEG'}
+                        </span>
                       </div>
                       <div className="dish-body">
                         <div className="dish-title">
