@@ -92,10 +92,7 @@ button:disabled { cursor: not-allowed; opacity: .6; }
 .group-heading p { margin: 5px 0 0; color: #8c7d70; font-size: 10px; line-height: 1.5; }
 .group-heading > span { flex: 0 0 auto; color: #99897a; font-size: 9px; font-weight: 700; }
 .dish-list { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 0 24px; }
-.dish-row { display: flex; align-items: center; gap: 12px; min-width: 0; min-height: 103px; padding: 12px 0; border-bottom: 1px solid #eee6dc; }
-.dish-thumb { display: block; width: 74px; height: 74px; flex: 0 0 auto; border-radius: 6px; background: #efe3d3; object-fit: cover; }
-.soup-thumb { display: grid; place-items: center; background: #efe3d3; color: #a48a6a; }
-.soup-thumb span { font: 700 18px 'Playfair Display',Georgia,serif; }
+.dish-row { display: flex; align-items: center; gap: 12px; min-width: 0; min-height: 86px; padding: 13px 0; border-bottom: 1px solid #eee6dc; }
 .dish-details { display: flex; flex-direction: column; min-width: 0; flex: 1; }
 .dish-name-line { display: flex; align-items: flex-start; gap: 7px; min-width: 0; }
 .diet-mark { position: relative; display: inline-block; width: 10px; height: 10px; flex: 0 0 auto; margin-top: 4px; border: 1.4px solid; border-radius: 2px; }
@@ -168,7 +165,6 @@ button:disabled { cursor: not-allowed; opacity: .6; }
   .hero h1 { font-size: clamp(39px,5.8vw,54px); }
   .menu-area { padding: 20px 18px 45px; }
   .dish-list { gap: 0 16px; }
-  .dish-thumb { width: 63px; height: 67px; }
   .dish-row { gap: 9px; }
 }
 @media (max-width: 650px) {
@@ -206,7 +202,6 @@ button:disabled { cursor: not-allowed; opacity: .6; }
   .group-heading p { max-width: 280px; font-size: 9px; }
   .dish-list { grid-template-columns: minmax(0,1fr); gap: 0; }
   .dish-row { gap: 11px; min-height: 95px; padding: 10px 0; }
-  .dish-thumb { width: 68px; height: 70px; border-radius: 5px; }
   .dish-name-line h4 { font-size: 12px; }
   .dish-category { font-size: 7px; }
   .dish-price-line { margin-top: 6px; }
@@ -237,7 +232,6 @@ button:disabled { cursor: not-allowed; opacity: .6; }
   .header-bag span { font-size: 9px; }
   .hero h1 { font-size: 41px; }
   .hero-note { letter-spacing: .04em; }
-  .dish-thumb { width: 59px; height: 63px; }
   .dish-row { gap: 8px; }
   .dish-name-line h4 { font-size: 11px; }
   .size-add { gap: 4px; padding: 5px; }
@@ -250,7 +244,6 @@ button:disabled { cursor: not-allowed; opacity: .6; }
   .app-shell { background: white; }
   .menu-area { width: 100%; padding: 10px; }
   .dish-list { grid-template-columns: repeat(2,minmax(0,1fr)); gap: 0 15px; }
-  .dish-thumb { width: 45px; height: 45px; }
   .dish-row { min-height: 65px; padding: 5px 0; }
   .site-footer { margin-top: 15px; }
 }
