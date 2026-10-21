@@ -1,4 +1,4 @@
-const CACHE_NAME = 'biryani-spot-v7';
+const CACHE_NAME = 'biryani-spot-v8';
 const CACHE_PREFIX = 'biryani-spot-';
 const APP_SHELL = ['./','./index.html','./favicon.svg','./biryani-spot-logo.png','./manifest.webmanifest'];
 self.addEventListener('install',event=>{event.waitUntil((async()=>{const cache=await caches.open(CACHE_NAME);await cache.addAll(APP_SHELL);const response=await cache.match('./index.html')??await cache.match('./');if(response){const html=await response.text();const paths=[...html.matchAll(/(?:src|href)=["']([^"']+\.(?:js|css)(?:\?[^"']*)?)["']/g)].map(m=>m[1]).filter(p=>!/^https?:\/\//i.test(p)).map(p=>new URL(p,self.registration.scope).href);if(paths.length)await cache.addAll(paths)}})());self.skipWaiting()});

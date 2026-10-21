@@ -11,6 +11,23 @@ const keyFor = (item: MenuItem, option?: SizeOption) => item.id + '-' + (option?
 const slug = (name: string) => 'category-' + name.toLowerCase().replace(/[^a-z0-9]+/g, '-');
 const money = (price: number) => new Intl.NumberFormat('en-IN', { maximumFractionDigits: 0 }).format(price);
 const allItems = MENU.flatMap((category) => category.items);
+
+const CATEGORY_PHOTOS: Record<string, string> = {
+  'Non-Veg Soups': 'non-veg-soups.jpg',
+  'Veg Soups': 'veg-soups.jpg',
+  'Veg Starters': 'veg-starters.jpg',
+  'Non-Veg Starters': 'non-veg-starters.jpg',
+  'Tandoori Starter': 'tandoori-starter.jpg',
+  'Veg Tandoori Starter': 'veg-tandoori-starter.jpg',
+  "Biryani's": 'biryanis.jpg',
+  'Veg Friedrice': 'veg-friedrice.jpg',
+  'Noodles': 'noodles.jpg',
+  'Non Veg Friedrice': 'non-veg-friedrice.jpg',
+  'Roti & Naan': 'roti-naan.jpg',
+  'Veg Curries': 'veg-curries.jpg',
+  'Non Veg Curries': 'non-veg-curries.jpg',
+};
+
 function categoryIcon(name: string) {
   const n = name.toLowerCase();
   if (n.includes('soup')) return Soup;
@@ -186,7 +203,7 @@ export default function App() {
             <div className="category-panel-inner">
               <div className="category-heading"><div><span className="category-eyebrow">BIRYANI SPOT <i/> MENU COLLECTION</span><h2>{group.name}</h2><p>{group.description}</p></div><span className="category-item-count">{group.items.length} ITEMS</span></div>
               <div className="category-content">
-                <div className="category-visual" aria-hidden="true"><span className="category-visual-ring"><Icon size={37} strokeWidth={1.2}/></span><span className="category-visual-brand">BIRYANI SPOT</span><span className="category-visual-line"/><span className="category-visual-subtitle">{group.name}</span></div>
+                <div className="category-visual" aria-hidden="true"><img className="category-visual-photo" src={"./category-images/" + CATEGORY_PHOTOS[group.name]} alt="" loading="lazy" decoding="async" onError={(event) => { event.currentTarget.style.display = 'none'; }}/><span className="category-visual-shade"/><span className="category-visual-ring"><Icon size={37} strokeWidth={1.2}/></span><span className="category-visual-brand">BIRYANI SPOT</span><span className="category-visual-line"/><span className="category-visual-subtitle">{group.name}</span></div>
                 <div className="dish-grid">{group.items.map((item) => {
                   const single = keyFor(item); const quantity = selection[single]?.qty ?? 0;
                   return <article className="menu-dish" key={item.id}>

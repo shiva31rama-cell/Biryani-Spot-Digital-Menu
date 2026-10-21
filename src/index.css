@@ -45,3 +45,16 @@
  .header-logo{width:35px;height:35px;flex-basis:35px}
  .brand-wordmark{font-size:15px}
 }
+
+
+/* Real category food photographs (upload to public/category-images/ using the mapped filenames). */
+.category-visual { isolation: isolate; }
+.category-visual-photo { position: absolute; inset: 0; z-index: 0; display: block; width: 100%; height: 100%; object-fit: cover; opacity: .78; transition: transform .3s ease, opacity .3s ease; }
+.category-visual:hover .category-visual-photo { transform: scale(1.035); opacity: .9; }
+.category-visual-shade { position: absolute; inset: 0; z-index: 1; background: linear-gradient(180deg, rgba(31, 12, 9, .38), rgba(31, 12, 9, .68)); pointer-events: none; }
+.category-visual::before, .category-visual::after { z-index: 2; }
+.category-visual-ring, .category-visual-brand, .category-visual-line, .category-visual-subtitle { z-index: 3; }
+@media (max-width: 650px) {
+  .category-visual-photo { opacity: .82; }
+  .category-visual-shade { background: linear-gradient(90deg, rgba(31,12,9,.58), rgba(31,12,9,.33)); }
+}
