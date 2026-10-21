@@ -17,3 +17,31 @@
 @media(max-width:390px){.welcome-actions{right:6px}.welcome-action{padding:6px 7px;font-size:8px}.welcome-brand-lockup h1{font-size:42px}.welcome-promise{flex-wrap:wrap}.promise-cta{margin-left:44px}.header-bag{gap:5px;padding:7px 8px}.header-bag span{font-size:8px}.dish-grid{column-gap:7px}.menu-dish{gap:3px}.dish-main{gap:4px}.dish-name{font-size:7.5px}.dish-action{gap:3px}.dish-price{font-size:7.5px}.dish-size-actions{flex-wrap:wrap}.size-add{gap:2px;padding:2px}}
 @media(prefers-reduced-motion:reduce){*,*:before,*:after{scroll-behavior:auto!important;animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}}
 @keyframes fade-in{from{opacity:0}to{opacity:1}}
+
+
+/* Official Biryani Spot logo uploaded by the restaurant owner. */
+.welcome-brand-lockup{width:min(84vw,410px);min-height:0;margin:0 auto 19px;padding:0;overflow:visible;border:0;border-radius:0;background:transparent;box-shadow:none}
+.welcome-logo-image{display:block;width:100%;height:auto;object-fit:contain;border-radius:50%;filter:drop-shadow(0 9px 16px rgba(72,35,20,.12))}
+.header-brand{flex-direction:row;align-items:center;gap:9px;min-height:48px}
+.header-logo{display:block;width:48px;height:48px;flex:0 0 48px;border:1px solid #e5d3bb;border-radius:50%;background:#fffaf0;object-fit:cover}
+.header-brand-copy{display:flex;min-width:0;flex-direction:column;align-items:flex-start;gap:4px}
+.menu-brand-panel{display:flex;flex-direction:column;align-items:center}
+.menu-page-logo{display:block;width:clamp(80px,13vw,112px);height:auto;margin:0 auto 8px;border-radius:50%;object-fit:contain}
+.footer-logo{display:block;width:84px;height:auto;margin:0 auto 4px;border-radius:50%;object-fit:contain}
+.welcome-footer .footer-logo{width:96px}
+.welcome-footer p,.site-footer p{max-width:580px;text-align:center;line-height:1.65}
+@media(max-width:650px){
+ .welcome-brand-block{padding-top:66px}
+ .welcome-brand-lockup{width:min(78vw,300px);margin-bottom:16px}
+ .header-brand{gap:7px;min-height:42px}
+ .header-logo{width:39px;height:39px;flex-basis:39px}
+ .brand-wordmark{font-size:17px}
+ .header-brand small{font-size:6px;letter-spacing:.1em}
+ .menu-page-logo{width:82px;margin-bottom:6px}
+ .footer-logo{width:74px}
+}
+@media(max-width:360px){
+ .welcome-brand-lockup{width:min(76vw,270px)}
+ .header-logo{width:35px;height:35px;flex-basis:35px}
+ .brand-wordmark{font-size:15px}
+}

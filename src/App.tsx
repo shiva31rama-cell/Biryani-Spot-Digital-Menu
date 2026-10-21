@@ -129,10 +129,8 @@ export default function App() {
         <button className="welcome-action welcome-action--menu" onClick={menu}>View Menu <ArrowRight size={14}/></button>
       </div>
       <section className="welcome-brand-block">
-        <div className="welcome-brand-lockup" aria-label="Biryani Spot Family Restaurant">
-          <span className="wordmark-kicker">FAMILY RESTAURANT</span>
-          <h1>Biryani <em>Spot</em></h1>
-          <span className="wordmark-rule"><i/><Utensils size={15}/><i/></span>
+        <div className="welcome-brand-lockup">
+          <img className="welcome-logo-image" src="./biryani-spot-logo.png" alt="Biryani Spot Family Restaurant logo" width="449" height="449" fetchPriority="high" decoding="async"/>
         </div>
         <p className="welcome-overline">WELCOME TO BIRYANI SPOT</p>
         <h2>Good Food, Happy Moments</h2>
@@ -160,16 +158,16 @@ export default function App() {
         </button>)}</div>
       </section>
       <section className="welcome-promise"><span className="promise-icon"><Utensils size={19}/></span><div><strong>Good food. Good company.</strong><p>Take a look at the menu and discover something delicious.</p></div><button className="promise-cta" onClick={menu}>View menu <ArrowRight size={15}/></button></section>
-      <footer className="welcome-footer"><span className="footer-wordmark">Biryani Spot</span><span>FAMILY RESTAURANT</span><p>Menu prices and availability may change. Please confirm with the restaurant.</p></footer>
+      <footer className="welcome-footer"><img className="footer-logo" src="./biryani-spot-logo.png" alt="Biryani Spot Family Restaurant" width="449" height="449" loading="lazy" decoding="async"/><p>Menu prices and availability may change. Please confirm with the restaurant.</p></footer>
     </main> : <>
       <header className="site-header" id="top">
-        <button className="header-brand" onClick={home} aria-label="Biryani Spot home"><span className="brand-wordmark">Biryani <em>Spot</em></span><small>FAMILY RESTAURANT</small></button>
+        <button className="header-brand" onClick={home} aria-label="Biryani Spot home"><img className="header-logo" src="./biryani-spot-logo.png" alt="" width="449" height="449" decoding="async"/><span className="header-brand-copy"><span className="brand-wordmark">Biryani <em>Spot</em></span><small>FAMILY RESTAURANT</small></span></button>
         <nav className="desktop-links" aria-label="Main navigation"><button onClick={home}>Home</button><a href="#menu">Menu</a><a href="#menu-footer">About</a></nav>
         <div className="header-actions"><span className="menu-count">{MENU_ITEM_COUNT} dishes</span><button className="header-bag" onClick={() => setDrawer(true)} aria-label={'Open selection, ' + count + ' items'}><ShoppingBag size={17}/><span>My selection</span>{count > 0 && <b>{count}</b>}</button></div>
       </header>
       <main id="menu" className="menu-page">
         <div className="menu-back-row"><button className="back-home" onClick={home}><ArrowLeft size={13}/> Restaurant Home</button><span>GOOD FOOD, HAPPY MOMENTS</span></div>
-        <section className="menu-brand-panel"><p className="section-kicker">THE BIRYANI SPOT FAMILY RESTAURANT</p><h1>Our <em>Menu</em></h1><p>Authentic favourites, generous portions and something for every appetite.</p><div className="menu-brand-ornament"><i/><Utensils size={15}/><i/></div></section>
+        <section className="menu-brand-panel"><img className="menu-page-logo" src="./biryani-spot-logo.png" alt="Biryani Spot Family Restaurant" width="449" height="449" loading="lazy" decoding="async"/><h1>Our <em>Menu</em></h1><p>Authentic favourites, generous portions and something for every appetite.</p><div className="menu-brand-ornament"><i/><Utensils size={15}/><i/></div></section>
         <section className="menu-tools" aria-label="Search and menu categories">
           <div className="navigation-top-row">
             <label className="search-field"><Search size={17} aria-hidden="true"/><input value={query} onChange={(e) => setQuery(e.target.value)} placeholder="Search dishes or categories" aria-label="Search dishes or categories"/>{query && <button onClick={() => setQuery('')} aria-label="Clear search"><X size={15}/></button>}</label>
@@ -202,7 +200,7 @@ export default function App() {
         })}</div> : <section className="empty-state"><Search size={25}/><h2>No dishes found</h2><p>Try another search or remove one of the filters.</p><button onClick={clearFilters}>Show all dishes</button></section>}
         <p className="menu-disclaimer">Prices are shown as listed on the menu. Please confirm availability and final prices with the restaurant.</p>
       </main>
-      <footer id="menu-footer" className="site-footer"><span className="footer-wordmark">Biryani Spot</span><span className="footer-tagline">FAMILY RESTAURANT</span><p>Good food. Good company.</p></footer>
+      <footer id="menu-footer" className="site-footer"><img className="footer-logo" src="./biryani-spot-logo.png" alt="Biryani Spot Family Restaurant" width="449" height="449" loading="lazy" decoding="async"/><p>Good food. Good company.</p></footer>
     </>}
 
     {count > 0 && !drawer && <div className="selection-bar"><button onClick={() => setDrawer(true)}><span className="selection-bar-icon"><ShoppingBag size={17}/><i>{count}</i></span><span className="selection-bar-label"><strong>View selection</strong><small>{count} {count === 1 ? 'item' : 'items'} · enquiry only</small></span><strong className="selection-bar-total">₹{money(total)}</strong><ChevronRight size={17}/></button></div>}
