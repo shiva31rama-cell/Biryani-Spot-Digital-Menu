@@ -239,11 +239,3 @@ button:disabled { cursor: not-allowed; opacity: .6; }
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { scroll-behavior: auto !important; animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; }
 }
-@media print {
-  .site-header, .hero, .menu-tools, .category-nav, .add-control, .dish-size-actions, .selection-bar, .drawer-overlay, .toast { display: none !important; }
-  .app-shell { background: white; }
-  .menu-area { width: 100%; padding: 10px; }
-  .dish-list { grid-template-columns: repeat(2,minmax(0,1fr)); gap: 0 15px; }
-  .dish-row { min-height: 65px; padding: 5px 0; }
-  .site-footer { margin-top: 15px; }
-}
