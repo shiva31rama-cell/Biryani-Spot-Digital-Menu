@@ -1,11 +1,8 @@
 import { useEffect, useMemo, useState } from 'react';
 import {
-  ArrowDown,
   ArrowRight,
   Check,
-  Clock3,
   Heart,
-  MapPin,
   Menu as MenuIcon,
   MessageCircle,
   Minus,
@@ -15,7 +12,6 @@ import {
   Share2,
   ShoppingBag,
   X,
-  Phone,
 } from 'lucide-react';
 import { MENU, MENU_ITEM_COUNT, type MenuItem, type SizeOption } from './data/menu';
 import { RESTAURANT } from './config/restaurant';
@@ -28,12 +24,12 @@ type InstallPromptEvent = Event & {
 };
 
 const BRAND_MARK = './favicon.svg';
-const BRAND_LOGO = './brand-logo.svg';
 const FAVORITES_KEY = 'biryani-spot-favorites';
 const SELECTION_KEY = 'biryani-spot-selection';
 
 const FOOD_PHOTOS = {
-  biryani: 'https://images.unsplash.com/photo-1631515243349-e0cb75fb8d3a?auto=format&fit=crop&w=1100&q=82',
+  biryani: 'https://images.unsplash.com/photo-1631515243349-e0cb75fb8d3a?auto=format&fit=crop&w=900&q=82',
+  biryaniHero: 'https://images.unsplash.com/photo-1563379091339-03246963d96a?auto=format&fit=crop&w=1200&q=85',
   curry: 'https://images.unsplash.com/photo-1603894584373-5ac82b2ae398?auto=format&fit=crop&w=900&q=82',
   tandoori: 'https://images.unsplash.com/photo-1641873933980-fcff60026f50?auto=format&fit=crop&w=900&q=82',
   vegetarian: 'https://images.unsplash.com/photo-1757715376287-90f24dac4593?auto=format&fit=crop&w=900&q=82',
@@ -48,14 +44,12 @@ const formatPrice = (price: number) =>
 const categoryEmoji = (name: string) => {
   const value = name.toLowerCase();
   if (value.includes('biryani')) return '🍛';
-  if (value.includes('tandoori')) return '🍗';
+  if (value.includes('tandoori') || value.includes('starter')) return '🍗';
   if (value.includes('soup')) return '🥣';
   if (value.includes('bread') || value.includes('naan') || value.includes('roti')) return '🫓';
   if (value.includes('rice') || value.includes('fried')) return '🍚';
   if (value.includes('noodle')) return '🍜';
   if (value.includes('curry')) return '🥘';
-  if (value.includes('dessert')) return '🍮';
-  if (value.includes('beverage') || value.includes('drink')) return '🥤';
   if (value.includes('veg')) return '🥗';
   return '🍽️';
 };
@@ -63,12 +57,13 @@ const categoryEmoji = (name: string) => {
 const dishImageFor = (item: MenuItem) => {
   const name = item.name.toLowerCase();
   const category = item.category.toLowerCase();
+
   if (name.includes('biryani')) return FOOD_PHOTOS.biryani;
   if (
     name.includes('tandoori') || name.includes('tikka') || name.includes('kabab') ||
     name.includes('kebab') || name.includes('lollipop') || name.includes('wings') ||
     name.includes('65') || name.includes('manchuria') || name.includes('chilli') ||
-    name.includes('majesty') || name.includes('dragon')
+    name.includes('majesty') || name.includes('dragon') || category.includes('starter')
   ) {
     return item.veg ? FOOD_PHOTOS.vegetarian : FOOD_PHOTOS.tandoori;
   }
@@ -76,31 +71,11 @@ const dishImageFor = (item: MenuItem) => {
     return item.veg ? FOOD_PHOTOS.vegetarian : FOOD_PHOTOS.curry;
   }
   if (item.veg) return FOOD_PHOTOS.vegetarian;
-  if (name.includes('chicken') || name.includes('mutton') || name.includes('prawn') || name.includes('egg')) return FOOD_PHOTOS.tandoori;
+  if (name.includes('chicken') || name.includes('mutton') || name.includes('prawn') || name.includes('egg')) {
+    return FOOD_PHOTOS.tandoori;
+  }
   return FOOD_PHOTOS.curry;
 };
-
-const describeDish = (item: MenuItem) => {
-  const name = item.name.toLowerCase();
-  const category = item.category.toLowerCase();
-  if (name.includes('biryani')) return 'Aromatic basmati rice layered with rich spices and restaurant-style flavour.';
-  if (name.includes('soup')) return 'A comforting bowl prepared fresh with a balanced blend of seasoning.';
-  if (category.includes('tandoori') || name.includes('tikka') || name.includes('kabab')) return 'Marinated with warming spices and cooked for a smoky, savoury finish.';
-  if (category.includes('starter') || name.includes('65') || name.includes('manchuria')) return 'A crowd-pleasing starter with bold seasoning and plenty of flavour.';
-  if (category.includes('curry') || name.includes('masala')) return 'A satisfying curry made to pair beautifully with rice or Indian breads.';
-  if (name.includes('rice') || name.includes('noodle')) return 'Freshly prepared with seasoning and wok-tossed flavour in every bite.';
-  if (name.includes('naan') || name.includes('roti') || name.includes('kulcha')) return 'A freshly prepared Indian bread, perfect alongside your favourite curry.';
-  return item.veg
-    ? 'A vegetarian favourite, prepared to order with a tasty blend of spices.'
-    : 'A restaurant favourite, prepared to order with a delicious blend of spices.';
-};
-
-const galleryItems = [
-  { title: 'Signature biryani', subtitle: 'Aromatic rice favourites', image: FOOD_PHOTOS.biryani, category: "Biryani's" },
-  { title: 'From the tandoor', subtitle: 'Smoky and spice-kissed', image: FOOD_PHOTOS.tandoori, category: 'Tandoori Starter' },
-  { title: 'Vegetarian favourites', subtitle: 'Colourful, comforting plates', image: FOOD_PHOTOS.vegetarian, category: 'Veg Starters' },
-  { title: 'Rich curries', subtitle: 'A perfect meal companion', image: FOOD_PHOTOS.curry, category: 'Non Veg Curries' },
-];
 
 export default function App() {
   const [query, setQuery] = useState('');
@@ -113,10 +88,7 @@ export default function App() {
     try { return JSON.parse(localStorage.getItem(SELECTION_KEY) ?? '{}') as Selection; } catch { return {}; }
   });
   const [selectionOpen, setSelectionOpen] = useState(false);
-  const [feedbackOpen, setFeedbackOpen] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [feedbackName, setFeedbackName] = useState('');
-  const [feedback, setFeedback] = useState('');
   const [notice, setNotice] = useState('');
   const [printSelection, setPrintSelection] = useState(false);
   const [isOnline, setIsOnline] = useState(() => navigator.onLine);
@@ -129,7 +101,7 @@ export default function App() {
     };
     const onAppInstalled = () => {
       setInstallPrompt(null);
-      showNotice('Biryani Spot is ready on your home screen.');
+      showNotice('Biryani Spot was added to your home screen.');
     };
     window.addEventListener('beforeinstallprompt', onBeforeInstallPrompt);
     window.addEventListener('appinstalled', onAppInstalled);
@@ -150,22 +122,22 @@ export default function App() {
   }, []);
 
   useEffect(() => {
-    try { localStorage.setItem(FAVORITES_KEY, JSON.stringify(favorites)); } catch { /* usable for this session */ }
+    try { localStorage.setItem(FAVORITES_KEY, JSON.stringify(favorites)); } catch { /* favorites remain available for this session */ }
   }, [favorites]);
+
   useEffect(() => {
-    try { localStorage.setItem(SELECTION_KEY, JSON.stringify(selection)); } catch { /* usable for this session */ }
+    try { localStorage.setItem(SELECTION_KEY, JSON.stringify(selection)); } catch { /* selection remains available for this session */ }
   }, [selection]);
 
   useEffect(() => {
-    document.body.classList.toggle('modal-open', selectionOpen || feedbackOpen || mobileMenuOpen);
+    document.body.classList.toggle('modal-open', selectionOpen || mobileMenuOpen);
     return () => document.body.classList.remove('modal-open');
-  }, [selectionOpen, feedbackOpen, mobileMenuOpen]);
+  }, [selectionOpen, mobileMenuOpen]);
 
   useEffect(() => {
     const closeWithEscape = (event: KeyboardEvent) => {
       if (event.key !== 'Escape') return;
       setSelectionOpen(false);
-      setFeedbackOpen(false);
       setMobileMenuOpen(false);
     };
     window.addEventListener('keydown', closeWithEscape);
@@ -189,10 +161,11 @@ export default function App() {
     window.setTimeout(() => setNotice(''), 2600);
   };
 
-  const toggleFavorite = (id: string) =>
+  const toggleFavorite = (id: string) => {
     setFavorites((current) => current.includes(id)
       ? current.filter((value) => value !== id)
       : [...current, id]);
+  };
 
   const addItem = (item: MenuItem, option?: SizeOption) => {
     const key = selectionKey(item, option);
@@ -217,7 +190,10 @@ export default function App() {
 
   const selected = Object.values(selection);
   const selectedCount = selected.reduce((sum, entry) => sum + entry.qty, 0);
-  const selectedTotal = selected.reduce((sum, entry) => sum + (entry.option?.price ?? entry.item.price ?? 0) * entry.qty, 0);
+  const selectedTotal = selected.reduce((sum, entry) =>
+    sum + (entry.option?.price ?? entry.item.price ?? 0) * entry.qty, 0);
+  const whatsappNumber = RESTAURANT.whatsapp.replace(/\D/g, '');
+  const canUseWhatsApp = whatsappNumber.length >= 8 && whatsappNumber.length <= 15;
 
   const visibleCategories = useMemo(() => {
     const q = query.trim().toLowerCase();
@@ -232,6 +208,8 @@ export default function App() {
       }),
     })).filter((group) => group.items.length && (category === 'All' || group.name === category));
   }, [query, filter, category, favorites]);
+
+  const visibleCount = visibleCategories.reduce((sum, group) => sum + group.items.length, 0);
 
   const shareMenu = async () => {
     try {
@@ -248,13 +226,13 @@ export default function App() {
         showNotice('Copy the menu link from your browser.');
       }
     } catch {
-      // Sharing may be cancelled.
+      // The customer may cancel the native share panel.
     }
   };
 
   const shareSelection = async () => {
     if (!selected.length) {
-      showNotice('Add at least one dish before sharing your selection.');
+      showNotice('Add a dish before sharing your selection.');
       return;
     }
     const lines = selected.map((entry, index) => {
@@ -262,20 +240,20 @@ export default function App() {
       const price = entry.option?.price ?? entry.item.price ?? 0;
       return (index + 1) + '. ' + entry.item.name + size + ' × ' + entry.qty + ' — ₹' + formatPrice(price * entry.qty);
     });
-    const selectionText = [
-      'Biryani Spot — My Menu Selection',
+    const text = [
+      'Biryani Spot — Menu Selection',
       '',
       ...lines,
       '',
       'Estimated total: ₹' + formatPrice(selectedTotal),
       '',
-      'This is a menu selection only, not a confirmed order.',
+      'This is a selection for enquiry, not a confirmed order.',
       window.location.href,
     ].join('\n');
     try {
-      if (navigator.share) await navigator.share({ title: 'Biryani Spot — My Selection', text: selectionText });
+      if (navigator.share) await navigator.share({ title: 'Biryani Spot — My Selection', text });
       else if (navigator.clipboard) {
-        await navigator.clipboard.writeText(selectionText);
+        await navigator.clipboard.writeText(text);
         showNotice('Selection copied. You can paste it into a message.');
       } else showNotice('Sharing is not available in this browser.');
     } catch {
@@ -284,18 +262,20 @@ export default function App() {
   };
 
   const openWhatsApp = (message: string) => {
-    const number = RESTAURANT.whatsapp.replace(/\D/g, '');
-    if (number.length < 8 || number.length > 15) {
-      showNotice('WhatsApp will be enabled after the restaurant owner adds a verified number.');
-      return false;
+    if (!canUseWhatsApp) {
+      showNotice('WhatsApp ordering is unavailable until the restaurant adds its verified number.');
+      return;
     }
-    window.open('https://wa.me/' + number + '?text=' + encodeURIComponent(message), '_blank', 'noopener,noreferrer');
-    return true;
+    window.open(
+      'https://wa.me/' + whatsappNumber + '?text=' + encodeURIComponent(message),
+      '_blank',
+      'noopener,noreferrer',
+    );
   };
 
   const sendWhatsApp = () => {
     if (!selected.length) {
-      showNotice('Add at least one dish before sending an enquiry.');
+      showNotice('Add a dish before sending an enquiry.');
       return;
     }
     const lines = selected.map((entry, index) => {
@@ -305,7 +285,7 @@ export default function App() {
     const message = [
       'Hello Biryani Spot,',
       '',
-      'I would like to enquire about:',
+      'I would like to enquire about these menu items:',
       ...lines,
       '',
       'Estimated total: ₹' + formatPrice(selectedTotal),
@@ -314,20 +294,6 @@ export default function App() {
       'Thank you.',
     ].join('\n');
     openWhatsApp(message);
-  };
-
-  const sendFeedback = () => {
-    if (!feedback.trim()) {
-      showNotice('Please enter your feedback first.');
-      return;
-    }
-    const nameLine = feedbackName.trim() ? 'Name: ' + feedbackName.trim() + '\n\n' : '';
-    const message = 'Hello Biryani Spot,\n\n' + nameLine + 'I would like to share feedback:\n\n' + feedback.trim() + '\n\nThank you.';
-    if (openWhatsApp(message)) {
-      setFeedbackName('');
-      setFeedback('');
-      setFeedbackOpen(false);
-    }
   };
 
   const printSelectionNow = () => {
@@ -344,7 +310,7 @@ export default function App() {
     try {
       await installPrompt.prompt();
       const result = await installPrompt.userChoice;
-      showNotice(result.outcome === 'accepted' ? 'Biryani Spot install accepted.' : 'Install prompt dismissed.');
+      showNotice(result.outcome === 'accepted' ? 'Biryani Spot was added to your home screen.' : 'Install prompt dismissed.');
     } catch {
       showNotice('Installation is not available in this browser right now.');
     } finally {
@@ -374,7 +340,7 @@ export default function App() {
     <div className={selectedCount > 0 && !selectionOpen && !printSelection ? 'app-shell with-mobile-selection' : 'app-shell'}>
       {!isOnline && (
         <div className="offline-banner" role="status">
-          <strong>You are offline.</strong> The menu is available, but food photos and WhatsApp may need internet.
+          <strong>You are offline.</strong> The menu is available, but online food photos and WhatsApp may need internet.
         </div>
       )}
 
@@ -387,16 +353,13 @@ export default function App() {
         <nav className="desktop-nav" aria-label="Main navigation">
           <button className="nav-link active" onClick={() => jumpTo('home')}>Home</button>
           <button className="nav-link" onClick={() => jumpTo('menu')}>Menu</button>
-          <button className="nav-link" onClick={() => jumpTo('about')}>About</button>
-          <button className="nav-link" onClick={() => jumpTo('gallery')}>Gallery</button>
-          <button className="nav-link" onClick={() => jumpTo('contact')}>Contact</button>
+          <button className="nav-link" onClick={() => jumpTo('about')}>Restaurant</button>
         </nav>
 
         <div className="top-actions">
           <button className="top-action share-action" onClick={shareMenu} aria-label="Share menu"><Share2 size={17} /><span>Share</span></button>
           <button className="selection-button" onClick={() => setSelectionOpen(true)} aria-label={'Open My Selection, ' + selectedCount + ' items'}>
-            <ShoppingBag size={17} /><span>My Selection</span>
-            {selectedCount > 0 && <b>{selectedCount}</b>}
+            <ShoppingBag size={17} /><span>My Selection</span>{selectedCount > 0 && <b>{selectedCount}</b>}
           </button>
           <button className="mobile-menu-trigger" onClick={() => setMobileMenuOpen(true)} aria-label="Open navigation menu" aria-expanded={mobileMenuOpen}>
             <MenuIcon size={22} />
@@ -411,14 +374,10 @@ export default function App() {
               <div className="mobile-brand-lockup"><img src={BRAND_MARK} alt="" /><span><strong>Biryani Spot</strong><small>Family Restaurant</small></span></div>
               <button className="icon-button" onClick={() => setMobileMenuOpen(false)} aria-label="Close navigation"><X size={20} /></button>
             </div>
-            <button className="mobile-nav-link" onClick={() => jumpTo('home')}>Home <ArrowRight size={17} /></button>
-            <button className="mobile-nav-link" onClick={() => jumpTo('menu')}>Menu <ArrowRight size={17} /></button>
-            <button className="mobile-nav-link" onClick={() => jumpTo('about')}>About <ArrowRight size={17} /></button>
-            <button className="mobile-nav-link" onClick={() => jumpTo('gallery')}>Gallery <ArrowRight size={17} /></button>
-            <button className="mobile-nav-link" onClick={() => jumpTo('contact')}>Contact <ArrowRight size={17} /></button>
-            <div className="mobile-nav-divider" />
-            <button className="mobile-nav-link" onClick={() => { setMobileMenuOpen(false); setFilter('favorites'); setCategory('All'); jumpTo('menu'); }}><Heart size={17} /> Favourites <ArrowRight size={17} /></button>
-            <button className="mobile-nav-link emphasized" onClick={() => { setMobileMenuOpen(false); setSelectionOpen(true); }}><ShoppingBag size={17} /> My Selection ({selectedCount}) <ArrowRight size={17} /></button>
+            <button className="mobile-nav-link" onClick={() => jumpTo('home')}>Home <ArrowRight size={16} /></button>
+            <button className="mobile-nav-link" onClick={() => jumpTo('menu')}>Full menu <ArrowRight size={16} /></button>
+            <button className="mobile-nav-link" onClick={() => { setMobileMenuOpen(false); setFilter('favorites'); setCategory('All'); jumpTo('menu'); }}><Heart size={16} /> Saved favourites <ArrowRight size={16} /></button>
+            <button className="mobile-nav-link" onClick={() => { setMobileMenuOpen(false); setSelectionOpen(true); }}><ShoppingBag size={16} /> My Selection ({selectedCount}) <ArrowRight size={16} /></button>
             <p className="mobile-nav-note">Tradition · Taste · Together</p>
           </nav>
         </div>
@@ -427,30 +386,24 @@ export default function App() {
       <main>
         <section className="hero" aria-labelledby="hero-title">
           <div className="hero-copy">
-            <span className="hero-eyebrow"><span className="hero-eyebrow-dot" /> TRADITION · TASTE · TOGETHER</span>
-            <h1 id="hero-title">Authentic <em>Biryani Flavours.</em></h1>
-            <p>From classic dum biryanis to richly spiced curries, discover a menu made for sharing with family and friends.</p>
+            <span className="hero-eyebrow"><span className="hero-eyebrow-dot" /> BIRYANI · TANDOORI · INDIAN FAVOURITES</span>
+            <h1 id="hero-title">Good food.<br /><em>Good company.</em></h1>
+            <p>Explore the Biryani Spot menu, find your favourites, and build a selection to share with the restaurant.</p>
             <div className="hero-actions">
-              <button className="primary-button" onClick={() => jumpTo('menu')}>Explore Menu <ArrowDown size={16} /></button>
-              <button className="secondary-button" onClick={() => jumpTo('gallery')}>Discover Favourites <ArrowRight size={16} /></button>
-            </div>
-            <div className="hero-benefits">
-              <div><span className="benefit-icon">✦</span><span><strong>Made with care</strong><small>Prepared to order</small></span></div>
-              <div><span className="benefit-icon">♨</span><span><strong>Indian favourites</strong><small>Classic flavours</small></span></div>
-              <div><span className="benefit-icon">♡</span><span><strong>Made for sharing</strong><small>Family dining</small></span></div>
+              <button className="primary-button" onClick={() => jumpTo('menu')}>Explore menu <ArrowRight size={16} /></button>
+              <button className="secondary-button" onClick={shareMenu}><Share2 size={16} /> Share menu</button>
             </div>
           </div>
           <div className="hero-visual">
             <img
               className="hero-photo"
-              src={FOOD_PHOTOS.biryani}
-              alt="A serving of biryani with basmati rice and spices"
+              src={FOOD_PHOTOS.biryaniHero}
+              alt="Representative photograph of a traditional biryani dish"
               fetchPriority="high"
               onError={(event) => { event.currentTarget.style.display = 'none'; event.currentTarget.parentElement?.classList.add('image-failed'); }}
             />
-            <span className="hero-image-kicker">THE COMFORT OF A CLASSIC</span>
-            <div className="hero-image-caption"><span>Good food</span><strong>brings people together.</strong></div>
-            <div className="hero-photo-stamp"><span>FRESH</span><span>FLAVOUR</span><span>ALWAYS</span></div>
+            <span className="hero-image-kicker">BIRYANI SPOT · FAMILY RESTAURANT</span>
+            <div className="hero-image-caption"><span>Find your next</span><strong>favourite dish.</strong></div>
           </div>
         </section>
 
@@ -467,9 +420,9 @@ export default function App() {
 
         <section className="toolbar" aria-label="Search and filter menu">
           <label className="search">
-            <Search size={19} aria-hidden="true" />
-            <input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Search biryani, chicken, paneer..." aria-label="Search menu" />
-            {query && <button type="button" onClick={() => setQuery('')} aria-label="Clear search"><X size={17} /></button>}
+            <Search size={18} aria-hidden="true" />
+            <input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Search dishes..." aria-label="Search menu" />
+            {query && <button type="button" onClick={() => setQuery('')} aria-label="Clear search"><X size={16} /></button>}
           </label>
           <div className="filters" aria-label="Filter dishes">
             {(['all', 'veg', 'nonveg', 'favorites'] as const).map((value) => (
@@ -483,33 +436,35 @@ export default function App() {
                 aria-pressed={filter === value}
                 aria-label={value === 'all' ? 'Show all dishes' : value === 'veg' ? 'Show vegetarian dishes' : value === 'nonveg' ? 'Show non-vegetarian dishes' : 'Show favourite dishes'}
               >
-                {value === 'all' ? 'All' : value === 'veg' ? <><span className="filter-dot veg-filter-dot" /> Veg</> : value === 'nonveg' ? <><span className="filter-dot nonveg-filter-dot" /> Non-Veg</> : <><Heart size={14} /> Saved</>}
+                {value === 'all' ? 'All' : value === 'veg' ? <><span className="filter-dot veg-filter-dot" /> Veg</> : value === 'nonveg' ? <><span className="filter-dot nonveg-filter-dot" /> Non-veg</> : <><Heart size={13} /> Saved</>}
               </button>
             ))}
           </div>
-          {(query || filter !== 'all' || category !== 'All') && <button className="reset-filter" onClick={resetMenu}>Reset</button>}
+          {(query || filter !== 'all' || category !== 'All') && <button className="reset-filter" onClick={resetMenu}>Clear filters</button>}
         </section>
 
         <section className="menu" id="menu">
           <div className="section-title">
-            <div><span className="eyebrow">GOOD FOOD, GOOD MOOD</span><h2>{category === 'All' ? 'Something for everyone' : category}</h2><p className="section-subtitle">Find your new favourite, one delicious dish at a time.</p></div>
-            <span className="dish-count">{visibleCategories.reduce((sum, group) => sum + group.items.length, 0)} dishes</span>
+            <div><span className="eyebrow">THE MENU</span><h2>{category === 'All' ? 'What sounds good today?' : category}</h2></div>
+            <span className="dish-count">{visibleCount} of {category === 'All' && filter === 'all' && !query ? MENU_ITEM_COUNT : visibleCount} dishes</span>
           </div>
 
           {!visibleCategories.length ? (
             <div className="empty">
               <div><Search size={22} /></div>
-              <h3>{filter === 'favorites' ? 'No favourites saved yet' : 'No dishes found'}</h3>
-              <p>{filter === 'favorites' ? 'Tap the heart on a dish to keep it here for next time.' : 'Try a different search, category or filter.'}</p>
-              <button className="secondary-button" onClick={resetMenu}>Browse all dishes</button>
+              <h3>{filter === 'favorites' ? 'No saved dishes yet' : 'No dishes found'}</h3>
+              <p>{filter === 'favorites' ? 'Tap the heart on a dish to save it here.' : 'Try a different search or clear the filters.'}</p>
+              <button className="secondary-button" onClick={resetMenu}>Show all dishes</button>
             </div>
           ) : visibleCategories.map((group) => (
             <section className="menu-section" key={group.name}>
-              <div className="category-heading">
-                <div className="category-mark">{categoryEmoji(group.name)}</div>
-                <div><h3>{group.name}</h3><p>{group.description}</p></div>
-                <span>{group.items.length} items</span>
-              </div>
+              {category === 'All' && (
+                <div className="category-heading">
+                  <div className="category-mark">{categoryEmoji(group.name)}</div>
+                  <div><h3>{group.name}</h3><p>{group.description}</p></div>
+                  <span>{group.items.length}</span>
+                </div>
+              )}
               <div className="dish-grid">
                 {group.items.map((item) => {
                   const singleKey = selectionKey(item);
@@ -520,23 +475,21 @@ export default function App() {
                         <img
                           className="dish-photo"
                           src={dishImageFor(item)}
-                          alt={item.name + ' — representative food photo'}
+                          alt={'Representative image for ' + item.name}
                           loading="lazy"
                           decoding="async"
                           onError={(event) => { event.currentTarget.style.display = 'none'; event.currentTarget.parentElement?.classList.add('image-failed'); }}
                         />
                         <span className="dish-image-fallback" aria-hidden="true">{categoryEmoji(item.category)}</span>
-                        <span className={item.veg ? 'dish-type-badge veg-badge' : 'dish-type-badge nonveg-badge'} aria-label={item.veg ? 'Vegetarian' : 'Non-vegetarian'}>
+                        <span className={item.veg ? 'dish-type-badge veg-badge' : 'dish-type-badge nonveg-badge'}>
                           <i aria-hidden="true" /> {item.veg ? 'VEG' : 'NON-VEG'}
                         </span>
-                        <button className={favorite ? 'favorite active' : 'favorite'} onClick={() => toggleFavorite(item.id)} aria-pressed={favorite} aria-label={favorite ? 'Remove ' + item.name + ' from favourites' : 'Add ' + item.name + ' to favourites'}><Heart size={18} fill={favorite ? 'currentColor' : 'none'} /></button>
+                        <button className={favorite ? 'favorite active' : 'favorite'} onClick={() => toggleFavorite(item.id)} aria-pressed={favorite} aria-label={favorite ? 'Remove ' + item.name + ' from favourites' : 'Save ' + item.name + ' to favourites'}>
+                          <Heart size={17} fill={favorite ? 'currentColor' : 'none'} />
+                        </button>
                       </div>
                       <div className="dish-body">
-                        <div className="dish-title">
-                          <span className={item.veg ? 'veg-dot' : 'nonveg-dot'} aria-hidden="true" />
-                          <h4>{item.name}</h4>
-                        </div>
-                        <p className="dish-description">{describeDish(item)}</p>
+                        <div className="dish-title"><span className={item.veg ? 'veg-dot' : 'nonveg-dot'} aria-hidden="true" /><h4>{item.name}</h4></div>
                         {item.sizes ? (
                           <div className="size-grid">
                             {item.sizes.map((option) => {
@@ -553,11 +506,10 @@ export default function App() {
                           <div className="single-price">
                             <strong>₹{formatPrice(item.price ?? 0)}</strong>
                             <button className={selection[singleKey] ? 'add-button added' : 'add-button'} onClick={() => addItem(item)} aria-label={'Add ' + item.name + ' to selection'}>
-                              {selection[singleKey] ? <><Check size={14} /> {selection[singleKey].qty} added</> : <><Plus size={15} /> Add</>}
+                              {selection[singleKey] ? <><Check size={14} /> {selection[singleKey].qty}</> : <><Plus size={15} /> Add</>}
                             </button>
                           </div>
                         )}
-                        <small className="price-caption">{item.sizes ? 'Choose half or full' : 'Menu price'}</small>
                       </div>
                     </article>
                   );
@@ -567,55 +519,39 @@ export default function App() {
           ))}
         </section>
 
-        <section className="gallery-section" id="gallery">
-          <div className="gallery-heading"><div><span className="eyebrow">A LITTLE INSPIRATION</span><h2>Made for every craving</h2><p>From comforting classics to rich, spicy favourites.</p></div><button className="text-link" onClick={() => jumpTo('menu')}>Explore full menu <ArrowRight size={16} /></button></div>
-          <div className="gallery-grid">
-            {galleryItems.map((item) => (
-              <button className="gallery-card" key={item.title} onClick={() => chooseCategory(item.category)}>
-                <img src={item.image} alt={item.title + ' food inspiration'} loading="lazy" onError={(event) => { event.currentTarget.style.display = 'none'; event.currentTarget.parentElement?.classList.add('image-failed'); }} />
-                <span className="gallery-fallback" aria-hidden="true">{categoryEmoji(item.category)}</span>
-                <span className="gallery-card-copy"><strong>{item.title}</strong><small>{item.subtitle}</small><span>Explore category <ArrowRight size={14} /></span></span>
-              </button>
-            ))}
-          </div>
-        </section>
-
-        <section className="restaurant-info" id="about">
-          <div className="info-brand"><img src={BRAND_MARK} alt="" /><div><span className="eyebrow">TRADITION · TASTE · TOGETHER</span><h2>Welcome to Biryani Spot</h2><p>A place for comforting meals and family favourites.</p></div></div>
-          <div className="info-grid">
-            <div className="info-card"><span className="info-icon"><MapPin size={20} /></span><strong>Visit Us</strong><p>{RESTAURANT.address || 'Restaurant address will be added after owner confirmation.'}</p>{RESTAURANT.mapsUrl && <a className="info-link" href={RESTAURANT.mapsUrl} target="_blank" rel="noreferrer">Get directions <ArrowRight size={14} /></a>}</div>
-            <div className="info-card"><span className="info-icon"><Phone size={20} /></span><strong>Call the restaurant</strong><p>{RESTAURANT.phone || 'Verified phone number required.'}</p>{RESTAURANT.phone && <a className="info-link" href={'tel:' + RESTAURANT.phone}>Call now <ArrowRight size={14} /></a>}</div>
-            <div className="info-card"><span className="info-icon"><MessageCircle size={20} /></span><strong>WhatsApp</strong><p>{RESTAURANT.whatsapp || 'Verified WhatsApp number required.'}</p>{RESTAURANT.whatsapp && <button className="info-link-button" onClick={() => openWhatsApp('Hello Biryani Spot, I have a question about the menu.')}>Chat with us <ArrowRight size={14} /></button>}</div>
-            <div className="info-card"><span className="info-icon"><Clock3 size={20} /></span><strong>Opening hours</strong><p>{RESTAURANT.openingHours || 'Opening hours will be added after owner confirmation.'}</p></div>
-          </div>
-          <div className="contact-actions" id="contact">
-            {RESTAURANT.instagramUrl && <a className="secondary-button" href={RESTAURANT.instagramUrl} target="_blank" rel="noreferrer">Instagram <ArrowRight size={14} /></a>}
-            {RESTAURANT.facebookUrl && <a className="secondary-button" href={RESTAURANT.facebookUrl} target="_blank" rel="noreferrer">Facebook <ArrowRight size={14} /></a>}
-            <button className="secondary-button" onClick={() => setFeedbackOpen(true)}>Send feedback</button>
-            <button className="secondary-button" onClick={shareMenu}><Share2 size={16} /> Share menu</button>
-          </div>
-        </section>
-
-        <section className="family-note">
-          <div><span className="eyebrow">SAVE YOUR PLACE AT THE TABLE</span><h2>Come hungry, leave happy.</h2><p>Build a selection, review estimated prices, and send an enquiry when you are ready.</p></div>
-          <div className="note-actions"><button className="secondary-button" onClick={() => window.print()}><Printer size={16} /> Print menu</button><button className="secondary-button" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}>Back to top <ArrowDown size={15} className="arrow-up" /></button></div>
-        </section>
+        {(RESTAURANT.address || RESTAURANT.phone || RESTAURANT.mapsUrl || RESTAURANT.whatsapp || RESTAURANT.openingHours || RESTAURANT.instagramUrl || RESTAURANT.facebookUrl) && (
+          <section className="restaurant-info" id="restaurant">
+            <div className="info-heading"><span className="eyebrow">PLAN YOUR VISIT</span><h2>Restaurant information</h2></div>
+            <div className="info-grid">
+              {RESTAURANT.address && <div className="info-card"><strong>Address</strong><p>{RESTAURANT.address}</p>{RESTAURANT.mapsUrl && <a className="info-link" href={RESTAURANT.mapsUrl} target="_blank" rel="noreferrer">Get directions <ArrowRight size={14} /></a>}</div>}
+              {RESTAURANT.phone && <div className="info-card"><strong>Phone</strong><p>{RESTAURANT.phone}</p><a className="info-link" href={'tel:' + RESTAURANT.phone}>Call restaurant <ArrowRight size={14} /></a></div>}
+              {RESTAURANT.whatsapp && <div className="info-card"><strong>WhatsApp</strong><p>Contact the restaurant about menu items.</p><button className="info-link-button" onClick={() => openWhatsApp('Hello Biryani Spot, I have a question about the menu.')}>Message restaurant <ArrowRight size={14} /></button></div>}
+              {RESTAURANT.openingHours && <div className="info-card"><strong>Opening hours</strong><p>{RESTAURANT.openingHours}</p></div>}
+              {RESTAURANT.instagramUrl && <div className="info-card"><strong>Instagram</strong><a className="info-link" href={RESTAURANT.instagramUrl} target="_blank" rel="noreferrer">View profile <ArrowRight size={14} /></a></div>}
+              {RESTAURANT.facebookUrl && <div className="info-card"><strong>Facebook</strong><a className="info-link" href={RESTAURANT.facebookUrl} target="_blank" rel="noreferrer">View profile <ArrowRight size={14} /></a></div>}
+            </div>
+          </section>
+        )}
       </main>
 
       <footer className="footer">
-        <img className="footer-logo" src={BRAND_LOGO} alt="Biryani Spot Family Restaurant logo" loading="lazy" />
-        <div><strong>Biryani Spot</strong><span>Family Restaurant</span></div>
+        <div className="footer-brand"><img src={BRAND_MARK} alt="" /><span><strong>Biryani Spot</strong><small>Family Restaurant</small></span></div>
         <p>Tradition · Taste · Together</p>
-        <small>Digital menu · {MENU_ITEM_COUNT} dishes · Please confirm prices and availability with the restaurant.</small>
-        {installPrompt && <button className="footer-install" onClick={installMenu}>Add to Home Screen</button>}
+        <div className="footer-actions">
+          <button className="footer-action" onClick={shareMenu}><Share2 size={15} /> Share menu</button>
+          <button className="footer-action" onClick={() => window.print()}><Printer size={15} /> Print menu</button>
+          {installPrompt && <button className="footer-action" onClick={installMenu}>Add to home screen</button>}
+        </div>
+        <small className="footer-note">{MENU_ITEM_COUNT} menu items · Please confirm final prices and availability with the restaurant.</small>
       </footer>
 
       {selectedCount > 0 && !selectionOpen && !printSelection && (
         <div className="mobile-selection-bar">
           <button onClick={() => setSelectionOpen(true)} aria-label={'View selection, ' + selectedCount + ' items, estimated total ' + selectedTotal + ' rupees'}>
-            <span className="mobile-selection-bag"><ShoppingBag size={19} /><i>{selectedCount}</i></span>
-            <span className="mobile-selection-copy"><strong>View selection</strong><small>{selectedCount} {selectedCount === 1 ? 'item' : 'items'} · estimated total</small></span>
-            <strong className="mobile-selection-total">₹{formatPrice(selectedTotal)}</strong><ArrowRight size={17} />
+            <span className="mobile-selection-bag"><ShoppingBag size={18} /><i>{selectedCount}</i></span>
+            <span className="mobile-selection-copy"><strong>My selection</strong><small>{selectedCount} {selectedCount === 1 ? 'item' : 'items'} · estimated total</small></span>
+            <strong className="mobile-selection-total">₹{formatPrice(selectedTotal)}</strong>
+            <ArrowRight size={17} />
           </button>
         </div>
       )}
@@ -624,11 +560,11 @@ export default function App() {
         <div className="overlay" onClick={() => setSelectionOpen(false)}>
           <aside className="drawer" role="dialog" aria-modal="true" aria-label="My Selection" onClick={(event) => event.stopPropagation()}>
             <div className="drawer-head">
-              <div><span className="eyebrow">YOUR TABLE LIST</span><h2>My Selection</h2><p>Review your choices before sending an enquiry.</p></div>
+              <div><span className="eyebrow">YOUR TABLE LIST</span><h2>My Selection</h2><p>Review quantities and estimated prices.</p></div>
               <button className="icon-button" onClick={() => setSelectionOpen(false)} aria-label="Close selection"><X size={20} /></button>
             </div>
             {!selected.length ? (
-              <div className="drawer-empty"><span><ShoppingBag size={27} /></span><h3>Your selection is empty</h3><p>Add dishes from the menu to create a quick list for your table.</p><button className="primary-button" onClick={() => setSelectionOpen(false)}>Continue browsing <ArrowRight size={16} /></button></div>
+              <div className="drawer-empty"><span><ShoppingBag size={27} /></span><h3>Your selection is empty</h3><p>Add dishes from the menu to build a list for your table.</p><button className="primary-button" onClick={() => setSelectionOpen(false)}>Browse menu <ArrowRight size={16} /></button></div>
             ) : (
               <>
                 <div className="drawer-items">
@@ -636,15 +572,12 @@ export default function App() {
                     const key = selectionKey(entry.item, entry.option);
                     return (
                       <div className="drawer-item" key={key}>
-                        <div className="drawer-item-image">
-                          <img src={dishImageFor(entry.item)} alt="" loading="lazy" onError={(event) => { event.currentTarget.style.display = 'none'; event.currentTarget.parentElement?.classList.add('image-failed'); }} />
-                          <span aria-hidden="true">{categoryEmoji(entry.item.category)}</span>
-                        </div>
+                        <div className="drawer-item-image"><img src={dishImageFor(entry.item)} alt="" loading="lazy" onError={(event) => { event.currentTarget.style.display = 'none'; event.currentTarget.parentElement?.classList.add('image-failed'); }} /><span aria-hidden="true">{categoryEmoji(entry.item.category)}</span></div>
                         <div className="drawer-main"><strong>{entry.item.name}</strong><small>{entry.option?.label ?? 'Regular'} · ₹{formatPrice(entry.option?.price ?? entry.item.price ?? 0)}</small><b>₹{formatPrice((entry.option?.price ?? entry.item.price ?? 0) * entry.qty)}</b></div>
                         <div className="qty">
-                          <button onClick={() => changeQty(key, -1)} aria-label={'Remove one ' + entry.item.name}> <Minus size={14} /> </button>
+                          <button onClick={() => changeQty(key, -1)} aria-label={'Remove one ' + entry.item.name}><Minus size={13} /></button>
                           <b>{entry.qty}</b>
-                          <button onClick={() => changeQty(key, 1)} aria-label={'Add one ' + entry.item.name}><Plus size={14} /></button>
+                          <button onClick={() => changeQty(key, 1)} aria-label={'Add one ' + entry.item.name}><Plus size={13} /></button>
                         </div>
                       </div>
                     );
@@ -652,28 +585,18 @@ export default function App() {
                 </div>
                 <div className="drawer-summary">
                   <div className="summary-total"><span>Estimated total</span><strong>₹{formatPrice(selectedTotal)}</strong></div>
-                  <p>This is a menu enquiry only. The restaurant must confirm final prices, availability, and your order.</p>
+                  <p>Selection only — not a confirmed order or payment. The restaurant must confirm availability and final prices.</p>
                   <div className="drawer-actions">
-                    <button className="secondary-button" onClick={shareSelection}><Share2 size={16} /> Share list</button>
-                    <button className="secondary-button" onClick={printSelectionNow}><Printer size={16} /> Print</button>
+                    <button className="secondary-button" onClick={shareSelection}><Share2 size={15} /> Share list</button>
+                    <button className="secondary-button" onClick={printSelectionNow}><Printer size={15} /> Print list</button>
                     <button className="secondary-button clear-selection" onClick={() => setSelection({})}>Clear selection</button>
-                    <button className="whatsapp-button" onClick={sendWhatsApp}><MessageCircle size={18} /> Enquire on WhatsApp</button>
+                    <button className="whatsapp-button" onClick={sendWhatsApp} disabled={!canUseWhatsApp}><MessageCircle size={17} /> {canUseWhatsApp ? 'Enquire on WhatsApp' : 'WhatsApp not configured'}</button>
                   </div>
+                  {!canUseWhatsApp && <small className="configuration-note">A verified restaurant WhatsApp number is needed to enable enquiries.</small>}
                 </div>
               </>
             )}
           </aside>
-        </div>
-      )}
-
-      {feedbackOpen && (
-        <div className="overlay" onClick={() => setFeedbackOpen(false)}>
-          <div className="feedback-modal" role="dialog" aria-modal="true" aria-label="Send Feedback" onClick={(event) => event.stopPropagation()}>
-            <div className="drawer-head"><div><span className="eyebrow">BIRYANI SPOT</span><h2>Send feedback</h2><p>Your thoughts help us improve.</p></div><button className="icon-button" onClick={() => setFeedbackOpen(false)} aria-label="Close feedback form"><X size={20} /></button></div>
-            <label className="feedback-field"><span>Name <small>(optional)</small></span><input value={feedbackName} onChange={(event) => setFeedbackName(event.target.value)} placeholder="Your name" autoComplete="name" /></label>
-            <label className="feedback-field"><span>Feedback <b>(required)</b></span><textarea value={feedback} onChange={(event) => setFeedback(event.target.value)} placeholder="Tell us about your experience..." required /></label>
-            <div className="drawer-actions feedback-actions"><button className="secondary-button" onClick={() => setFeedbackOpen(false)}>Cancel</button><button className="primary-button" onClick={sendFeedback}><MessageCircle size={16} /> Send on WhatsApp</button></div>
-          </div>
         </div>
       )}
 
