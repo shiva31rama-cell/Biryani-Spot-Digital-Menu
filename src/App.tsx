@@ -446,7 +446,7 @@ export default function App() {
         <section className="menu" id="menu">
           <div className="section-title">
             <div><span className="eyebrow">THE MENU</span><h2>{category === 'All' ? 'What sounds good today?' : category}</h2></div>
-            <span className="dish-count">{visibleCount} of {category === 'All' && filter === 'all' && !query ? MENU_ITEM_COUNT : visibleCount} dishes</span>
+            <span className="dish-count">{visibleCount} dishes</span>
           </div>
 
           {!visibleCategories.length ? (
