@@ -8,25 +8,9 @@ type Selection = Record<string, SelectionEntry>;
 
 const BRAND_MARK = './favicon.svg';
 const HERO_IMAGE = 'https://images.unsplash.com/photo-1563379091339-03246963d96a?auto=format&fit=crop&w=1400&q=88';
-const ITEM_IMAGES = {
-  biryani: 'https://images.unsplash.com/photo-1631515243349-e0cb75fb8d3a?auto=format&fit=crop&w=500&q=76',
-  starter: 'https://images.unsplash.com/photo-1641873933980-fcff60026f50?auto=format&fit=crop&w=500&q=76',
-  curry: 'https://images.unsplash.com/photo-1603894584373-5ac82b2ae398?auto=format&fit=crop&w=500&q=76',
-  veg: 'https://images.unsplash.com/photo-1540420773420-3366772f4999?auto=format&fit=crop&w=500&q=76',
-};
 const selectionKey = (item: MenuItem, option?: SizeOption) => item.id + '-' + (option?.label ?? 'single');
 const formatPrice = (price: number) => new Intl.NumberFormat('en-IN', { maximumFractionDigits: 0 }).format(price);
 
-function imageFor(item: MenuItem) {
-  const category = item.category.toLowerCase();
-  const name = item.name.toLowerCase();
-  if (name.includes('biryani')) return ITEM_IMAGES.biryani;
-  if (category.includes('soup')) return '';
-  if (category.includes('curry') || name.includes('masala') || name.includes('gravy')) return item.veg ? ITEM_IMAGES.veg : ITEM_IMAGES.curry;
-  if (category.includes('starter') || name.includes('tikka') || name.includes('kabab') || name.includes('kebab')) return item.veg ? ITEM_IMAGES.veg : ITEM_IMAGES.starter;
-  if (item.veg) return ITEM_IMAGES.veg;
-  return ITEM_IMAGES.curry;
-}
 
 export default function App() {
   const [query, setQuery] = useState('');
@@ -203,10 +187,9 @@ export default function App() {
                   <div className="dish-list">
                     {group.items.map((item) => {
                       const singleKey = selectionKey(item);
-                      const itemImage = imageFor(item);
                       return (
                         <article className="dish-row" key={item.id}>
-                          {itemImage ? <img className="dish-thumb" src={itemImage} alt="" loading="lazy" decoding="async" onError={(event) => { event.currentTarget.style.display = 'none'; }} /> : <div className="dish-thumb soup-thumb" aria-hidden="true"><span>BS</span></div>}
+
                           <div className="dish-details">
                             <div className="dish-name-line"><i className={item.veg ? 'diet-mark veg-mark' : 'diet-mark nonveg-mark'} aria-label={item.veg ? 'Vegetarian' : 'Non-vegetarian'} /><h4>{item.name}</h4></div>
                             <span className="dish-category">{item.veg ? 'VEG' : 'NON-VEG'} <span>·</span> {group.name}</span>
