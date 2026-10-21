@@ -4,14 +4,14 @@
   "description": "Digital menu for Biryani Spot Family Restaurant.",
   "start_url": "./",
   "display": "standalone",
-  "background_color": "#fbf7f0",
-  "theme_color": "#7b241d",
+  "background_color": "#faf6ef",
+  "theme_color": "#7b211d",
   "icons": [
     {
-      "src": "./biryani-spot-brand.webp",
+      "src": "./favicon.svg",
       "sizes": "any",
-      "type": "image/webp",
-      "purpose": "any maskable"
+      "type": "image/svg+xml",
+      "purpose": "any"
     }
   ]
 }

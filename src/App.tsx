@@ -1,253 +1,218 @@
 import { useEffect, useMemo, useState } from 'react';
-import { Check, ChevronRight, Minus, Plus, Search, ShoppingBag, X, MessageCircle } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Check, ChefHat, ChevronRight, Flame, Leaf, MessageCircle, Minus, Plus, RefreshCw, Search, ShoppingBag, Soup, Utensils, X } from 'lucide-react';
 import { MENU, MENU_ITEM_COUNT, type MenuItem, type SizeOption } from './data/menu';
 import { RESTAURANT } from './config/restaurant';
 
-type SelectionEntry = { item: MenuItem; option?: SizeOption; qty: number };
-type Selection = Record<string, SelectionEntry>;
-
-const BRAND_MARK = './favicon.svg';
-const HERO_IMAGE = 'https://images.unsplash.com/photo-1563379091339-03246963d96a?auto=format&fit=crop&w=1400&q=88';
-const selectionKey = (item: MenuItem, option?: SizeOption) => item.id + '-' + (option?.label ?? 'single');
-const formatPrice = (price: number) => new Intl.NumberFormat('en-IN', { maximumFractionDigits: 0 }).format(price);
-
+type Entry = { item: MenuItem; option?: SizeOption; qty: number };
+type Selection = Record<string, Entry>;
+type Page = 'welcome' | 'menu';
+const heroImage = 'https://images.unsplash.com/photo-1563379091339-03246963d96a?auto=format&fit=crop&w=1400&q=88';
+const keyFor = (item: MenuItem, option?: SizeOption) => item.id + '-' + (option?.label ?? 'single');
+const slug = (name: string) => 'category-' + name.toLowerCase().replace(/[^a-z0-9]+/g, '-');
+const money = (price: number) => new Intl.NumberFormat('en-IN', { maximumFractionDigits: 0 }).format(price);
+const allItems = MENU.flatMap((category) => category.items);
+function categoryIcon(name: string) {
+  const n = name.toLowerCase();
+  if (n.includes('soup')) return Soup;
+  if (n.includes('biryani') || n.includes('rice')) return ChefHat;
+  if (n.includes('starter') || n.includes('tandoori')) return Flame;
+  if (n.includes('drink')) return Leaf;
+  return Utensils;
+}
 
 export default function App() {
+  const [page, setPage] = useState<Page>(() => {
+    try { return sessionStorage.getItem('biryani-spot-page') === 'menu' ? 'menu' : 'welcome'; } catch { return 'welcome'; }
+  });
   const [query, setQuery] = useState('');
   const [diet, setDiet] = useState<'all' | 'veg' | 'nonveg'>('all');
-  const [category, setCategory] = useState('All');
+  const [active, setActive] = useState(MENU[0]?.name ?? '');
   const [selection, setSelection] = useState<Selection>(() => {
-    try { return JSON.parse(localStorage.getItem('biryani-spot-selection') ?? '{}') as Selection; }
-    catch { return {}; }
+    try { return JSON.parse(localStorage.getItem('biryani-spot-selection') ?? '{}') as Selection; } catch { return {}; }
   });
-  const [selectionOpen, setSelectionOpen] = useState(false);
+  const [drawer, setDrawer] = useState(false);
   const [notice, setNotice] = useState('');
 
   useEffect(() => {
-    try { localStorage.setItem('biryani-spot-selection', JSON.stringify(selection)); } catch { /* Keep this session usable when storage is unavailable. */ }
+    try { localStorage.setItem('biryani-spot-selection', JSON.stringify(selection)); } catch { /* Selection still works for this session. */ }
   }, [selection]);
-
   useEffect(() => {
-    document.body.classList.toggle('modal-open', selectionOpen);
+    try { sessionStorage.setItem('biryani-spot-page', page); } catch { /* Optional. */ }
+    window.scrollTo({ top: 0, behavior: 'auto' });
+  }, [page]);
+  useEffect(() => {
+    document.body.classList.toggle('modal-open', drawer);
     return () => document.body.classList.remove('modal-open');
-  }, [selectionOpen]);
-
+  }, [drawer]);
   useEffect(() => {
-    const close = (event: KeyboardEvent) => { if (event.key === 'Escape') setSelectionOpen(false); };
+    const close = (event: KeyboardEvent) => { if (event.key === 'Escape') setDrawer(false); };
     window.addEventListener('keydown', close);
     return () => window.removeEventListener('keydown', close);
   }, []);
+  const toast = (message: string) => { setNotice(message); window.setTimeout(() => setNotice(''), 2500); };
+  const entries = Object.values(selection);
+  const count = entries.reduce((sum, entry) => sum + entry.qty, 0);
+  const total = entries.reduce((sum, entry) => sum + (entry.option?.price ?? entry.item.price ?? 0) * entry.qty, 0);
+  const whatsapp = RESTAURANT.whatsapp.replace(/\D/g, '');
+  const canWhatsApp = whatsapp.length >= 8 && whatsapp.length <= 15;
 
-  const showNotice = (message: string) => {
-    setNotice(message);
-    window.setTimeout(() => setNotice(''), 2600);
-  };
-
-  const selected = Object.values(selection);
-  const selectedCount = selected.reduce((sum, entry) => sum + entry.qty, 0);
-  const selectedTotal = selected.reduce((sum, entry) => sum + (entry.option?.price ?? entry.item.price ?? 0) * entry.qty, 0);
-  const whatsappNumber = RESTAURANT.whatsapp.replace(/\D/g, '');
-  const canUseWhatsApp = whatsappNumber.length >= 8 && whatsappNumber.length <= 15;
-
-  const visibleCategories = useMemo(() => {
+  const categories = useMemo(() => {
     const term = query.trim().toLowerCase();
     return MENU.map((group) => ({
       ...group,
-      items: group.items.filter((item) => {
-        const matchesText = !term || (item.name + ' ' + item.category).toLowerCase().includes(term);
-        const matchesDiet = diet === 'all' || (diet === 'veg' ? item.veg : !item.veg);
-        return matchesText && matchesDiet;
-      }),
-    })).filter((group) => group.items.length > 0 && (category === 'All' || group.name === category));
-  }, [query, diet, category]);
+      items: group.items.filter((item) =>
+        (!term || (group.name + ' ' + group.description + ' ' + item.name).toLowerCase().includes(term)) &&
+        (diet === 'all' || (diet === 'veg' ? item.veg : !item.veg))
+      ),
+    })).filter((group) => group.items.length);
+  }, [query, diet]);
 
-  const visibleCount = visibleCategories.reduce((sum, group) => sum + group.items.length, 0);
+  useEffect(() => {
+    if (categories.length && !categories.some((item) => item.name === active)) setActive(categories[0].name);
+    const onScroll = () => {
+      const navBottom = document.querySelector('.menu-tools')?.getBoundingClientRect().bottom ?? 130;
+      let current = '';
+      for (const group of categories) {
+        const section = document.getElementById(slug(group.name));
+        if (section && section.getBoundingClientRect().top <= navBottom + 16) current = group.name;
+      }
+      if (current) setActive((old) => old === current ? old : current);
+    };
+    window.addEventListener('scroll', onScroll, { passive: true });
+    return () => window.removeEventListener('scroll', onScroll);
+  }, [categories, active]);
 
-  const addItem = (item: MenuItem, option?: SizeOption) => {
-    const key = selectionKey(item, option);
-    setSelection((current) => ({
-      ...current,
-      [key]: { item, option, qty: (current[key]?.qty ?? 0) + 1 },
-    }));
-    showNotice(item.name + ' added');
+  const featured = useMemo(() => {
+    const names = ['Chicken Dum Biryani', 'Chicken Fry Biryani', 'Mutton Dum Biryani'];
+    const result = names.map((name) => allItems.find((item) => item.name === name)).filter((item): item is MenuItem => Boolean(item));
+    for (const item of allItems) { if (result.length >= 3) break; if (!result.some((x) => x.id === item.id)) result.push(item); }
+    return result.slice(0, 3);
+  }, []);
+
+  const add = (item: MenuItem, option?: SizeOption) => {
+    const key = keyFor(item, option);
+    setSelection((old) => ({ ...old, [key]: { item, option, qty: Math.min(99, (old[key]?.qty ?? 0) + 1) } }));
+    toast(item.name + (option ? ' (' + option.label.toLowerCase() + ')' : '') + ' added');
   };
-
-  const changeQty = (key: string, delta: number) => {
-    setSelection((current) => {
-      const entry = current[key];
-      if (!entry) return current;
-      const next = { ...current };
-      const qty = entry.qty + delta;
-      if (qty <= 0) delete next[key];
-      else next[key] = { ...entry, qty };
-      return next;
-    });
+  const change = (key: string, amount: number) => setSelection((old) => {
+    const entry = old[key]; if (!entry) return old;
+    const next = { ...old }; const qty = entry.qty + amount;
+    if (qty <= 0) delete next[key]; else next[key] = { ...entry, qty: Math.min(99, qty) };
+    return next;
+  });
+  const clearFilters = () => { setQuery(''); setDiet('all'); setActive(MENU[0]?.name ?? ''); };
+  const jump = (name: string) => {
+    setActive(name);
+    const target = document.getElementById(slug(name));
+    const offset = document.querySelector('.menu-tools')?.getBoundingClientRect().bottom ?? 120;
+    if (target) window.scrollTo({ top: Math.max(0, target.getBoundingClientRect().top + window.scrollY - offset - 8), behavior: 'smooth' });
   };
-
+  const home = () => { clearFilters(); setDrawer(false); setPage('welcome'); };
+  const menu = () => setPage('menu');
+  const featuredClick = (item: MenuItem) => {
+    const parent = MENU.find((group) => group.items.some((dish) => dish.id === item.id));
+    setPage('menu');
+    if (parent) window.setTimeout(() => jump(parent.name), 80);
+  };
   const sendEnquiry = () => {
-    if (!selected.length) {
-      showNotice('Add a dish to your selection first.');
-      return;
-    }
-    if (!canUseWhatsApp) {
-      showNotice('The restaurant WhatsApp number has not been configured yet.');
-      return;
-    }
-    const lines = selected.map((entry, index) => {
-      const size = entry.option ? ' (' + entry.option.label + ')' : '';
-      return (index + 1) + '. ' + entry.item.name + size + ' × ' + entry.qty + ' — ₹' +
-        formatPrice((entry.option?.price ?? entry.item.price ?? 0) * entry.qty);
-    });
-    const message = [
-      'Hello Biryani Spot, I would like to enquire about these items:',
-      '',
-      ...lines,
-      '',
-      'Estimated menu total: ₹' + formatPrice(selectedTotal),
-      '',
-      'Please confirm availability, final prices and order details. This is an enquiry, not a confirmed order.',
-    ].join('\n');
-    window.open('https://wa.me/' + whatsappNumber + '?text=' + encodeURIComponent(message), '_blank', 'noopener,noreferrer');
+    if (!entries.length) return toast('Add a dish to your selection first.');
+    if (!canWhatsApp) return toast('Restaurant WhatsApp is not configured yet.');
+    const lines = entries.map((entry, i) => (i + 1) + '. ' + entry.item.name + (entry.option ? ' (' + entry.option.label + ')' : '') + ' × ' + entry.qty + ' — ₹' + money((entry.option?.price ?? entry.item.price ?? 0) * entry.qty));
+    const message = ['Hello Biryani Spot, I would like to enquire about these items:', '', ...lines, '', 'Estimated menu total: ₹' + money(total), '', 'Please confirm availability, final prices and order details. This is an enquiry, not a confirmed order.'].join('\n');
+    window.open('https://wa.me/' + whatsapp + '?text=' + encodeURIComponent(message), '_blank', 'noopener,noreferrer');
   };
 
-  const resetFilters = () => {
-    setQuery('');
-    setDiet('all');
-    setCategory('All');
-  };
-
-  const jumpToMenu = () => document.getElementById('menu')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-
-  return (
-    <div className={selectedCount > 0 && !selectionOpen ? 'app-shell has-selection' : 'app-shell'}>
-      <header className="site-header">
-        <a className="brand" href="#top" aria-label="Biryani Spot home">
-          <img src={BRAND_MARK} alt="" />
-          <span><strong>Biryani Spot</strong><small>Family Restaurant</small></span>
-        </a>
-        <div className="header-right">
-          <span className="menu-count">{MENU_ITEM_COUNT} dishes</span>
-          <button className="header-bag" onClick={() => setSelectionOpen(true)} aria-label={'Open selection, ' + selectedCount + ' items'}>
-            <ShoppingBag size={18} /><span>Your selection</span>
-            {selectedCount > 0 && <b>{selectedCount}</b>}
-          </button>
+  return <div className={count && !drawer ? 'app-shell has-selection' : 'app-shell'}>
+    {page === 'welcome' ? <main className="welcome-page" id="top">
+      <div className="welcome-actions">
+        <button className="welcome-action welcome-action--refresh" onClick={() => window.location.reload()} aria-label="Refresh"><RefreshCw size={13}/> Refresh</button>
+        <button className="welcome-action welcome-action--menu" onClick={menu}>View Menu <ArrowRight size={14}/></button>
+      </div>
+      <section className="welcome-brand-block">
+        <div className="welcome-brand-lockup" aria-label="Biryani Spot Family Restaurant">
+          <span className="wordmark-kicker">FAMILY RESTAURANT</span>
+          <h1>Biryani <em>Spot</em></h1>
+          <span className="wordmark-rule"><i/><Utensils size={15}/><i/></span>
         </div>
+        <p className="welcome-overline">WELCOME TO BIRYANI SPOT</p>
+        <h2>Good Food, Happy Moments</h2>
+        <p className="welcome-intro">Biryani, tandoori favourites and familiar flavours made for sharing.</p>
+        <button className="primary-button welcome-main-cta" onClick={menu}>Explore the full menu <ArrowRight size={17}/></button>
+      </section>
+      <section className="welcome-food-feature">
+        <div className="welcome-food-image">
+          <img src={heroImage} alt="Traditional biryani rice" loading="eager" onError={(event) => { event.currentTarget.style.display = 'none'; }}/>
+          <div className="welcome-food-overlay"/><span className="image-caption">FLAVOUR IN EVERY SERVING</span>
+        </div>
+        <div className="welcome-food-copy">
+          <span className="section-kicker"><Flame size={14}/> SIGNATURE FAVOURITES</span>
+          <h2>Find your next favourite.</h2>
+          <p>Explore the menu, choose the dishes you love, and prepare your selection before enquiring with the restaurant.</p>
+          <button className="text-button" onClick={menu}>Browse all dishes <ChevronRight size={16}/></button>
+        </div>
+      </section>
+      <section className="signature-section">
+        <div className="section-heading"><span className="section-kicker"><ChefHat size={14}/> FROM OUR MENU</span><h2>Popular picks</h2><p>A few favourites to get you started.</p></div>
+        <div className="signature-grid">{featured.map((item, index) => <button key={item.id} className={'signature-card signature-card--' + (index + 1)} onClick={() => featuredClick(item)}>
+          <span className="signature-card-art" aria-hidden="true"><ChefHat size={28}/><i>{item.category}</i></span>
+          <span className="signature-card-copy"><small>MENU FAVOURITE</small><strong>{item.name}</strong><span>{item.sizes ? 'From ₹' + money(item.sizes[0].price) : '₹' + money(item.price ?? 0)}</span></span>
+          <span className="signature-arrow"><ArrowRight size={15}/></span>
+        </button>)}</div>
+      </section>
+      <section className="welcome-promise"><span className="promise-icon"><Utensils size={19}/></span><div><strong>Good food. Good company.</strong><p>Take a look at the menu and discover something delicious.</p></div><button className="promise-cta" onClick={menu}>View menu <ArrowRight size={15}/></button></section>
+      <footer className="welcome-footer"><span className="footer-wordmark">Biryani Spot</span><span>FAMILY RESTAURANT</span><p>Menu prices and availability may change. Please confirm with the restaurant.</p></footer>
+    </main> : <>
+      <header className="site-header" id="top">
+        <button className="header-brand" onClick={home} aria-label="Biryani Spot home"><span className="brand-wordmark">Biryani <em>Spot</em></span><small>FAMILY RESTAURANT</small></button>
+        <nav className="desktop-links" aria-label="Main navigation"><button onClick={home}>Home</button><a href="#menu">Menu</a><a href="#menu-footer">About</a></nav>
+        <div className="header-actions"><span className="menu-count">{MENU_ITEM_COUNT} dishes</span><button className="header-bag" onClick={() => setDrawer(true)} aria-label={'Open selection, ' + count + ' items'}><ShoppingBag size={17}/><span>My selection</span>{count > 0 && <b>{count}</b>}</button></div>
       </header>
-
-      <main id="top">
-        <section className="hero">
-          <div className="hero-content">
-            <span className="eyebrow"><i /> THE BIRYANI SPOT MENU</span>
-            <h1>A good meal<br /><em>starts here.</em></h1>
-            <p>Browse the menu, choose your favourites, and send your selection to the restaurant.</p>
-            <button className="hero-cta" onClick={jumpToMenu}>Explore the menu <ChevronRight size={17} /></button>
-            <div className="hero-note"><span className="hero-note-line" /> Biryani · Tandoori · Indian favourites</div>
-          </div>
-          <div className="hero-image">
-            <img src={HERO_IMAGE} alt="Traditional biryani served with fragrant rice and spices" fetchPriority="high" onError={(event) => { event.currentTarget.style.display = 'none'; event.currentTarget.parentElement?.classList.add('photo-unavailable'); }} />
-            <div className="hero-image-shade" />
-            <span className="photo-label">MADE FOR SHARING</span>
-          </div>
-        </section>
-
-        <section className="menu-area" id="menu">
-          <div className="menu-intro">
-            <div><span className="eyebrow">FRESH CHOICES, FAMILIAR FAVOURITES</span><h2>Explore our menu</h2></div>
-            <span className="result-count">{visibleCount} {visibleCount === 1 ? 'dish' : 'dishes'}</span>
-          </div>
-
-          <div className="menu-tools">
-            <label className="search-field">
-              <Search size={18} aria-hidden="true" />
-              <input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Search dishes by name" aria-label="Search dishes" />
-              {query && <button type="button" onClick={() => setQuery('')} aria-label="Clear search"><X size={16} /></button>}
-            </label>
-            <div className="diet-filters" aria-label="Dietary filter">
+      <main id="menu" className="menu-page">
+        <div className="menu-back-row"><button className="back-home" onClick={home}><ArrowLeft size={13}/> Restaurant Home</button><span>GOOD FOOD, HAPPY MOMENTS</span></div>
+        <section className="menu-brand-panel"><p className="section-kicker">THE BIRYANI SPOT FAMILY RESTAURANT</p><h1>Our <em>Menu</em></h1><p>Authentic favourites, generous portions and something for every appetite.</p><div className="menu-brand-ornament"><i/><Utensils size={15}/><i/></div></section>
+        <section className="menu-tools" aria-label="Search and menu categories">
+          <div className="navigation-top-row">
+            <label className="search-field"><Search size={17} aria-hidden="true"/><input value={query} onChange={(e) => setQuery(e.target.value)} placeholder="Search dishes or categories" aria-label="Search dishes or categories"/>{query && <button onClick={() => setQuery('')} aria-label="Clear search"><X size={15}/></button>}</label>
+            <div className="diet-filters" role="group" aria-label="Dietary filter">
               <button className={diet === 'all' ? 'diet-chip active' : 'diet-chip'} onClick={() => setDiet('all')} aria-pressed={diet === 'all'}>All</button>
-              <button className={diet === 'veg' ? 'diet-chip active' : 'diet-chip'} onClick={() => setDiet('veg')} aria-pressed={diet === 'veg'}><i className="veg-indicator" /> Vegetarian</button>
-              <button className={diet === 'nonveg' ? 'diet-chip active' : 'diet-chip'} onClick={() => setDiet('nonveg')} aria-pressed={diet === 'nonveg'}><i className="nonveg-indicator" /> Non-veg</button>
+              <button className={diet === 'veg' ? 'diet-chip active' : 'diet-chip'} onClick={() => setDiet('veg')} aria-pressed={diet === 'veg'}><Leaf size={12}/> Veg</button>
+              <button className={diet === 'nonveg' ? 'diet-chip active' : 'diet-chip'} onClick={() => setDiet('nonveg')} aria-pressed={diet === 'nonveg'}><Flame size={12}/> Non-veg</button>
             </div>
           </div>
-
-          <nav className="category-nav" aria-label="Menu categories">
-            <button className={category === 'All' ? 'category-chip active' : 'category-chip'} onClick={() => setCategory('All')}>All dishes</button>
-            {MENU.map((group) => <button key={group.name} className={category === group.name ? 'category-chip active' : 'category-chip'} onClick={() => setCategory(group.name)}>{group.name}</button>)}
-          </nav>
-
-          {!visibleCategories.length ? (
-            <div className="empty-state"><Search size={25} /><h3>No dishes found</h3><p>Try another search or clear the filters.</p><button onClick={resetFilters}>Clear filters</button></div>
-          ) : (
-            <div className="menu-groups">
-              {visibleCategories.map((group) => (
-                <section className="menu-group" key={group.name}>
-                  <div className="group-heading">
-                    <div><h3>{group.name}</h3><p>{group.description}</p></div>
-                    <span>{group.items.length} items</span>
-                  </div>
-                  <div className="dish-list">
-                    {group.items.map((item) => {
-                      const singleKey = selectionKey(item);
-                      return (
-                        <article className="dish-row" key={item.id}>
-
-                          <div className="dish-details">
-                            <div className="dish-name-line"><i className={item.veg ? 'diet-mark veg-mark' : 'diet-mark nonveg-mark'} aria-label={item.veg ? 'Vegetarian' : 'Non-vegetarian'} /><h4>{item.name}</h4></div>
-                            <span className="dish-category">{item.veg ? 'VEG' : 'NON-VEG'} <span>·</span> {group.name}</span>
-                            {item.sizes ? (
-                              <div className="dish-size-actions">
-                                {item.sizes.map((option) => {
-                                  const key = selectionKey(item, option);
-                                  const qty = selection[key]?.qty ?? 0;
-                                  return <button key={option.label} className={qty ? 'size-add selected' : 'size-add'} onClick={() => addItem(item, option)} aria-label={'Add ' + item.name + ', ' + option.label + ', ₹' + option.price}><span>{option.label}</span><strong>₹{formatPrice(option.price)}</strong>{qty > 0 && <small>{qty} added</small>}</button>;
-                                })}
-                              </div>
-                            ) : (
-                              <div className="dish-price-line"><strong className="dish-price">₹{formatPrice(item.price ?? 0)}</strong><button className={selection[singleKey] ? 'add-control added' : 'add-control'} onClick={() => addItem(item)} aria-label={'Add ' + item.name}>{selection[singleKey] ? <><Check size={14} /> Added {selection[singleKey].qty}</> : <><Plus size={15} /> Add</>}</button></div>
-                            )}
-                          </div>
-                        </article>
-                      );
-                    })}
-                  </div>
-                </section>
-              ))}
-            </div>
-          )}
-          <p className="menu-disclaimer">Prices are shown as listed on the menu. Please confirm availability and final prices with the restaurant.</p>
+          <div className="category-nav" aria-label="Jump to a category">{categories.map((group) => <button key={group.name} className={active === group.name ? 'category-chip active' : 'category-chip'} onClick={() => jump(group.name)}><span>{group.short}</span>{group.name}</button>)}</div>
+          <div className="navigation-count"><span>{categories.reduce((sum, c) => sum + c.items.length, 0)} dishes shown</span>{(query || diet !== 'all') && <button onClick={clearFilters}>Clear filters <X size={12}/></button>}</div>
         </section>
+        {categories.length ? <div className="category-panels">{categories.map((group, index) => {
+          const Icon = categoryIcon(group.name);
+          return <section id={slug(group.name)} className={'category-panel category-panel--' + (index % 5 + 1)} key={group.name}>
+            <div className="category-panel-inner">
+              <div className="category-heading"><div><span className="category-eyebrow">BIRYANI SPOT <i/> MENU COLLECTION</span><h2>{group.name}</h2><p>{group.description}</p></div><span className="category-item-count">{group.items.length} ITEMS</span></div>
+              <div className="category-content">
+                <div className="category-visual" aria-hidden="true"><span className="category-visual-ring"><Icon size={37} strokeWidth={1.2}/></span><span className="category-visual-brand">BIRYANI SPOT</span><span className="category-visual-line"/><span className="category-visual-subtitle">{group.name}</span></div>
+                <div className="dish-grid">{group.items.map((item) => {
+                  const single = keyFor(item); const quantity = selection[single]?.qty ?? 0;
+                  return <article className="menu-dish" key={item.id}>
+                    <div className="dish-main"><span className={item.veg ? 'diet-mark veg-mark' : 'diet-mark nonveg-mark'} aria-label={item.veg ? 'Vegetarian' : 'Non-vegetarian'}><i/></span><span className="dish-name">{item.name}</span></div>
+                    {item.sizes ? <div className="dish-size-actions">{item.sizes.map((option) => { const key = keyFor(item, option); const qty = selection[key]?.qty ?? 0; return <button key={option.label} className={qty ? 'size-add selected' : 'size-add'} onClick={() => add(item, option)} aria-label={'Add ' + item.name + ' ' + option.label + ', ₹' + option.price}><span>{option.label === 'Half' ? 'H' : 'F'}</span><strong>₹{money(option.price)}</strong>{qty > 0 && <small>{qty}</small>}</button>; })}</div> : <div className="dish-action"><strong className="dish-price">₹{money(item.price ?? 0)}</strong><button className={quantity ? 'dish-add added' : 'dish-add'} onClick={() => add(item)} aria-label={'Add ' + item.name}>{quantity ? <><Check size={13}/><span>{quantity}</span></> : <Plus size={15}/>}</button></div>}
+                  </article>;
+                })}</div>
+              </div>
+            </div>
+          </section>;
+        })}</div> : <section className="empty-state"><Search size={25}/><h2>No dishes found</h2><p>Try another search or remove one of the filters.</p><button onClick={clearFilters}>Show all dishes</button></section>}
+        <p className="menu-disclaimer">Prices are shown as listed on the menu. Please confirm availability and final prices with the restaurant.</p>
       </main>
+      <footer id="menu-footer" className="site-footer"><span className="footer-wordmark">Biryani Spot</span><span className="footer-tagline">FAMILY RESTAURANT</span><p>Good food. Good company.</p></footer>
+    </>}
 
-      <footer className="site-footer"><img src={BRAND_MARK} alt="" /><span><strong>Biryani Spot</strong><small>Family Restaurant</small></span><p>Good food. Good company.</p></footer>
-
-      {selectedCount > 0 && !selectionOpen && (
-        <div className="selection-bar">
-          <button onClick={() => setSelectionOpen(true)}><span className="selection-bar-icon"><ShoppingBag size={18} /><i>{selectedCount}</i></span><span className="selection-bar-label"><strong>View selection</strong><small>{selectedCount} {selectedCount === 1 ? 'item' : 'items'}</small></span><strong className="selection-bar-total">₹{formatPrice(selectedTotal)}</strong><ChevronRight size={18} /></button>
-        </div>
-      )}
-
-      {selectionOpen && (
-        <div className="drawer-overlay" onClick={() => setSelectionOpen(false)}>
-          <aside className="selection-drawer" role="dialog" aria-modal="true" aria-label="Your selection" onClick={(event) => event.stopPropagation()}>
-            <div className="drawer-heading"><div><span className="eyebrow">BIRYANI SPOT</span><h2>Your selection</h2><p>Check your dishes before sending an enquiry.</p></div><button className="close-drawer" onClick={() => setSelectionOpen(false)} aria-label="Close selection"><X size={21} /></button></div>
-            {!selected.length ? (
-              <div className="drawer-empty"><ShoppingBag size={30} /><h3>Your selection is empty</h3><p>Add dishes from the menu and they will appear here.</p><button className="hero-cta" onClick={() => setSelectionOpen(false)}>Browse menu <ChevronRight size={16} /></button></div>
-            ) : (
-              <>
-                <div className="selected-items">
-                  {selected.map((entry) => {
-                    const key = selectionKey(entry.item, entry.option);
-                    const price = entry.option?.price ?? entry.item.price ?? 0;
-                    return <div className="selected-item" key={key}><div className="selected-item-copy"><strong>{entry.item.name}</strong><small>{entry.option?.label ?? 'Regular'} · ₹{formatPrice(price)}</small><b>₹{formatPrice(price * entry.qty)}</b></div><div className="quantity-control"><button onClick={() => changeQty(key, -1)} aria-label={'Remove one ' + entry.item.name}><Minus size={14} /></button><span>{entry.qty}</span><button onClick={() => changeQty(key, 1)} aria-label={'Add one ' + entry.item.name}><Plus size={14} /></button></div></div>;
-                  })}
-                </div>
-                <div className="drawer-checkout"><div className="total-line"><span>Estimated total</span><strong>₹{formatPrice(selectedTotal)}</strong></div><p>This is an enquiry, not a confirmed order or payment.</p><button className="send-enquiry" onClick={sendEnquiry} disabled={!canUseWhatsApp}><MessageCircle size={18} /> {canUseWhatsApp ? 'Enquire on WhatsApp' : 'WhatsApp not configured'}</button>{!canUseWhatsApp && <small className="config-note">The restaurant needs to add a verified WhatsApp number before enquiries can be sent.</small>}<button className="clear-selection" onClick={() => setSelection({})}>Clear selection</button></div>
-              </>
-            )}
-          </aside>
-        </div>
-      )}
-
-      {notice && <div className="toast" role="status"><Check size={16} />{notice}</div>}
-    </div>
-  );
+    {count > 0 && !drawer && <div className="selection-bar"><button onClick={() => setDrawer(true)}><span className="selection-bar-icon"><ShoppingBag size={17}/><i>{count}</i></span><span className="selection-bar-label"><strong>View selection</strong><small>{count} {count === 1 ? 'item' : 'items'} · enquiry only</small></span><strong className="selection-bar-total">₹{money(total)}</strong><ChevronRight size={17}/></button></div>}
+    {drawer && <div className="drawer-overlay" onClick={() => setDrawer(false)}><aside className="selection-drawer" role="dialog" aria-modal="true" aria-label="Your selection" onClick={(e) => e.stopPropagation()}>
+      <div className="drawer-heading"><div><span className="section-kicker">BIRYANI SPOT</span><h2>Your selection</h2><p>Check your dishes before sending an enquiry.</p></div><button className="close-drawer" onClick={() => setDrawer(false)} aria-label="Close selection"><X size={20}/></button></div>
+      {!entries.length ? <div className="drawer-empty"><ShoppingBag size={30}/><h3>Your selection is empty</h3><p>Add dishes from the menu and they will appear here.</p><button className="primary-button" onClick={() => setDrawer(false)}>Browse menu <ChevronRight size={15}/></button></div> : <>
+        <div className="selected-items">{entries.map((entry) => { const key = keyFor(entry.item, entry.option); const price = entry.option?.price ?? entry.item.price ?? 0; return <div className="selected-item" key={key}><div className="selected-item-copy"><strong>{entry.item.name}</strong><small>{entry.option?.label ?? 'Regular'} · ₹{money(price)}</small><b>₹{money(price * entry.qty)}</b></div><div className="quantity-control"><button onClick={() => change(key, -1)} aria-label={'Remove one ' + entry.item.name}><Minus size={13}/></button><span>{entry.qty}</span><button onClick={() => change(key, 1)} aria-label={'Add one ' + entry.item.name}><Plus size={13}/></button></div></div>; })}</div>
+        <div className="drawer-checkout"><div className="total-line"><span>Estimated total</span><strong>₹{money(total)}</strong></div><p>This is an enquiry, not a confirmed order or payment.</p><button className="send-enquiry" onClick={sendEnquiry} disabled={!canWhatsApp}><MessageCircle size={17}/>{canWhatsApp ? 'Enquire on WhatsApp' : 'WhatsApp not configured'}</button>{!canWhatsApp && <small className="config-note">The restaurant needs to add a verified WhatsApp number before enquiries can be sent.</small>}<button className="clear-selection" onClick={() => setSelection({})}>Clear selection</button></div>
+      </>}
+    </aside></div>}
+    {notice && <div className="toast" role="status"><Check size={15}/>{notice}</div>}
+  </div>;
 }
