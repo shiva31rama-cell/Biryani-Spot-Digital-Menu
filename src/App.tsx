@@ -166,7 +166,7 @@ export default function App() {
     if (!entries.length) return toast('Add a dish to your selection first.');
     if (!canWhatsApp) return toast('Restaurant WhatsApp is not configured yet.');
     const lines = entries.map((entry, i) => (i + 1) + '. ' + tx(entry.item.name) + (entry.option ? ' (' + tx(entry.option.label) + ')' : '') + ' × ' + entry.qty + ' — ₹' + money((entry.option?.price ?? entry.item.price ?? 0) * entry.qty));
-    const message = [tx('Hello Biryani Spot, I would like to enquire about these items:'), '', ...lines, '', tx('Estimated menu total: ₹') + money(total), '', tx('Please confirm availability, final prices and order details.')].join('\n');
+    const message = [tx('Hello Biryani Spot, I would like to enquire about these items:'), '', ...lines, '', tx('Estimated menu total: ₹') + money(total), '', tx('Please confirm availability, final prices and order details. This is an enquiry, not a confirmed order.')].join('\n');
     window.open('https://wa.me/' + whatsapp + '?text=' + encodeURIComponent(message), '_blank', 'noopener,noreferrer');
   };
 
