@@ -63,11 +63,22 @@ The official brand image is stored at `public/biryani-spot-brand.webp`. The curr
 
 The service worker precaches the app shell and built JavaScript/CSS, caches successful same-origin assets, and uses a network-first strategy for page navigations. It removes only older cache keys beginning with `biryani-spot-`, so it does not clear unrelated apps' caches on a shared origin. On first-ever use while already offline, the app cannot be downloaded; open it successfully once online first.
 
-## Deployment
+## Deployment to Cloudflare Workers
 
-The GitHub Pages deployment workflow runs automatically on pushes to `main`, and can also be triggered manually from GitHub Actions. It builds the production bundle and publishes `dist` to GitHub Pages. GitHub Pages must be enabled in Settings → Pages → Build and deployment → Source → GitHub Actions; the deployment run will report a configuration error if Pages is not enabled or permissions are missing.
+The `biryani-spot-digital-menu` Worker serves the Vite production build from `dist/` using `wrangler.jsonc`. The GitHub Actions workflow `.github/workflows/deploy.yml` builds, validates and deploys to Cloudflare Workers automatically when `main` is updated, and can also be run manually from Actions.
 
-Static asset paths use Vite's relative base to support project subpaths on GitHub Pages and other static hosts. This repository workflow updates GitHub Pages only; if a separate custom domain is hosted on another provider, that provider must be connected to the repository or deployed separately.
+Configure these repository secrets under **Settings → Secrets and variables → Actions**:
+
+- `CLOUDFLARE_API_TOKEN`: a Cloudflare API token authorized to deploy the Worker and its static assets.
+- `CLOUDFLARE_ACCOUNT_ID`: the Cloudflare account ID that owns the `biryani-spot-digital-menu` Worker.
+
+Never commit either secret to the repository or put the API token in chat. If either secret is missing or invalid, the workflow will stop and report the configuration problem instead of claiming deployment succeeded.
+
+Open the [GitHub Actions page](https://github.com/shiva31rama-cell/Biryani-Spot-Digital-Menu/actions) to verify the latest deployment status and its reported URL. The Worker URL is expected to be `https://biryani-spot-digital-menu.<your-workers.dev-subdomain>.workers.dev/`. This workflow deploys to Cloudflare Workers, not GitHub Pages.
+
+If the Cloudflare dashboard separately manages a Git-connected build for the same Worker, avoid maintaining conflicting build configurations. Treat `wrangler.jsonc` and this workflow as the repository-controlled deployment configuration.
+
+Static asset paths use Vite's relative base and the Worker is configured for single-page-app fallback routing.
 
 ## Final launch checklist
 
