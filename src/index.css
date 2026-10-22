@@ -58,3 +58,10 @@
   .category-visual-photo { opacity: .82; }
   .category-visual-shade { background: linear-gradient(90deg, rgba(31,12,9,.58), rgba(31,12,9,.33)); }
 }
+
+/* Owner-confirmed restaurant contact links */
+.footer-contact{display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:8px;margin-top:12px}
+.footer-contact a{display:inline-flex;align-items:center;justify-content:center;gap:7px;min-height:38px;padding:9px 13px;border:1px solid #e2cfb8;border-radius:7px;background:#fffaf2;color:var(--wine-dark);font-size:11px;font-weight:700;text-decoration:none;transition:background .18s ease,border-color .18s ease}
+.footer-contact a:hover{border-color:var(--wine);background:#f8ead8}
+.footer-contact a:focus-visible{outline:2px solid var(--wine);outline-offset:3px}
+@media(max-width:370px){.footer-contact{gap:6px}.footer-contact a{min-height:35px;padding:8px 10px;font-size:10px}}
