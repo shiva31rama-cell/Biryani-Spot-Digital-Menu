@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { ArrowLeft, ArrowRight, Check, ChefHat, ChevronRight, Clock, Flame, Headset, Leaf, MapPin, MessageCircle, Minus, Phone, Plus, RefreshCw, Search, ShoppingBag, Soup, Truck, Utensils, X } from 'lucide-react';
 import { MENU, MENU_ITEM_COUNT, type MenuItem, type SizeOption } from './data/menu';
 import { RESTAURANT } from './config/restaurant';
+import { translateText, type Language } from './i18n';
 
 type Entry = { item: MenuItem; option?: SizeOption; qty: number };
 type Selection = Record<string, Entry>;
@@ -12,6 +13,13 @@ const slug = (name: string) => 'category-' + name.toLowerCase().replace(/[^a-z0-
 const money = (price: number) => new Intl.NumberFormat('en-IN', { maximumFractionDigits: 0 }).format(price);
 const allItems = MENU.flatMap((category) => category.items);
 const customerCarePhone = '8985579991';
+
+function LanguageToggle({ language, onChange }: { language: Language; onChange: (language: Language) => void }) {
+  return <div className="language-switch" role="group" aria-label={translateText('Language', language)}>
+    <button type="button" className={language === 'en' ? 'active' : ''} aria-pressed={language === 'en'} onClick={() => onChange('en')}>English</button>
+    <button type="button" className={language === 'te' ? 'active' : ''} aria-pressed={language === 'te'} onClick={() => onChange('te')}>తెలుగు</button>
+  </div>;
+}
 
 const CATEGORY_PHOTOS: Record<string, string> = {
   'Non-Veg Soups': 'non-veg-soups.png',
@@ -42,6 +50,10 @@ export default function App() {
   const [page, setPage] = useState<Page>(() => {
     try { return sessionStorage.getItem('biryani-spot-page') === 'menu' ? 'menu' : 'welcome'; } catch { return 'welcome'; }
   });
+  const [language, setLanguage] = useState<Language>(() => {
+    try { return localStorage.getItem('biryani-spot-language') === 'te' ? 'te' : 'en'; } catch { return 'en'; }
+  });
+  const tx = (value: string) => translateText(value, language);
   const [query, setQuery] = useState('');
   const [diet, setDiet] = useState<'all' | 'veg' | 'nonveg'>('all');
   const [active, setActive] = useState(MENU[0]?.name ?? '');
@@ -51,6 +63,10 @@ export default function App() {
   const [drawer, setDrawer] = useState(false);
   const [notice, setNotice] = useState('');
 
+  useEffect(() => {
+    try { localStorage.setItem('biryani-spot-language', language); } catch { /* Language still works for this session. */ }
+    document.documentElement.lang = language === 'te' ? 'te' : 'en';
+  }, [language]);
   useEffect(() => {
     try { localStorage.setItem('biryani-spot-selection', JSON.stringify(selection)); } catch { /* Selection still works for this session. */ }
   }, [selection]);
@@ -67,7 +83,7 @@ export default function App() {
     window.addEventListener('keydown', close);
     return () => window.removeEventListener('keydown', close);
   }, []);
-  const toast = (message: string) => { setNotice(message); window.setTimeout(() => setNotice(''), 2500); };
+  const toast = (message: string) => { setNotice(tx(message)); window.setTimeout(() => setNotice(''), 2500); };
   const entries = Object.values(selection);
   const count = entries.reduce((sum, entry) => sum + entry.qty, 0);
   const total = entries.reduce((sum, entry) => sum + (entry.option?.price ?? entry.item.price ?? 0) * entry.qty, 0);
@@ -79,7 +95,7 @@ export default function App() {
     return MENU.map((group) => ({
       ...group,
       items: group.items.filter((item) =>
-        (!term || (group.name + ' ' + group.description + ' ' + item.name).toLowerCase().includes(term)) &&
+        (!term || (group.name + ' ' + group.description + ' ' + item.name + ' ' + translateText(group.name, 'te') + ' ' + translateText(group.description, 'te') + ' ' + translateText(item.name, 'te')).toLowerCase().includes(term)) &&
         (diet === 'all' || (diet === 'veg' ? item.veg : !item.veg))
       ),
     })).filter((group) => group.items.length);
@@ -157,90 +173,90 @@ export default function App() {
   return <div className={count && !drawer ? 'app-shell has-selection' : 'app-shell'}>
     {page === 'welcome' ? <main className="welcome-page" id="top">
       <div className="welcome-actions">
-        <button className="welcome-action welcome-action--refresh" onClick={() => window.location.reload()} aria-label="Refresh"><RefreshCw size={13}/> Refresh</button>
-        <button className="welcome-action welcome-action--menu" onClick={menu}>View Menu <ArrowRight size={14}/></button>
+        <button className="welcome-action welcome-action--refresh" onClick={() => window.location.reload()} aria-label={tx('Refresh')}><RefreshCw size={13}/> {tx('Refresh')}</button>
+        <button className="welcome-action welcome-action--menu" onClick={menu}>{tx('View Menu')} <ArrowRight size={14}/></button>
       </div>
       <section className="welcome-brand-block">
         <div className="welcome-brand-lockup">
           <img className="welcome-logo-image" src="./biryani-spot-logo.png" alt="Biryani Spot Family Restaurant logo" width="449" height="449" fetchPriority="high" decoding="async"/>
         </div>
-        <p className="welcome-overline">WELCOME TO BIRYANI SPOT</p>
-        <h2>Good Food, Happy Moments</h2>
-        <p className="welcome-intro">Biryani, tandoori favourites and familiar flavours made for sharing.</p>
-        <button className="primary-button welcome-main-cta" onClick={menu}>Explore the full menu <ArrowRight size={17}/></button>
+        <p className="welcome-overline">{tx('WELCOME TO BIRYANI SPOT')}</p>
+        <h2>{tx('Good Food, Happy Moments')}</h2>
+        <p className="welcome-intro">{tx('Biryani, tandoori favourites and familiar flavours made for sharing.')}</p>
+        <button className="primary-button welcome-main-cta" onClick={menu}>{tx('Explore the full menu')} <ArrowRight size={17}/></button>
       </section>
       <section className="welcome-food-feature">
         <div className="welcome-food-image">
           <img src={heroImage} alt="Traditional biryani rice" loading="eager" onError={(event) => { event.currentTarget.style.display = 'none'; }}/>
-          <div className="welcome-food-overlay"/><span className="image-caption">FLAVOUR IN EVERY SERVING</span>
+          <div className="welcome-food-overlay"/><span className="image-caption">{tx('FLAVOUR IN EVERY SERVING')}</span>
         </div>
         <div className="welcome-food-copy">
-          <span className="section-kicker"><Flame size={14}/> SIGNATURE FAVOURITES</span>
-          <h2>Find your next favourite.</h2>
-          <p>Explore the menu, choose the dishes you love, and prepare your selection before enquiring with the restaurant.</p>
-          <button className="text-button" onClick={menu}>Browse all dishes <ChevronRight size={16}/></button>
+          <span className="section-kicker"><Flame size={14}/> {tx('SIGNATURE FAVOURITES')}</span>
+          <h2>{tx('Find your next favourite.')}</h2>
+          <p>{tx('Explore the menu, choose the dishes you love, and prepare your selection before enquiring with the restaurant.')}</p>
+          <button className="text-button" onClick={menu}>{tx('Browse all dishes')} <ChevronRight size={16}/></button>
         </div>
       </section>
       <section className="signature-section">
-        <div className="section-heading"><span className="section-kicker"><ChefHat size={14}/> FROM OUR MENU</span><h2>Popular picks</h2><p>A few favourites to get you started.</p></div>
+        <div className="section-heading"><span className="section-kicker"><ChefHat size={14}/> {tx('FROM OUR MENU')}</span><h2>{tx('Popular picks')}</h2><p>{tx('A few favourites to get you started.')}</p></div>
         <div className="signature-grid">{featured.map((item, index) => <button key={item.id} className={'signature-card signature-card--' + (index + 1)} onClick={() => featuredClick(item)}>
-          <span className="signature-card-art" aria-hidden="true"><ChefHat size={28}/><i>{item.category}</i></span>
-          <span className="signature-card-copy"><small>MENU FAVOURITE</small><strong>{item.name}</strong><span>{item.sizes ? 'From ₹' + money(item.sizes[0].price) : '₹' + money(item.price ?? 0)}</span></span>
+          <span className="signature-card-art" aria-hidden="true"><ChefHat size={28}/><i>{tx(item.category)}</i></span>
+          <span className="signature-card-copy"><small>{tx('MENU FAVOURITE')}</small><strong>{tx(item.name)}</strong><span>{item.sizes ? 'From ₹' + money(item.sizes[0].price) : '₹' + money(item.price ?? 0)}</span></span>
           <span className="signature-arrow"><ArrowRight size={15}/></span>
         </button>)}</div>
       </section>
-      <section className="welcome-promise"><span className="promise-icon"><Utensils size={19}/></span><div><strong>Good food. Good company.</strong><p>Take a look at the menu and discover something delicious.</p></div><button className="promise-cta" onClick={menu}>View menu <ArrowRight size={15}/></button></section>
-      <footer className="welcome-footer"><img className="footer-logo" src="./biryani-spot-logo.png" alt="Biryani Spot Family Restaurant" width="449" height="449" loading="lazy" decoding="async"/><div className="restaurant-details"><p><Clock size={15}/><span><strong>Opening hours</strong>{RESTAURANT.openingHours}</span></p><a href={RESTAURANT.mapsUrl} target="_blank" rel="noreferrer"><MapPin size={15}/><span><strong>Visit us</strong>{RESTAURANT.address}</span></a></div><div className="footer-contact footer-contact--actions" aria-label="Restaurant contact options"><a className="footer-contact-link footer-contact-link--delivery" href={"tel:" + RESTAURANT.phone.replace(/[^+\d]/g, "")}><Truck size={15}/><span><strong>Home Delivery</strong><small>{RESTAURANT.phone.replace("+91 ", "")}</small></span></a><a className="footer-contact-link footer-contact-link--care" href={"tel:+91" + customerCarePhone} aria-label="Call customer care"><Headset size={15}/><span><strong>Customer Care</strong><small>Contact support</small></span></a><a className="footer-contact-link footer-contact-link--whatsapp" href={"https://wa.me/" + whatsapp} target="_blank" rel="noreferrer"><MessageCircle size={15}/><span><strong>WhatsApp</strong><small>Chat with restaurant</small></span></a></div><p>Menu prices and availability may change. Please confirm with the restaurant.</p></footer>
+      <section className="welcome-promise"><span className="promise-icon"><Utensils size={19}/></span><div><strong>{tx('Good food. Good company.')}</strong><p>{tx('Take a look at the menu and discover something delicious.')}</p></div><button className="promise-cta" onClick={menu}>{tx('View menu')} <ArrowRight size={15}/></button></section>
+      <footer className="welcome-footer"><img className="footer-logo" src="./biryani-spot-logo.png" alt={tx('Biryani Spot Family Restaurant')} width="449" height="449" loading="lazy" decoding="async"/><div className="restaurant-details"><p><Clock size={15}/><span><strong>{tx('Opening hours')}</strong>{RESTAURANT.openingHours}</span></p><a href={RESTAURANT.mapsUrl} target="_blank" rel="noreferrer"><MapPin size={15}/><span><strong>{tx('Visit us')}</strong>{RESTAURANT.address}</span></a></div><div className="footer-contact footer-contact--actions" aria-label={tx('Restaurant contact options')}><a className="footer-contact-link footer-contact-link--delivery" href={"tel:" + RESTAURANT.phone.replace(/[^+\d]/g, "")}><Truck size={15}/><span><strong>{tx('Home Delivery')}</strong><small>{RESTAURANT.phone.replace("+91 ", "")}</small></span></a><a className="footer-contact-link footer-contact-link--care" href={"tel:+91" + customerCarePhone} aria-label={tx('Call customer care')}><Headset size={15}/><span><strong>{tx('Customer Care')}</strong><small>{tx('Contact support')}</small></span></a><a className="footer-contact-link footer-contact-link--whatsapp" href={"https://wa.me/" + whatsapp} target="_blank" rel="noreferrer"><MessageCircle size={15}/><span><strong>{tx('WhatsApp')}</strong><small>{tx('Chat with restaurant')}</small></span></a></div><p>{tx('Menu prices and availability may change. Please confirm with the restaurant.')}</p></footer>
     </main> : <>
       <header className="site-header" id="top">
-        <button className="header-brand" onClick={home} aria-label="Biryani Spot home"><img className="header-logo" src="./biryani-spot-logo.png" alt="" width="449" height="449" decoding="async"/><span className="header-brand-copy"><span className="brand-wordmark">Biryani <em>Spot</em></span><small>FAMILY RESTAURANT</small></span></button>
-        <nav className="desktop-links" aria-label="Main navigation"><button onClick={home}>Home</button><a href="#menu">Menu</a><a href="#menu-footer">About</a></nav>
-        <div className="header-actions"><span className="menu-count">{MENU_ITEM_COUNT} dishes</span><button className="header-bag" onClick={() => setDrawer(true)} aria-label={'Open selection, ' + count + ' items'}><ShoppingBag size={17}/><span>My selection</span>{count > 0 && <b>{count}</b>}</button></div>
+        <button className="header-brand" onClick={home} aria-label={tx('Biryani Spot home')}><img className="header-logo" src="./biryani-spot-logo.png" alt="" width="449" height="449" decoding="async"/><span className="header-brand-copy"><span className="brand-wordmark">{tx('Biryani')} <em>{tx('Spot')}</em></span><small>{tx('FAMILY RESTAURANT')}</small></span></button>
+        <nav className="desktop-links" aria-label={tx('Main navigation')}><button onClick={home}>{tx('Home')}</button><a href="#menu">{tx('Menu')}</a><a href="#menu-footer">{tx('About')}</a></nav>
+        <div className="header-actions"><span className="menu-count">{MENU_ITEM_COUNT} {tx('dishes')}</span><button className="header-bag" onClick={() => setDrawer(true)} aria-label={tx('Open selection, ') + count + tx(' items')}><ShoppingBag size={17}/><span>{tx('My selection')}</span>{count > 0 && <b>{count}</b>}</button></div>
       </header>
       <main id="menu" className="menu-page">
-        <div className="menu-back-row"><button className="back-home" onClick={home}><ArrowLeft size={13}/> Restaurant Home</button><span>GOOD FOOD, HAPPY MOMENTS</span></div>
-        <section className="menu-brand-panel"><img className="menu-page-logo" src="./biryani-spot-logo.png" alt="Biryani Spot Family Restaurant" width="449" height="449" loading="lazy" decoding="async"/><h1>Our <em>Menu</em></h1><p>Authentic favourites, generous portions and something for every appetite.</p><div className="menu-brand-ornament"><i/><Utensils size={15}/><i/></div></section>
-        <section className="menu-tools" aria-label="Search and menu categories">
+        <div className="menu-back-row"><button className="back-home" onClick={home}><ArrowLeft size={13}/> {tx('Restaurant Home')}</button><div className="menu-back-actions"><LanguageToggle language={language} onChange={setLanguage}/><span>{tx('GOOD FOOD, HAPPY MOMENTS')}</span></div></div>
+        <section className="menu-brand-panel"><img className="menu-page-logo" src="./biryani-spot-logo.png" alt={tx('Biryani Spot Family Restaurant')} width="449" height="449" loading="lazy" decoding="async"/><h1>{tx('Our')} <em>{tx('Menu')}</em></h1><p>{tx('Authentic favourites, generous portions and something for every appetite.')}</p><div className="menu-brand-ornament"><i/><Utensils size={15}/><i/></div></section>
+        <section className="menu-tools" aria-label={tx('Search and menu categories')}>
           <div className="navigation-top-row">
-            <label className="search-field"><Search size={17} aria-hidden="true"/><input value={query} onChange={(e) => setQuery(e.target.value)} placeholder="Search dishes or categories" aria-label="Search dishes or categories"/>{query && <button onClick={() => setQuery('')} aria-label="Clear search"><X size={15}/></button>}</label>
-            <div className="diet-filters" role="group" aria-label="Dietary filter">
-              <button className={diet === 'all' ? 'diet-chip active' : 'diet-chip'} onClick={() => setDiet('all')} aria-pressed={diet === 'all'}>All</button>
-              <button className={diet === 'veg' ? 'diet-chip active' : 'diet-chip'} onClick={() => setDiet('veg')} aria-pressed={diet === 'veg'}><Leaf size={12}/> Veg</button>
-              <button className={diet === 'nonveg' ? 'diet-chip active' : 'diet-chip'} onClick={() => setDiet('nonveg')} aria-pressed={diet === 'nonveg'}><Flame size={12}/> Non-veg</button>
+            <label className="search-field"><Search size={17} aria-hidden="true"/><input value={query} onChange={(e) => setQuery(e.target.value)} placeholder={tx('Search dishes or categories')} aria-label={tx('Search dishes or categories')}/>{query && <button onClick={() => setQuery('')} aria-label={tx('Clear search')}><X size={15}/></button>}</label>
+            <div className="diet-filters" role="group" aria-label={tx('Dietary filter')}>
+              <button className={diet === 'all' ? 'diet-chip active' : 'diet-chip'} onClick={() => setDiet('all')} aria-pressed={diet === 'all'}>{tx('All')}</button>
+              <button className={diet === 'veg' ? 'diet-chip active' : 'diet-chip'} onClick={() => setDiet('veg')} aria-pressed={diet === 'veg'}><Leaf size={12}/> {tx('Veg')}</button>
+              <button className={diet === 'nonveg' ? 'diet-chip active' : 'diet-chip'} onClick={() => setDiet('nonveg')} aria-pressed={diet === 'nonveg'}><Flame size={12}/> {tx('Non-veg')}</button>
             </div>
           </div>
-          <div className="category-nav" aria-label="Jump to a category">{categories.map((group) => <button key={group.name} aria-current={active === group.name ? 'location' : undefined} className={active === group.name ? 'category-chip active' : 'category-chip'} onClick={() => jump(group.name)}><span>{group.short}</span>{group.name}</button>)}</div>
-          <div className="navigation-count"><span>{categories.reduce((sum, c) => sum + c.items.length, 0)} dishes shown</span>{(query || diet !== 'all') && <button onClick={clearFilters}>Clear filters <X size={12}/></button>}</div>
+          <div className="category-nav" aria-label={tx('Jump to a category')}>{categories.map((group) => <button key={group.name} aria-current={active === group.name ? 'location' : undefined} className={active === group.name ? 'category-chip active' : 'category-chip'} onClick={() => jump(group.name)}><span>{group.short}</span>{tx(group.name)}</button>)}</div>
+          <div className="navigation-count"><span>{categories.reduce((sum, c) => sum + c.items.length, 0)} {tx('dishes shown')}</span>{(query || diet !== 'all') && <button onClick={clearFilters}>{tx('Clear filters')} <X size={12}/></button>}</div>
         </section>
         {categories.length ? <div className="category-panels">{categories.map((group, index) => {
           const Icon = categoryIcon(group.name);
           return <section id={slug(group.name)} className={'category-panel category-panel--' + (index % 5 + 1)} key={group.name}>
             <div className="category-panel-inner">
-              <div className="category-heading"><div><span className="category-eyebrow">BIRYANI SPOT <i/> MENU COLLECTION</span><h2>{group.name}</h2><p>{group.description}</p></div><span className="category-item-count">{group.items.length} ITEMS</span></div>
+              <div className="category-heading"><div><span className="category-eyebrow">{tx('BIRYANI SPOT')} <i/> {tx('MENU COLLECTION')}</span><h2>{tx(group.name)}</h2><p>{tx(group.description)}</p></div><span className="category-item-count">{group.items.length} {tx('ITEMS')}</span></div>
               <div className="category-content">
-                <div className="category-visual" aria-hidden="true"><img className="category-visual-photo" src={"./category-images/" + CATEGORY_PHOTOS[group.name]} alt="" loading="lazy" decoding="async" onError={(event) => { event.currentTarget.style.display = 'none'; }}/><span className="category-visual-shade"/><span className="category-visual-ring"><Icon size={37} strokeWidth={1.2}/></span><span className="category-visual-brand">BIRYANI SPOT</span><span className="category-visual-line"/><span className="category-visual-subtitle">{group.name}</span></div>
+                <div className="category-visual" aria-hidden="true"><img className="category-visual-photo" src={"./category-images/" + CATEGORY_PHOTOS[group.name]} alt="" loading="lazy" decoding="async" onError={(event) => { event.currentTarget.style.display = 'none'; }}/><span className="category-visual-shade"/><span className="category-visual-ring"><Icon size={37} strokeWidth={1.2}/></span><span className="category-visual-brand">{tx('BIRYANI SPOT')}</span><span className="category-visual-line"/><span className="category-visual-subtitle">{tx(group.name)}</span></div>
                 <div className="dish-grid">{group.items.map((item) => {
                   const single = keyFor(item); const quantity = selection[single]?.qty ?? 0;
                   return <article className="menu-dish" key={item.id}>
-                    <div className="dish-main"><span className={item.veg ? 'diet-mark veg-mark' : 'diet-mark nonveg-mark'} aria-label={item.veg ? 'Vegetarian' : 'Non-vegetarian'}><i/></span><span className="dish-name">{item.name}</span></div>
-                    {item.sizes ? <div className="dish-size-actions">{item.sizes.map((option) => { const key = keyFor(item, option); const qty = selection[key]?.qty ?? 0; return <button key={option.label} className={qty ? 'size-add selected' : 'size-add'} onClick={() => add(item, option)} aria-label={'Add ' + item.name + ' ' + option.label + ', ₹' + option.price}><span>{option.label === 'Half' ? 'H' : 'F'}</span><strong>₹{money(option.price)}</strong>{qty > 0 && <small>{qty}</small>}</button>; })}</div> : <div className="dish-action"><strong className="dish-price">₹{money(item.price ?? 0)}</strong><button className={quantity ? 'dish-add added' : 'dish-add'} onClick={() => add(item)} aria-label={'Add ' + item.name}>{quantity ? <><Check size={13}/><span>{quantity}</span></> : <Plus size={15}/>}</button></div>}
+                    <div className="dish-main"><span className={item.veg ? 'diet-mark veg-mark' : 'diet-mark nonveg-mark'} aria-label={tx(item.veg ? 'Vegetarian' : 'Non-vegetarian')}><i/></span><span className="dish-name">{tx(item.name)}</span></div>
+                    {item.sizes ? <div className="dish-size-actions">{item.sizes.map((option) => { const key = keyFor(item, option); const qty = selection[key]?.qty ?? 0; return <button key={option.label} className={qty ? 'size-add selected' : 'size-add'} onClick={() => add(item, option)} aria-label={tx('Add ') + tx(item.name) + ' ' + tx(option.label) + ', ₹' + option.price}><span>{option.label === 'Half' ? 'H' : 'F'}</span><strong>₹{money(option.price)}</strong>{qty > 0 && <small>{qty}</small>}</button>; })}</div> : <div className="dish-action"><strong className="dish-price">₹{money(item.price ?? 0)}</strong><button className={quantity ? 'dish-add added' : 'dish-add'} onClick={() => add(item)} aria-label={tx('Add ') + tx(item.name)}>{quantity ? <><Check size={13}/><span>{quantity}</span></> : <Plus size={15}/>}</button></div>}
                   </article>;
                 })}</div>
               </div>
             </div>
           </section>;
-        })}</div> : <section className="empty-state"><Search size={25}/><h2>No dishes found</h2><p>Try another search or remove one of the filters.</p><button onClick={clearFilters}>Show all dishes</button></section>}
-        <p className="menu-disclaimer">Prices are shown as listed on the menu. Please confirm availability and final prices with the restaurant.</p>
+        })}</div> : <section className="empty-state"><Search size={25}/><h2>{tx('No dishes found')}</h2><p>{tx('Try another search or remove one of the filters.')}</p><button onClick={clearFilters}>{tx('Show all dishes')}</button></section>}
+        <p className="menu-disclaimer">{tx('Prices are shown as listed on the menu. Please confirm availability and final prices with the restaurant.')}</p>
       </main>
-      <footer id="menu-footer" className="site-footer"><img className="footer-logo" src="./biryani-spot-logo.png" alt="Biryani Spot Family Restaurant" width="449" height="449" loading="lazy" decoding="async"/><p>Good food. Good company.</p><div className="restaurant-details"><p><Clock size={15}/><span><strong>Opening hours</strong>{RESTAURANT.openingHours}</span></p><a href={RESTAURANT.mapsUrl} target="_blank" rel="noreferrer"><MapPin size={15}/><span><strong>Visit us</strong>{RESTAURANT.address}</span></a></div><div className="footer-contact footer-contact--actions" aria-label="Restaurant contact options"><a className="footer-contact-link footer-contact-link--delivery" href={"tel:" + RESTAURANT.phone.replace(/[^+\d]/g, "")}><Truck size={15}/><span><strong>Home Delivery</strong><small>{RESTAURANT.phone.replace("+91 ", "")}</small></span></a><a className="footer-contact-link footer-contact-link--care" href={"tel:+91" + customerCarePhone} aria-label="Call customer care"><Headset size={15}/><span><strong>Customer Care</strong><small>Contact support</small></span></a><a className="footer-contact-link footer-contact-link--whatsapp" href={"https://wa.me/" + whatsapp} target="_blank" rel="noreferrer"><MessageCircle size={15}/><span><strong>WhatsApp</strong><small>Chat with restaurant</small></span></a></div></footer>
+      <footer id="menu-footer" className="site-footer"><img className="footer-logo" src="./biryani-spot-logo.png" alt={tx('Biryani Spot Family Restaurant')} width="449" height="449" loading="lazy" decoding="async"/><p>{tx('Good food. Good company.')}</p><div className="restaurant-details"><p><Clock size={15}/><span><strong>{tx('Opening hours')}</strong>{RESTAURANT.openingHours}</span></p><a href={RESTAURANT.mapsUrl} target="_blank" rel="noreferrer"><MapPin size={15}/><span><strong>{tx('Visit us')}</strong>{RESTAURANT.address}</span></a></div><div className="footer-contact footer-contact--actions" aria-label={tx('Restaurant contact options')}><a className="footer-contact-link footer-contact-link--delivery" href={"tel:" + RESTAURANT.phone.replace(/[^+\d]/g, "")}><Truck size={15}/><span><strong>{tx('Home Delivery')}</strong><small>{RESTAURANT.phone.replace("+91 ", "")}</small></span></a><a className="footer-contact-link footer-contact-link--care" href={"tel:+91" + customerCarePhone} aria-label={tx('Call customer care')}><Headset size={15}/><span><strong>{tx('Customer Care')}</strong><small>{tx('Contact support')}</small></span></a><a className="footer-contact-link footer-contact-link--whatsapp" href={"https://wa.me/" + whatsapp} target="_blank" rel="noreferrer"><MessageCircle size={15}/><span><strong>{tx('WhatsApp')}</strong><small>{tx('Chat with restaurant')}</small></span></a></div></footer>
     </>}
 
-    {count > 0 && !drawer && <div className="selection-bar"><button type="button" className="selection-fab" onClick={() => setDrawer(true)} aria-label={'Open selection: ' + count + (count === 1 ? ' item' : ' items') + ', estimated total ₹' + money(total)} title={'View selection · ₹' + money(total)}><ShoppingBag size={22} strokeWidth={1.9}/><span className="selection-count-badge" aria-hidden="true">{count}</span></button></div>}
-    {drawer && <div className="drawer-overlay" onClick={() => setDrawer(false)}><aside className="selection-drawer" role="dialog" aria-modal="true" aria-label="Your selection" onClick={(e) => e.stopPropagation()}>
-      <div className="drawer-heading"><div><span className="section-kicker">BIRYANI SPOT</span><h2>Your selection</h2><p>Check your dishes before sending an enquiry.</p></div><button className="close-drawer" onClick={() => setDrawer(false)} aria-label="Close selection"><X size={20}/></button></div>
-      {!entries.length ? <div className="drawer-empty"><ShoppingBag size={30}/><h3>Your selection is empty</h3><p>Add dishes from the menu and they will appear here.</p><button className="primary-button" onClick={() => setDrawer(false)}>Browse menu <ChevronRight size={15}/></button></div> : <>
-        <div className="selected-items">{entries.map((entry) => { const key = keyFor(entry.item, entry.option); const price = entry.option?.price ?? entry.item.price ?? 0; return <div className="selected-item" key={key}><div className="selected-item-copy"><strong>{entry.item.name}</strong><small>{entry.option?.label ?? 'Regular'} · ₹{money(price)}</small><b>₹{money(price * entry.qty)}</b></div><div className="quantity-control"><button onClick={() => change(key, -1)} aria-label={'Remove one ' + entry.item.name}><Minus size={13}/></button><span>{entry.qty}</span><button onClick={() => change(key, 1)} aria-label={'Add one ' + entry.item.name}><Plus size={13}/></button></div></div>; })}</div>
-        <div className="drawer-checkout"><div className="total-line"><span>Estimated total</span><strong>₹{money(total)}</strong></div><button className="clear-selection" onClick={() => setSelection({})}>Clear selection</button></div>
+    {count > 0 && !drawer && <div className="selection-bar"><button type="button" className="selection-fab" onClick={() => setDrawer(true)} aria-label={tx('Open selection: ') + count + (count === 1 ? ' ' + tx('item') : tx(' items')) + tx(', estimated total ₹') + money(total)} title={tx('View selection · ₹') + money(total)}><ShoppingBag size={22} strokeWidth={1.9}/><span className="selection-count-badge" aria-hidden="true">{count}</span></button></div>}
+    {drawer && <div className="drawer-overlay" onClick={() => setDrawer(false)}><aside className="selection-drawer" role="dialog" aria-modal="true" aria-label={tx('Your selection')} onClick={(e) => e.stopPropagation()}>
+      <div className="drawer-heading"><div><span className="section-kicker">{tx('BIRYANI SPOT')}</span><h2>{tx('Your selection')}</h2><p>{tx('Check your dishes before sending an enquiry.')}</p></div><button className="close-drawer" onClick={() => setDrawer(false)} aria-label={tx('Close selection')}><X size={20}/></button></div>
+      {!entries.length ? <div className="drawer-empty"><ShoppingBag size={30}/><h3>{tx('Your selection is empty')}</h3><p>{tx('Add dishes from the menu and they will appear here.')}</p><button className="primary-button" onClick={() => setDrawer(false)}>{tx('Browse menu')} <ChevronRight size={15}/></button></div> : <>
+        <div className="selected-items">{entries.map((entry) => { const key = keyFor(entry.item, entry.option); const price = entry.option?.price ?? entry.item.price ?? 0; return <div className="selected-item" key={key}><div className="selected-item-copy"><strong>{tx(entry.item.name)}</strong><small>{entry.option ? tx(entry.option.label) : tx('Regular')} · ₹{money(price)}</small><b>₹{money(price * entry.qty)}</b></div><div className="quantity-control"><button onClick={() => change(key, -1)} aria-label={tx('Remove one ') + tx(entry.item.name)}><Minus size={13}/></button><span>{entry.qty}</span><button onClick={() => change(key, 1)} aria-label={tx('Add one ') + tx(entry.item.name)}><Plus size={13}/></button></div></div>; })}</div>
+        <div className="drawer-checkout"><div className="total-line"><span>{tx('Estimated total')}</span><strong>₹{money(total)}</strong></div><button className="clear-selection" onClick={() => setSelection({})}>{tx('Clear selection')}</button></div>
       </>}
     </aside></div>}
     {notice && <div className="toast" role="status"><Check size={15}/>{notice}</div>}
