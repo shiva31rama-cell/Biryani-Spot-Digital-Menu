@@ -179,7 +179,7 @@ export default function App() {
       </div>
       <section className="welcome-brand-block">
         <div className="welcome-brand-lockup">
-          <img className="welcome-logo-image" src="./biryani-spot-logo.png" alt="Biryani Spot Family Restaurant logo" width="449" height="449" fetchPriority="high" decoding="async"/>
+          <img className="welcome-logo-image" src="./biryani-spot-logo.png" alt={tx('Biryani Spot Family Restaurant logo')} width="449" height="449" fetchPriority="high" decoding="async"/>
         </div>
         <p className="welcome-overline">{tx('WELCOME TO BIRYANI SPOT')}</p>
         <h2>{tx('Good Food, Happy Moments')}</h2>
@@ -188,7 +188,7 @@ export default function App() {
       </section>
       <section className="welcome-food-feature">
         <div className="welcome-food-image">
-          <img src={heroImage} alt="Traditional biryani rice" loading="eager" onError={(event) => { event.currentTarget.style.display = 'none'; }}/>
+          <img src={heroImage} alt={tx('Traditional biryani rice')} loading="eager" onError={(event) => { event.currentTarget.style.display = 'none'; }}/>
           <div className="welcome-food-overlay"/><span className="image-caption">{tx('FLAVOUR IN EVERY SERVING')}</span>
         </div>
         <div className="welcome-food-copy">
@@ -202,7 +202,7 @@ export default function App() {
         <div className="section-heading"><span className="section-kicker"><ChefHat size={14}/> {tx('FROM OUR MENU')}</span><h2>{tx('Popular picks')}</h2><p>{tx('A few favourites to get you started.')}</p></div>
         <div className="signature-grid">{featured.map((item, index) => <button key={item.id} className={'signature-card signature-card--' + (index + 1)} onClick={() => featuredClick(item)}>
           <span className="signature-card-art" aria-hidden="true"><ChefHat size={28}/><i>{tx(item.category)}</i></span>
-          <span className="signature-card-copy"><small>{tx('MENU FAVOURITE')}</small><strong>{tx(item.name)}</strong><span>{item.sizes ? 'From ₹' + money(item.sizes[0].price) : '₹' + money(item.price ?? 0)}</span></span>
+          <span className="signature-card-copy"><small>{tx('MENU FAVOURITE')}</small><strong>{tx(item.name)}</strong><span>{item.sizes ? tx('From ₹') + money(item.sizes[0].price) : '₹' + money(item.price ?? 0)}</span></span>
           <span className="signature-arrow"><ArrowRight size={15}/></span>
         </button>)}</div>
       </section>
@@ -215,7 +215,7 @@ export default function App() {
         <div className="header-actions"><span className="menu-count">{MENU_ITEM_COUNT} {tx('dishes')}</span><button className="header-bag" onClick={() => setDrawer(true)} aria-label={tx('Open selection, ') + count + tx(' items')}><ShoppingBag size={17}/><span>{tx('My selection')}</span>{count > 0 && <b>{count}</b>}</button></div>
       </header>
       <main id="menu" className="menu-page">
-        <div className="menu-back-row"><button className="back-home" onClick={home}><ArrowLeft size={13}/> {tx('Restaurant Home')}</button><div className="menu-back-actions"><LanguageToggle language={language} onChange={setLanguage}/><span>{tx('GOOD FOOD, HAPPY MOMENTS')}</span></div></div>
+        <div className="menu-back-row"><button className="back-home" onClick={home}><ArrowLeft size={13}/> {tx('Restaurant Home')}</button><span>{tx('GOOD FOOD, HAPPY MOMENTS')}</span></div>
         <section className="menu-brand-panel"><img className="menu-page-logo" src="./biryani-spot-logo.png" alt={tx('Biryani Spot Family Restaurant')} width="449" height="449" loading="lazy" decoding="async"/><h1>{tx('Our')} <em>{tx('Menu')}</em></h1><p>{tx('Authentic favourites, generous portions and something for every appetite.')}</p><div className="menu-brand-ornament"><i/><Utensils size={15}/><i/></div></section>
         <section className="menu-tools" aria-label={tx('Search and menu categories')}>
           <div className="navigation-top-row">
@@ -225,6 +225,7 @@ export default function App() {
               <button className={diet === 'veg' ? 'diet-chip active' : 'diet-chip'} onClick={() => setDiet('veg')} aria-pressed={diet === 'veg'}><Leaf size={12}/> {tx('Veg')}</button>
               <button className={diet === 'nonveg' ? 'diet-chip active' : 'diet-chip'} onClick={() => setDiet('nonveg')} aria-pressed={diet === 'nonveg'}><Flame size={12}/> {tx('Non-veg')}</button>
             </div>
+            <LanguageToggle language={language} onChange={setLanguage}/>
           </div>
           <div className="category-nav" aria-label={tx('Jump to a category')}>{categories.map((group) => <button key={group.name} aria-current={active === group.name ? 'location' : undefined} className={active === group.name ? 'category-chip active' : 'category-chip'} onClick={() => jump(group.name)}><span>{tx(group.short)}</span>{tx(group.name)}</button>)}</div>
           <div className="navigation-count"><span>{categories.reduce((sum, c) => sum + c.items.length, 0)} {tx('dishes shown')}</span>{(query || diet !== 'all') && <button onClick={clearFilters}>{tx('Clear filters')} <X size={12}/></button>}</div>
