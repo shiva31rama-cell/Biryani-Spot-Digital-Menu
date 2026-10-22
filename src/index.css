@@ -65,3 +65,14 @@
 .footer-contact a:hover{border-color:var(--wine);background:#f8ead8}
 .footer-contact a:focus-visible{outline:2px solid var(--wine);outline-offset:3px}
 @media(max-width:370px){.footer-contact{gap:6px}.footer-contact a{min-height:35px;padding:8px 10px;font-size:10px}}
+
+
+/* Restaurant address and opening hours */
+.restaurant-details{display:flex;flex-wrap:wrap;justify-content:center;align-items:stretch;gap:10px;width:min(100% - 28px,720px);margin:16px auto 0}
+.restaurant-details>p,.restaurant-details>a{display:flex;align-items:flex-start;gap:10px;min-width:230px;max-width:100%;margin:0;padding:12px 14px;border:1px solid #e2cfb8;border-radius:8px;background:#fffaf2;color:var(--wine-dark);font-size:11px;line-height:1.5;text-align:left;text-decoration:none}
+.restaurant-details>p svg,.restaurant-details>a svg{flex:0 0 auto;margin-top:2px;color:var(--wine)}
+.restaurant-details>p span,.restaurant-details>a span{display:flex;flex-direction:column;gap:3px;overflow-wrap:anywhere}
+.restaurant-details strong{font-size:10px;letter-spacing:.03em}
+.restaurant-details>a:hover{border-color:var(--wine);background:#f8ead8}
+.restaurant-details>a:focus-visible{outline:2px solid var(--wine);outline-offset:3px}
+@media(max-width:480px){.restaurant-details{flex-direction:column;gap:7px;width:calc(100% - 24px)}.restaurant-details>p,.restaurant-details>a{width:100%;min-width:0;padding:11px 12px;font-size:10px}}
