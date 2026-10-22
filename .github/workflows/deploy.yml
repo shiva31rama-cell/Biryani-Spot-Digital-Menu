@@ -1,12 +1,8 @@
 name: CD — Deploy Biryani Spot
 
 on:
-  # Temporary main-branch trigger to publish the already-approved language update.
-  # This trigger will be removed after the one-time deployment completes.
+  # Deployment is intentionally manual until the owner is ready to publish.
   workflow_dispatch:
-  push:
-    branches:
-      - main
 
 permissions:
   contents: read
@@ -38,8 +34,6 @@ jobs:
 
       - name: Configure GitHub Pages
         uses: actions/configure-pages@v5
-        with:
-          enablement: true
 
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v4
