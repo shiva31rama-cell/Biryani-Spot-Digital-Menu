@@ -1,57 +1,71 @@
-name: CD — Deploy Biryani Spot
+name: CD — Deploy Biryani Spot to Cloudflare Workers
 
 on:
-  # Publish the approved main-branch version after each direct main update.
+  # Keep the public Worker in sync with every update to main.
   push:
     branches:
       - main
-  # Allow a one-off manual deployment from GitHub Actions when needed.
   workflow_dispatch:
 
 permissions:
   contents: read
-  pages: write
-  id-token: write
 
 concurrency:
-  group: pages
+  group: cloudflare-worker-production
   cancel-in-progress: true
 
 jobs:
-  build:
-    name: Build production site
+  deploy:
+    name: Build and deploy production Worker
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
+      - name: Checkout main
         uses: actions/checkout@v6
 
-      - name: Setup Node
+      - name: Set up Node.js
         uses: actions/setup-node@v6
         with:
           node-version: 22
 
+      - name: Verify Cloudflare credentials are configured
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: |
+          if [ -z "$CLOUDFLARE_API_TOKEN" ]; then
+            echo "::error::Missing GitHub Actions secret CLOUDFLARE_API_TOKEN. Add it in Settings → Secrets and variables → Actions."
+            exit 1
+          fi
+          if [ -z "$CLOUDFLARE_ACCOUNT_ID" ]; then
+            echo "::error::Missing GitHub Actions secret CLOUDFLARE_ACCOUNT_ID. Add it in Settings → Secrets and variables → Actions."
+            exit 1
+          fi
+
       - name: Install dependencies
         run: npm install
 
-      - name: Build
+      - name: Validate menu data
+        run: npm run test:menu
+
+      - name: Build production assets
         run: npm run build
 
-      - name: Configure GitHub Pages
-        uses: actions/configure-pages@v5
-
-      - name: Upload Pages artifact
-        uses: actions/upload-pages-artifact@v4
+      - name: Deploy the Worker and static assets to Cloudflare
+        id: deploy
+        uses: cloudflare/wrangler-action@v4
         with:
-          path: ./dist
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          wranglerVersion: "4"
+          command: deploy
 
-  deploy:
-    name: Deploy to GitHub Pages
-    needs: build
-    runs-on: ubuntu-latest
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-    steps:
-      - name: Deploy
-        id: deployment
-        uses: actions/deploy-pages@v4
+      - name: Report deployment URL
+        if: success()
+        env:
+          DEPLOYMENT_URL: ${{ steps.deploy.outputs.deployment-url }}
+        run: |
+          echo "### Cloudflare Workers deployment" >> "$GITHUB_STEP_SUMMARY"
+          echo "Deployment succeeded." >> "$GITHUB_STEP_SUMMARY"
+          if [ -n "$DEPLOYMENT_URL" ]; then
+            echo "URL: $DEPLOYMENT_URL" >> "$GITHUB_STEP_SUMMARY"
+          fi
