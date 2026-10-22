@@ -1,7 +1,11 @@
 name: CD — Deploy Biryani Spot
 
 on:
-  # Deployment is intentionally manual until the owner is ready to publish.
+  # Publish the approved main-branch version after each direct main update.
+  push:
+    branches:
+      - main
+  # Allow a one-off manual deployment from GitHub Actions when needed.
   workflow_dispatch:
 
 permissions:
