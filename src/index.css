@@ -76,3 +76,31 @@
 .restaurant-details>a:hover{border-color:var(--wine);background:#f8ead8}
 .restaurant-details>a:focus-visible{outline:2px solid var(--wine);outline-offset:3px}
 @media(max-width:480px){.restaurant-details{flex-direction:column;gap:7px;width:calc(100% - 24px)}.restaurant-details>p,.restaurant-details>a{width:100%;min-width:0;padding:11px 12px;font-size:10px}}
+
+
+/* Distinct contact actions: delivery number is visible; customer-care number is not printed. */
+.footer-contact--actions{width:min(100% - 28px,820px);gap:9px;margin:16px auto 0}
+.footer-contact--actions .footer-contact-link{display:flex;align-items:center;justify-content:flex-start;gap:10px;min-width:195px;min-height:58px;padding:11px 14px;border-radius:9px;text-align:left}
+.footer-contact-link>svg{flex:0 0 auto;width:18px;height:18px}
+.footer-contact-link>span{display:flex;flex-direction:column;gap:3px;min-width:0}
+.footer-contact-link strong{font-size:11px;line-height:1.2}
+.footer-contact-link small{font-size:10px;font-weight:600;line-height:1.25;opacity:.88}
+.footer-contact--actions .footer-contact-link--delivery{border-color:#a67b38;background:var(--wine);color:#fff5dc;box-shadow:0 4px 12px #4f1a161c}
+.footer-contact--actions .footer-contact-link--delivery small{color:#f9dca5;letter-spacing:.03em}
+.footer-contact--actions .footer-contact-link--care{border-color:#d9c3a7;background:#fffaf2;color:var(--wine-dark)}
+.footer-contact--actions .footer-contact-link--whatsapp{border-color:#b7d9c1;background:#eef8f0;color:#145c31}
+.footer-contact--actions .footer-contact-link:hover{transform:translateY(-1px);filter:brightness(.98)}
+.footer-contact--actions .footer-contact-link:focus-visible{outline:2px solid var(--wine);outline-offset:3px}
+@media(max-width:480px){
+ .footer-contact--actions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));width:calc(100% - 24px);gap:7px}
+ .footer-contact--actions .footer-contact-link{min-width:0;min-height:57px;padding:10px;gap:8px}
+ .footer-contact-link strong{font-size:10px}
+ .footer-contact-link small{font-size:9px}
+ .footer-contact--actions .footer-contact-link--delivery{grid-column:1/-1}
+}
+@media(max-width:340px){
+ .footer-contact--actions .footer-contact-link{padding:9px 7px;gap:6px}
+ .footer-contact-link>svg{width:16px;height:16px}
+ .footer-contact-link strong{font-size:9px}
+ .footer-contact-link small{font-size:8px}
+}
