@@ -6,6 +6,9 @@ export type Language = 'en' | 'te';
  * Prices, IDs, product records and ordering data remain unchanged.
  */
 const PHRASES: Record<string, string> = {
+  'Biryani Spot Family Restaurant logo': 'బిర్యానీ స్పాట్ ఫ్యామిలీ రెస్టారెంట్ లోగో',
+  'Traditional biryani rice': 'ట్రడిషనల్ బిర్యానీ రైస్',
+  'From ₹': 'ఫ్రమ్ ₹',
   'Search and menu categories': 'సెర్చ్ అండ్ మెనూ కేటగిరీస్',
   'Main navigation': 'మెయిన్ నావిగేషన్',
   'Language': 'లాంగ్వేజ్',
@@ -370,7 +373,9 @@ const WORDS: Record<string, string> = {
   'added': 'యాడెడ్',
   'language': 'లాంగ్వేజ్',
   'main': 'మెయిన్',
-  'navigation': 'నావిగేషన్'
+  'navigation': 'నావిగేషన్',
+  'traditional': 'ట్రడిషనల్',
+  'logo': 'లోగో'
 };
 
 export function translateText(value: string, language: Language): string {
