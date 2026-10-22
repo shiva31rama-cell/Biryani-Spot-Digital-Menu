@@ -178,3 +178,5 @@
 .language-switch button.active{background:var(--wine);color:#fffdf8;box-shadow:0 2px 6px #46171320}
 .menu-back-actions{display:flex;align-items:center;gap:12px;min-width:0}
 @media(max-width:560px){.menu-back-actions>span{display:none}.menu-back-row{gap:8px}.menu-back-actions{gap:0}.welcome-actions{right:8px;gap:4px}.welcome-actions .language-switch{padding:2px}.welcome-actions .language-switch button{padding:5px 7px;font-size:9px}.welcome-action{padding:7px 9px}}
+
+@media(max-width:680px){.navigation-top-row{flex-wrap:wrap;justify-content:flex-start}.search-field{flex:1 1 100%;width:100%;max-width:none}.diet-filters{flex:1 1 auto}.navigation-top-row>.language-switch{margin-left:auto}}
