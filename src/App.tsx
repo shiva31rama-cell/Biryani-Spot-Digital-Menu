@@ -13,19 +13,19 @@ const money = (price: number) => new Intl.NumberFormat('en-IN', { maximumFractio
 const allItems = MENU.flatMap((category) => category.items);
 
 const CATEGORY_PHOTOS: Record<string, string> = {
-  'Non-Veg Soups': 'non-veg-soups.jpg',
-  'Veg Soups': 'veg-soups.jpg',
-  'Veg Starters': 'veg-starters.jpg',
-  'Non-Veg Starters': 'non-veg-starters.jpg',
-  'Tandoori Starter': 'tandoori-starter.jpg',
-  'Veg Tandoori Starter': 'veg-tandoori-starter.jpg',
-  "Biryani's": 'biryanis.jpg',
-  'Veg Friedrice': 'veg-friedrice.jpg',
-  'Noodles': 'noodles.jpg',
-  'Non Veg Friedrice': 'non-veg-friedrice.jpg',
-  'Roti & Naan': 'roti-naan.jpg',
-  'Veg Curries': 'veg-curries.jpg',
-  'Non Veg Curries': 'non-veg-curries.jpg',
+  'Non-Veg Soups': 'non-veg-soups.png',
+  'Veg Soups': 'veg-soups.png',
+  'Veg Starters': 'veg-starters.png',
+  'Non-Veg Starters': 'non-veg-starters.png',
+  'Tandoori Starter': 'tandoori-starter.png',
+  'Veg Tandoori Starter': 'veg-tandoori-starter.png',
+  "Biryani's": 'biryanis.png',
+  'Veg Friedrice': 'veg-friedrice.png',
+  'Noodles': 'noodles.png',
+  'Non Veg Friedrice': 'non-veg-friedrice.png',
+  'Roti & Naan': 'roti-naan.png',
+  'Veg Curries': 'veg-curries.png',
+  'Non Veg Curries': 'non-veg-curries.png',
 };
 
 function categoryIcon(name: string) {
