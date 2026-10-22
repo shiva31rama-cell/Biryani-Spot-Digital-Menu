@@ -165,14 +165,15 @@ export default function App() {
   const sendEnquiry = () => {
     if (!entries.length) return toast('Add a dish to your selection first.');
     if (!canWhatsApp) return toast('Restaurant WhatsApp is not configured yet.');
-    const lines = entries.map((entry, i) => (i + 1) + '. ' + entry.item.name + (entry.option ? ' (' + entry.option.label + ')' : '') + ' × ' + entry.qty + ' — ₹' + money((entry.option?.price ?? entry.item.price ?? 0) * entry.qty));
-    const message = ['Hello Biryani Spot, I would like to enquire about these items:', '', ...lines, '', 'Estimated menu total: ₹' + money(total), '', 'Please confirm availability, final prices and order details. This is an enquiry, not a confirmed order.'].join('\n');
+    const lines = entries.map((entry, i) => (i + 1) + '. ' + tx(entry.item.name) + (entry.option ? ' (' + tx(entry.option.label) + ')' : '') + ' × ' + entry.qty + ' — ₹' + money((entry.option?.price ?? entry.item.price ?? 0) * entry.qty));
+    const message = [tx('Hello Biryani Spot, I would like to enquire about these items:'), '', ...lines, '', tx('Estimated menu total: ₹') + money(total), '', tx('Please confirm availability, final prices and order details.')].join('\n');
     window.open('https://wa.me/' + whatsapp + '?text=' + encodeURIComponent(message), '_blank', 'noopener,noreferrer');
   };
 
   return <div className={count && !drawer ? 'app-shell has-selection' : 'app-shell'}>
     {page === 'welcome' ? <main className="welcome-page" id="top">
       <div className="welcome-actions">
+        <LanguageToggle language={language} onChange={setLanguage}/>
         <button className="welcome-action welcome-action--refresh" onClick={() => window.location.reload()} aria-label={tx('Refresh')}><RefreshCw size={13}/> {tx('Refresh')}</button>
         <button className="welcome-action welcome-action--menu" onClick={menu}>{tx('View Menu')} <ArrowRight size={14}/></button>
       </div>
