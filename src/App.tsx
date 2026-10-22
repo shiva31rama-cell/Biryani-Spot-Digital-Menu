@@ -226,7 +226,7 @@ export default function App() {
               <button className={diet === 'nonveg' ? 'diet-chip active' : 'diet-chip'} onClick={() => setDiet('nonveg')} aria-pressed={diet === 'nonveg'}><Flame size={12}/> {tx('Non-veg')}</button>
             </div>
           </div>
-          <div className="category-nav" aria-label={tx('Jump to a category')}>{categories.map((group) => <button key={group.name} aria-current={active === group.name ? 'location' : undefined} className={active === group.name ? 'category-chip active' : 'category-chip'} onClick={() => jump(group.name)}><span>{group.short}</span>{tx(group.name)}</button>)}</div>
+          <div className="category-nav" aria-label={tx('Jump to a category')}>{categories.map((group) => <button key={group.name} aria-current={active === group.name ? 'location' : undefined} className={active === group.name ? 'category-chip active' : 'category-chip'} onClick={() => jump(group.name)}><span>{tx(group.short)}</span>{tx(group.name)}</button>)}</div>
           <div className="navigation-count"><span>{categories.reduce((sum, c) => sum + c.items.length, 0)} {tx('dishes shown')}</span>{(query || diet !== 'all') && <button onClick={clearFilters}>{tx('Clear filters')} <X size={12}/></button>}</div>
         </section>
         {categories.length ? <div className="category-panels">{categories.map((group, index) => {
