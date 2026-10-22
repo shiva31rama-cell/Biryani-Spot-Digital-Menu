@@ -6,6 +6,9 @@ export type Language = 'en' | 'te';
  * Prices, IDs, product records and ordering data remain unchanged.
  */
 const PHRASES: Record<string, string> = {
+  'Search and menu categories': 'సెర్చ్ అండ్ మెనూ కేటగిరీస్',
+  'Main navigation': 'మెయిన్ నావిగేషన్',
+  'Language': 'లాంగ్వేజ్',
   'English': 'ఇంగ్లీష్',
   'తెలుగు': 'తెలుగు',
   'Refresh': 'రిఫ్రెష్',
@@ -354,7 +357,20 @@ const WORDS: Record<string, string> = {
   'complete': 'కంప్లీట్',
   'meal': 'మీల్',
   '65': '65',
-  '555': '555'
+  '555': '555',
+  'fry': 'ఫ్రై',
+  'nv': 'ఎన్‌వీ',
+  'vg': 'వీజీ',
+  'fr': 'ఎఫ్‌ఆర్',
+  'no': 'ఎన్‌వో',
+  'rn': 'ఆర్‌ఎన్',
+  't': 'టీ',
+  'b': 'బీ',
+  'item': 'ఐటమ్',
+  'added': 'యాడెడ్',
+  'language': 'లాంగ్వేజ్',
+  'main': 'మెయిన్',
+  'navigation': 'నావిగేషన్'
 };
 
 export function translateText(value: string, language: Language): string {
