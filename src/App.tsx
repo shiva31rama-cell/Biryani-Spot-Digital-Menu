@@ -99,6 +99,20 @@ export default function App() {
     return () => window.removeEventListener('scroll', onScroll);
   }, [categories, active]);
 
+  // Keep the horizontal category strip synchronized with the section currently in view.
+  // Scroll only the strip horizontally so the page itself never jumps vertically.
+  useEffect(() => {
+    const nav = document.querySelector('.category-nav') as HTMLElement | null;
+    const chip = nav?.querySelector('.category-chip.active') as HTMLElement | null;
+    if (!nav || !chip) return;
+    const navRect = nav.getBoundingClientRect();
+    const chipRect = chip.getBoundingClientRect();
+    const chipCenter = chipRect.left - navRect.left + nav.scrollLeft + chipRect.width / 2;
+    const targetLeft = Math.max(0, chipCenter - nav.clientWidth / 2);
+    const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    nav.scrollTo({ left: targetLeft, behavior: reduceMotion ? 'auto' : 'smooth' });
+  }, [active, categories]);
+
   const featured = useMemo(() => {
     const names = ['Chicken Dum Biryani', 'Chicken Fry Biryani', 'Mutton Dum Biryani'];
     const result = names.map((name) => allItems.find((item) => item.name === name)).filter((item): item is MenuItem => Boolean(item));
@@ -194,7 +208,7 @@ export default function App() {
               <button className={diet === 'nonveg' ? 'diet-chip active' : 'diet-chip'} onClick={() => setDiet('nonveg')} aria-pressed={diet === 'nonveg'}><Flame size={12}/> Non-veg</button>
             </div>
           </div>
-          <div className="category-nav" aria-label="Jump to a category">{categories.map((group) => <button key={group.name} className={active === group.name ? 'category-chip active' : 'category-chip'} onClick={() => jump(group.name)}><span>{group.short}</span>{group.name}</button>)}</div>
+          <div className="category-nav" aria-label="Jump to a category">{categories.map((group) => <button key={group.name} aria-current={active === group.name ? 'location' : undefined} className={active === group.name ? 'category-chip active' : 'category-chip'} onClick={() => jump(group.name)}><span>{group.short}</span>{group.name}</button>)}</div>
           <div className="navigation-count"><span>{categories.reduce((sum, c) => sum + c.items.length, 0)} dishes shown</span>{(query || diet !== 'all') && <button onClick={clearFilters}>Clear filters <X size={12}/></button>}</div>
         </section>
         {categories.length ? <div className="category-panels">{categories.map((group, index) => {
