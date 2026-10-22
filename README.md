@@ -63,11 +63,11 @@ The official brand image is stored at `public/biryani-spot-brand.webp`. The curr
 
 The service worker precaches the app shell and built JavaScript/CSS, caches successful same-origin assets, and uses a network-first strategy for page navigations. It removes only older cache keys beginning with `biryani-spot-`, so it does not clear unrelated apps' caches on a shared origin. On first-ever use while already offline, the app cannot be downloaded; open it successfully once online first.
 
-## Deployment is intentionally paused
+## Deployment
 
-Deployment is deliberately manual and does not run on ordinary pushes. The workflow can be triggered from GitHub Actions only when the restaurant is approved for launch. GitHub Pages also needs to be enabled in Settings → Pages → Build and deployment → Source → GitHub Actions. No deployment is being performed as part of this finalization pass.
+The GitHub Pages deployment workflow runs automatically on pushes to `main`, and can also be triggered manually from GitHub Actions. It builds the production bundle and publishes `dist` to GitHub Pages. GitHub Pages must be enabled in Settings → Pages → Build and deployment → Source → GitHub Actions; the deployment run will report a configuration error if Pages is not enabled or permissions are missing.
 
-Static asset paths use Vite's relative base to support project subpaths on GitHub Pages and other static hosts.
+Static asset paths use Vite's relative base to support project subpaths on GitHub Pages and other static hosts. This repository workflow updates GitHub Pages only; if a separate custom domain is hosted on another provider, that provider must be connected to the repository or deployed separately.
 
 ## Final launch checklist
 
@@ -76,7 +76,7 @@ Static asset paths use Vite's relative base to support project subpaths on GitHu
 - [ ] Owner provides verified address, phone, WhatsApp, Maps URL and opening hours.
 - [ ] Owner approves any social links and real food/restaurant photographs.
 - [ ] Latest CI validation, build and lint all pass.
-- [ ] Manually test QR entry, intro skip/reduced-motion, search, filters, favourites, sizes, quantities, totals, WhatsApp message contents, feedback, print and offline revisit on an actual phone.
-- [ ] Review the built site on phone, tablet and desktop before manually deploying.
+- [ ] Manually test QR entry, intro skip/reduced-motion, language switch, search, filters, favourites, sizes, quantities, totals, WhatsApp message contents, feedback, print and offline revisit on an actual phone.
+- [ ] Review the built site on phone, tablet and desktop.
 
 No credentials, payment collection, fake order confirmation, fake reviews, fake ratings or invented contact details are included.
