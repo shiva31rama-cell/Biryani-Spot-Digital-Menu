@@ -4,6 +4,8 @@ A mobile-first digital menu for Biryani Spot Family Restaurant, built with React
 
 ## Repository map
 
+For a high-level architecture diagram and code-ownership rules, see [docs/PROJECT_STRUCTURE.md](./docs/PROJECT_STRUCTURE.md).
+
 | Path | Purpose | Edit when you need to… |
 | --- | --- | --- |
 | `src/data/menu.ts` | Canonical menu categories, dish names, dietary flags and prices | Add, remove, rename or reprice a dish |
@@ -21,6 +23,7 @@ A mobile-first digital menu for Biryani Spot Family Restaurant, built with React
 | `.github/workflows/deploy.yml` | Cloudflare Workers deployment workflow | Change publication process |
 | `wrangler.jsonc` | Cloudflare Worker name and static-assets configuration | Change Worker deployment configuration |
 | `docs/` | Owner checklist and restaurant-information template | Maintain project handoff documentation |
+| `docs/PROJECT_STRUCTURE.md` | Architecture map and file-ownership rules | Understand how the repository is organized |
 
 ## Menu-data conventions
 
