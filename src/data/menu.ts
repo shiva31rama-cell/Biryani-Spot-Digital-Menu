@@ -14,12 +14,51 @@ export type MenuCategory = {
   items: MenuItem[];
 };
 
-const slug = (name: string) => name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
-const single = (name: string, price: number, veg: boolean, category: string): MenuItem => ({ id: slug(name), name, price, veg, category });
-const sized = (name: string, half: number, full: number, category: string, veg = false): MenuItem => ({
-  id: slug(name), name, veg, category, sizes: [{ label: 'Half', price: half }, { label: 'Full', price: full }],
+// Build predictable IDs from the dish name. Keep names unique within the menu.
+const slug = (name: string) =>
+  name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+
+const single = (
+  name: string,
+  price: number,
+  veg: boolean,
+  category: string,
+): MenuItem => ({
+  id: slug(name),
+  name,
+  price,
+  veg,
+  category,
 });
-const group = (name: string, short: string, description: string, items: MenuItem[]): MenuCategory => ({ name, short, description, items });
+
+const sized = (
+  name: string,
+  half: number,
+  full: number,
+  category: string,
+  veg = false,
+): MenuItem => ({
+  id: slug(name),
+  name,
+  veg,
+  category,
+  sizes: [
+    { label: 'Half', price: half },
+    { label: 'Full', price: full },
+  ],
+});
+
+const group = (
+  name: string,
+  short: string,
+  description: string,
+  items: MenuItem[],
+): MenuCategory => ({
+  name,
+  short,
+  description,
+  items,
+});
 
 export const MENU: MenuCategory[] = [
   // 1. SOUPS
