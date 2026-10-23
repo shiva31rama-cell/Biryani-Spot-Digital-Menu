@@ -30,7 +30,6 @@ export const MENU: MenuCategory[] = [
     single('Chicken Clear Soup', 100, false, 'Non-Veg Soups'),
     single('Chicken Coriander Clear Soup', 100, false, 'Non-Veg Soups'),
   ]),
-  // 1. SOUPS
   group('Veg Soups', 'VG', 'Light and flavourful vegetarian soups', [
     single('Veg Soup', 100, true, 'Veg Soups'),
     single('Veg Hot Sour Soup', 100, true, 'Veg Soups'),
@@ -53,7 +52,6 @@ export const MENU: MenuCategory[] = [
     single('Baby Corn 65', 200, true, 'Veg Starters'),
     single('Baby Corn Manchuria', 200, true, 'Veg Starters'),
   ]),
-  // 2. STARTERS
   group('Non-Veg Starters', 'NV', 'Popular chicken and egg starters', [
     single('Egg Manchuria', 150, false, 'Non-Veg Starters'),
     single('Egg 65', 150, false, 'Non-Veg Starters'),
@@ -87,7 +85,6 @@ export const MENU: MenuCategory[] = [
     sized('Lahori Kabab', 250, 500, 'Tandoori Starter'),
     sized('Lahori Tikka', 150, 300, 'Tandoori Starter'),
   ]),
-  // 3. TANDOORI STARTERS
   group('Veg Tandoori Starter', 'VG', 'Paneer, mushroom and baby corn from the tandoor', [
     single('Paneer Tikka', 200, true, 'Veg Tandoori Starter'),
     single('Mushroom Tikka', 200, true, 'Veg Tandoori Starter'),
@@ -120,12 +117,10 @@ export const MENU: MenuCategory[] = [
     single('Sweet Corn Friedrice', 160, true, 'Veg Friedrice'),
     single('Mushroom Friedrice', 160, true, 'Veg Friedrice'),
   ]),
-  // 5. RICE, NOODLES AND FRIED RICE
   group('Noodles', 'NO', 'Classic wok-tossed noodles', [
     single('Veg Noodles', 80, true, 'Noodles'),
     single('Chicken Noodles', 100, false, 'Noodles'),
   ]),
-  // 5. RICE, NOODLES AND FRIED RICE
   group('Non Veg Friedrice', 'FR', 'Chicken, egg, mixed and mutton fried rice', [
     sized('Chicken Friedrice', 100, 150, 'Non Veg Friedrice'),
     sized('Double Egg Friedrice', 100, 150, 'Non Veg Friedrice'),
@@ -156,7 +151,6 @@ export const MENU: MenuCategory[] = [
     single('Mushroom Curry', 200, true, 'Veg Curries'),
     single('Baby Corn Curry', 180, true, 'Veg Curries'),
   ]),
-  // 7. CURRIES
   group('Non Veg Curries', 'NV', 'Hearty curries for a complete meal', [
     single('Chicken Boneless Curry', 150, false, 'Non Veg Curries'),
     single('Butter Chicken', 150, false, 'Non Veg Curries'),
