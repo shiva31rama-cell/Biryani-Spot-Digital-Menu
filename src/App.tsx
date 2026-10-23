@@ -68,72 +68,135 @@ const CATEGORY_PHOTOS: Record<string, string> = {
 // Main screen: state, storage effects, derived menu data, and customer actions.
 export default function App() {
   const [page, setPage] = useState<Page>(() => {
-    try { return sessionStorage.getItem('biryani-spot-page') === 'menu' ? 'menu' : 'welcome'; } catch { return 'welcome'; }
+    try {
+      return sessionStorage.getItem('biryani-spot-page') === 'menu' ? 'menu' : 'welcome';
+    } catch {
+      return 'welcome';
+    }
   });
   const [language, setLanguage] = useState<Language>(() => {
-    try { return localStorage.getItem('biryani-spot-language') === 'te' ? 'te' : 'en'; } catch { return 'en'; }
+    try {
+      return localStorage.getItem('biryani-spot-language') === 'te' ? 'te' : 'en';
+    } catch {
+      return 'en';
+    }
   });
   const tx = (value: string) => translateText(value, language);
   const [query, setQuery] = useState('');
   const [diet, setDiet] = useState<'all' | 'veg' | 'nonveg'>('all');
   const [active, setActive] = useState(MENU[0]?.name ?? '');
   const [selection, setSelection] = useState<Selection>(() => {
-    try { return JSON.parse(localStorage.getItem('biryani-spot-selection') ?? '{}') as Selection; } catch { return {}; }
+    try {
+      return JSON.parse(localStorage.getItem('biryani-spot-selection') ?? '{}') as Selection;
+    } catch {
+      return {};
+    }
   });
   const [drawer, setDrawer] = useState(false);
   const [notice, setNotice] = useState('');
 
   // Keep the language choice and customer selection across refreshes.
   useEffect(() => {
-    try { localStorage.setItem('biryani-spot-language', language); } catch { /* Language still works for this session. */ }
+    try {
+      localStorage.setItem('biryani-spot-language', language);
+    } catch {
+      // The current session can still use the selected language.
+    }
     document.documentElement.lang = language === 'te' ? 'te' : 'en';
   }, [language]);
+
   useEffect(() => {
-    try { localStorage.setItem('biryani-spot-selection', JSON.stringify(selection)); } catch { /* Selection still works for this session. */ }
+    try {
+      localStorage.setItem('biryani-spot-selection', JSON.stringify(selection));
+    } catch {
+      // Selection still works until the page is closed.
+    }
   }, [selection]);
+
   useEffect(() => {
-    try { sessionStorage.setItem('biryani-spot-page', page); } catch { /* Optional. */ }
+    try {
+      sessionStorage.setItem('biryani-spot-page', page);
+    } catch {
+      // Remembering the current page is optional.
+    }
     window.scrollTo({ top: 0, behavior: 'auto' });
   }, [page]);
+
   useEffect(() => {
     document.body.classList.toggle('modal-open', drawer);
     return () => document.body.classList.remove('modal-open');
   }, [drawer]);
+
   useEffect(() => {
-    const close = (event: KeyboardEvent) => { if (event.key === 'Escape') setDrawer(false); };
+    const close = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') setDrawer(false);
+    };
     window.addEventListener('keydown', close);
     return () => window.removeEventListener('keydown', close);
   }, []);
-  const toast = (message: string) => { setNotice(tx(message)); window.setTimeout(() => setNotice(''), 2500); };
+
+  const toast = (message: string) => {
+    setNotice(tx(message));
+    window.setTimeout(() => setNotice(''), 2500);
+  };
+
   const entries = Object.values(selection);
   const count = entries.reduce((sum, entry) => sum + entry.qty, 0);
-  const total = entries.reduce((sum, entry) => sum + (entry.option?.price ?? entry.item.price ?? 0) * entry.qty, 0);
+  const total = entries.reduce(
+    (sum, entry) => sum + (entry.option?.price ?? entry.item.price ?? 0) * entry.qty,
+    0,
+  );
   const whatsapp = RESTAURANT.whatsapp.replace(/\D/g, '');
   const canWhatsApp = whatsapp.length >= 8 && whatsapp.length <= 15;
 
   // Build the visible category list from the current search and dietary filter.
   const categories = useMemo(() => {
     const term = query.trim().toLowerCase();
+
     return MENU.map((group) => ({
       ...group,
-      items: group.items.filter((item) =>
-        (!term || (group.name + ' ' + group.description + ' ' + item.name + ' ' + translateText(group.name, 'te') + ' ' + translateText(group.description, 'te') + ' ' + translateText(item.name, 'te')).toLowerCase().includes(term)) &&
-        (diet === 'all' || (diet === 'veg' ? item.veg : !item.veg))
-      ),
-    })).filter((group) => group.items.length);
+      items: group.items.filter((item) => {
+        const searchableText = [
+          group.name,
+          group.description,
+          item.name,
+          translateText(group.name, 'te'),
+          translateText(group.description, 'te'),
+          translateText(item.name, 'te'),
+        ]
+          .join(' ')
+          .toLowerCase();
+        const matchesSearch = !term || searchableText.includes(term);
+        const matchesDiet =
+          diet === 'all' || (diet === 'veg' ? item.veg : !item.veg);
+
+        return matchesSearch && matchesDiet;
+      }),
+    })).filter((group) => group.items.length > 0);
   }, [query, diet]);
 
   useEffect(() => {
-    if (categories.length && !categories.some((item) => item.name === active)) setActive(categories[0].name);
+    if (categories.length && !categories.some((item) => item.name === active)) {
+      setActive(categories[0].name);
+    }
+
     const onScroll = () => {
-      const navBottom = document.querySelector('.menu-tools')?.getBoundingClientRect().bottom ?? 130;
+      const navBottom =
+        document.querySelector('.menu-tools')?.getBoundingClientRect().bottom ?? 130;
       let current = '';
+
       for (const group of categories) {
         const section = document.getElementById(slug(group.name));
-        if (section && section.getBoundingClientRect().top <= navBottom + 16) current = group.name;
+        if (section && section.getBoundingClientRect().top <= navBottom + 16) {
+          current = group.name;
+        }
       }
-      if (current) setActive((old) => old === current ? old : current);
+
+      if (current) {
+        setActive((old) => (old === current ? old : current));
+      }
     };
+
     window.addEventListener('scroll', onScroll, { passive: true });
     return () => window.removeEventListener('scroll', onScroll);
   }, [categories, active]);
@@ -155,8 +218,17 @@ export default function App() {
   // Resolve three featured dishes from the same canonical menu data.
   const featured = useMemo(() => {
     const names = ['Chicken Dum Biryani', 'Chicken Fry Biryani', 'Mutton Dum Biryani'];
-    const result = names.map((name) => allItems.find((item) => item.name === name)).filter((item): item is MenuItem => Boolean(item));
-    for (const item of allItems) { if (result.length >= 3) break; if (!result.some((x) => x.id === item.id)) result.push(item); }
+    const result = names
+      .map((name) => allItems.find((item) => item.name === name))
+      .filter((item): item is MenuItem => Boolean(item));
+
+    for (const item of allItems) {
+      if (result.length >= 3) break;
+      if (!result.some((featuredItem) => featuredItem.id === item.id)) {
+        result.push(item);
+      }
+    }
+
     return result.slice(0, 3);
   }, []);
 
