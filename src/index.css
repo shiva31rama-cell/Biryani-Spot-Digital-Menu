@@ -180,3 +180,132 @@
 @media(max-width:560px){.menu-back-actions>span{display:none}.menu-back-row{gap:8px}.menu-back-actions{gap:0}.welcome-actions{right:8px;gap:4px}.welcome-actions .language-switch{padding:2px}.welcome-actions .language-switch button{padding:5px 7px;font-size:9px}.welcome-action{padding:7px 9px}}
 
 @media(max-width:680px){.navigation-top-row{flex-wrap:wrap;justify-content:flex-start}.search-field{flex:1 1 100%;width:100%;max-width:none}.diet-filters{flex:1 1 auto}.navigation-top-row>.language-switch{margin-left:auto}}
+
+
+/* Category redesign: use the food photo as a small side thumbnail beside the title.
+   This removes the oversized poster treatment and gives the actual menu more space. */
+.category-heading {
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 15px;
+  padding-bottom: 13px;
+}
+.category-heading-main {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  min-width: 0;
+  flex: 1 1 auto;
+}
+.category-heading-photo {
+  display: block;
+  width: 88px;
+  height: 76px;
+  flex: 0 0 88px;
+  object-fit: cover;
+  border: 1px solid #f2d29a;
+  border-radius: 10px;
+  background: #32120f;
+  box-shadow: 0 3px 12px #1408072c;
+}
+.category-heading-copy { min-width: 0; }
+.category-heading-copy h2 { text-wrap: balance; }
+.category-content { display: block; }
+.dish-grid {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  column-gap: 26px;
+  row-gap: 1px;
+}
+@media (max-width: 900px) {
+  .category-heading-photo {
+    width: 76px;
+    height: 68px;
+    flex-basis: 76px;
+  }
+  .category-heading-main { gap: 12px; }
+  .dish-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    column-gap: 20px;
+  }
+}
+@media (max-width: 650px) {
+  .category-heading {
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 10px;
+    padding-bottom: 9px;
+  }
+  .category-heading-main { gap: 10px; }
+  .category-heading-photo {
+    width: 58px;
+    height: 58px;
+    flex-basis: 58px;
+    border-radius: 8px;
+  }
+  .category-heading-copy { flex: 1 1 auto; }
+  .category-heading .category-eyebrow {
+    margin-bottom: 4px;
+    font-size: 6px;
+    letter-spacing: .12em;
+  }
+  .category-heading h2 {
+    font-size: clamp(17px, 4.9vw, 23px);
+    line-height: 1.08;
+  }
+  .category-heading p {
+    margin-top: 4px;
+    font-size: 8px;
+    line-height: 1.4;
+  }
+  .category-item-count {
+    max-width: 60px;
+    padding: 4px 5px;
+    text-align: center;
+    line-height: 1.3;
+  }
+  .dish-grid {
+    grid-template-columns: minmax(0, 1fr);
+    column-gap: 0;
+  }
+  .menu-dish {
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 10px;
+    min-height: 40px;
+    padding: 7px 0;
+  }
+  .dish-main { gap: 8px; }
+  .dish-name {
+    font-size: 12px;
+    line-height: 1.35;
+    overflow-wrap: normal;
+  }
+  .dish-action { gap: 8px; }
+  .dish-price { font-size: 12px; }
+  .dish-add {
+    width: 28px;
+    height: 28px;
+    flex-basis: 28px;
+  }
+  .size-add {
+    min-height: 27px;
+    padding: 4px 7px;
+    font-size: 8px;
+  }
+  .size-add > span { font-size: 7px; }
+  .size-add strong { font-size: 9px; }
+  .size-add small { font-size: 7px; }
+}
+@media (max-width: 390px) {
+  .category-heading-photo {
+    width: 48px;
+    height: 48px;
+    flex-basis: 48px;
+  }
+  .category-heading-main { gap: 8px; }
+  .category-heading .category-eyebrow { font-size: 5px; }
+  .category-heading h2 { font-size: 17px; }
+  .category-heading p { font-size: 7px; }
+  .category-item-count { max-width: 52px; font-size: 6px; }
+  .dish-name { font-size: 11px; }
+  .size-add { gap: 3px; padding: 4px 5px; }
+}
