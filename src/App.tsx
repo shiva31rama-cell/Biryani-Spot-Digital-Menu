@@ -232,38 +232,127 @@ export default function App() {
     return result.slice(0, 3);
   }, []);
 
-  // All selection changes go through these helpers so quantities and totals stay consistent.
+  // Centralize item updates so quantities and estimated totals stay consistent.
   const add = (item: MenuItem, option?: SizeOption) => {
     const key = keyFor(item, option);
-    setSelection((old) => ({ ...old, [key]: { item, option, qty: Math.min(99, (old[key]?.qty ?? 0) + 1) } }));
-    toast(item.name + (option ? ' (' + option.label.toLowerCase() + ')' : '') + ' added');
+    setSelection((old) => ({
+      ...old,
+      [key]: {
+        item,
+        option,
+        qty: Math.min(99, (old[key]?.qty ?? 0) + 1),
+      },
+    }));
+
+    toast(
+      item.name +
+        (option ? ' (' + option.label.toLowerCase() + ')' : '') +
+        ' added',
+    );
   };
-  const change = (key: string, amount: number) => setSelection((old) => {
-    const entry = old[key]; if (!entry) return old;
-    const next = { ...old }; const qty = entry.qty + amount;
-    if (qty <= 0) delete next[key]; else next[key] = { ...entry, qty: Math.min(99, qty) };
-    return next;
-  });
-  const clearFilters = () => { setQuery(''); setDiet('all'); setActive(MENU[0]?.name ?? ''); };
+
+  const change = (key: string, amount: number) => {
+    setSelection((old) => {
+      const entry = old[key];
+      if (!entry) return old;
+
+      const next = { ...old };
+      const quantity = entry.qty + amount;
+
+      if (quantity <= 0) {
+        delete next[key];
+      } else {
+        next[key] = { ...entry, qty: Math.min(99, quantity) };
+      }
+
+      return next;
+    });
+  };
+
+  const clearFilters = () => {
+    setQuery('');
+    setDiet('all');
+    setActive(MENU[0]?.name ?? '');
+  };
+
   const jump = (name: string) => {
     setActive(name);
     const target = document.getElementById(slug(name));
-    const offset = document.querySelector('.menu-tools')?.getBoundingClientRect().bottom ?? 120;
-    if (target) window.scrollTo({ top: Math.max(0, target.getBoundingClientRect().top + window.scrollY - offset - 8), behavior: 'smooth' });
+    const offset =
+      document.querySelector('.menu-tools')?.getBoundingClientRect().bottom ?? 120;
+
+    if (target) {
+      window.scrollTo({
+        top: Math.max(
+          0,
+          target.getBoundingClientRect().top + window.scrollY - offset - 8,
+        ),
+        behavior: 'smooth',
+      });
+    }
   };
-  const home = () => { clearFilters(); setDrawer(false); setPage('welcome'); };
+
+  const home = () => {
+    clearFilters();
+    setDrawer(false);
+    setPage('welcome');
+  };
+
   const menu = () => setPage('menu');
+
   const featuredClick = (item: MenuItem) => {
-    const parent = MENU.find((group) => group.items.some((dish) => dish.id === item.id));
+    const parent = MENU.find((group) =>
+      group.items.some((dish) => dish.id === item.id),
+    );
+
     setPage('menu');
-    if (parent) window.setTimeout(() => jump(parent.name), 80);
+    if (parent) {
+      window.setTimeout(() => jump(parent.name), 80);
+    }
   };
+
   const sendEnquiry = () => {
-    if (!entries.length) return toast('Add a dish to your selection first.');
-    if (!canWhatsApp) return toast('Restaurant WhatsApp is not configured yet.');
-    const lines = entries.map((entry, i) => (i + 1) + '. ' + tx(entry.item.name) + (entry.option ? ' (' + tx(entry.option.label) + ')' : '') + ' × ' + entry.qty + ' — ₹' + money((entry.option?.price ?? entry.item.price ?? 0) * entry.qty));
-    const message = [tx('Hello Biryani Spot, I would like to enquire about these items:'), '', ...lines, '', tx('Estimated menu total: ₹') + money(total), '', tx('Please confirm availability, final prices and order details. This is an enquiry, not a confirmed order.')].join('\n');
-    window.open('https://wa.me/' + whatsapp + '?text=' + encodeURIComponent(message), '_blank', 'noopener,noreferrer');
+    if (!entries.length) {
+      toast('Add a dish to your selection first.');
+      return;
+    }
+    if (!canWhatsApp) {
+      toast('Restaurant WhatsApp is not configured yet.');
+      return;
+    }
+
+    const lines = entries.map((entry, index) => {
+      const price = entry.option?.price ?? entry.item.price ?? 0;
+      const optionLabel = entry.option ? ' (' + tx(entry.option.label) + ')' : '';
+      return (
+        (index + 1) +
+        '. ' +
+        tx(entry.item.name) +
+        optionLabel +
+        ' × ' +
+        entry.qty +
+        ' — ₹' +
+        money(price * entry.qty)
+      );
+    });
+
+    const message = [
+      tx('Hello Biryani Spot, I would like to enquire about these items:'),
+      '',
+      ...lines,
+      '',
+      tx('Estimated menu total: ₹') + money(total),
+      '',
+      tx(
+        'Please confirm availability, final prices and order details. This is an enquiry, not a confirmed order.',
+      ),
+    ].join('\n');
+
+    window.open(
+      'https://wa.me/' + whatsapp + '?text=' + encodeURIComponent(message),
+      '_blank',
+      'noopener,noreferrer',
+    );
   };
 
   // Page rendering is kept in one component so menu records remain the single data source.
