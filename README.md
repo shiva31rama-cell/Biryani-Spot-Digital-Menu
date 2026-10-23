@@ -1,34 +1,85 @@
-# Biryani Spot — Digital Menu
+# Biryani Spot Digital Menu
 
-A mobile-first QR digital menu for Biryani Spot Family Restaurant, built with React, TypeScript and Vite. The customer can scan a table QR code, see the official brand intro, browse the supplied menu and prepare a selection without creating an account.
+A mobile-first digital menu for Biryani Spot Family Restaurant, built with React, TypeScript and Vite. The menu currently contains **111 dishes across 13 categories** and supports English/Telugu-script display, category browsing, dietary filtering, Half/Full options where defined, and a persistent customer selection.
 
-## Product features
+## Repository map
 
-- Official Biryani Spot brand image integrated into the intro, header, hero, footer, favicon/share metadata and PWA icon.
-- Three-second CSS brand animation with Skip Intro, reduced-motion support and once-per-session behavior. The menu appears automatically after the intro.
-- 111 menu items in 13 data-driven categories, with supplied prices and Half/Full sizes where applicable.
-- Instant dish/category search and All, Veg, Non-Veg and Saved/Favourites filters.
-- Persistent favourites and My Selection in local browser storage, with quantity controls and estimated total.
-- Share menu and share selection, including clipboard fallback where supported.
-- WhatsApp enquiry and feedback message preparation. The customer still reviews and sends the message; this is not an online order or payment system.
-- Optional restaurant contact, call, Maps, opening-hours and social actions configured from one owner-controlled file.
-- Printable menu and a dedicated print view for My Selection.
-- Responsive UI, accessible labels, visible focus, dialog semantics, Escape-to-close and mobile-friendly touch targets.
-- Live offline status, PWA manifest, offline app-shell caching and an install prompt where the browser supports it.
-- SEO/share metadata, portable relative assets, and manual-only deployment workflow.
+| Path | Purpose | Edit when you need to… |
+| --- | --- | --- |
+| `src/data/menu.ts` | Canonical menu categories, dish names, dietary flags and prices | Add, remove, rename or reprice a dish |
+| `src/config/restaurant.ts` | Restaurant address, phone, WhatsApp, Maps link and hours | Update owner-confirmed contact information |
+| `src/i18n.ts` | English-to-Telugu-script display mappings | Adjust Telugu-script labels without changing menu data |
+| `src/App.tsx` | React UI and menu interactions | Change application behavior or page structure |
+| `src/index.css` | Layout, responsive behavior and visual styling | Change appearance, spacing or responsive layout |
+| `src/main.tsx` | React entry point and production service-worker registration | Change app startup |
+| `index.html` | Document title, metadata, icon links and app mount point | Update browser/share metadata |
+| `public/*.png` | Brand and category food-image assets | Replace the corresponding approved image |
+| `public/manifest.webmanifest` | Installable web-app metadata | Change the PWA name, colors or icon metadata |
+| `public/sw.js` | Offline caching and cache-version lifecycle | Change caching behavior (increment `CACHE_NAME` when needed) |
+| `scripts/validate-menu.mjs` | Automated data, asset and metadata checks | Extend validation coverage |
+| `.github/workflows/build.yml` | CI checks on main and pull requests | Change verification steps |
+| `.github/workflows/deploy.yml` | Cloudflare Workers deployment workflow | Change publication process |
+| `wrangler.jsonc` | Cloudflare Worker name and static-assets configuration | Change Worker deployment configuration |
+| `docs/` | Owner checklist and restaurant-information template | Maintain project handoff documentation |
+
+## Menu-data conventions
+
+All dish records live in `src/data/menu.ts`; do not maintain a second list of prices in the UI.
+
+- `single(name, price, veg, category)` represents one price, for example `single('Veg Noodles', 80, true, 'Noodles')`.
+- `sized(name, half, full, category, veg?)` represents Half and Full prices, in that order, for example `sized('Chicken Dum Biryani', 150, 250, "Biryani's")`.
+- Keep each dish inside its matching `group(...)` category, preserve unique generated IDs and keep the dietary flag correct.
+- When editing prices, change only the approved price values. Have the restaurant owner verify all prices against the current printed menu before publishing.
+
+### Current categories
+
+1. Non-Veg Soups
+2. Veg Soups
+3. Veg Starters
+4. Non-Veg Starters
+5. Tandoori Starter
+6. Veg Tandoori Starter
+7. Biryani's
+8. Veg Friedrice
+9. Noodles
+10. Non Veg Friedrice
+11. Roti & Naan
+12. Veg Curries
+13. Non Veg Curries
+
+## Category-image conventions
+
+Category image references are declared in `CATEGORY_PHOTOS` in `src/App.tsx`. The files are expected directly inside `public/` and their filenames must match exactly. They are category-level photos, not a separate photo assigned to every dish. If a category image is renamed, update the mapping and the validation test together.
+
+Current category assets:
+
+`non-veg-soups.png`, `veg-soups.png`, `veg-starters.png`, `non-veg-starters.png`, `tandoori-starter.png`, `veg-tandoori-starter.png`, `biryanis.png`, `veg-friedrice.png`, `noodles.png`, `non-veg-friedrice.png`, `roti-naan.png`, `veg-curries.png`, and `non-veg-curries.png`.
+
+## Restaurant configuration
+
+Edit `src/config/restaurant.ts` only with information confirmed by the owner:
+
+- `address`: public-facing address
+- `phone`: number used by the call link
+- `whatsapp`: country code and number as digits only (no plus sign, spaces or dashes)
+- `mapsUrl`: the intended Google Maps location
+- `openingHours`: verified opening hours
+- `instagramUrl` / `facebookUrl`: official profiles only; leave empty until confirmed
+
+Do not put API keys or credentials in the repository.
 
 ## Local development
 
-Requires a supported Node.js version for the Vite toolchain.
+Requires a supported Node.js version for the current Vite toolchain.
 
 ```bash
 npm install
 npm run dev
 ```
 
-## Verification commands
+## Checks before handoff
 
-Run these before handoff:
+Run all three commands:
 
 ```bash
 npm run test:menu
@@ -36,58 +87,23 @@ npm run build
 npm run lint
 ```
 
-`npm run test:menu` validates the menu's expected category/item counts, unique IDs, category references, explicit dietary flags, positive prices, Half/Full price structure and representative price checks. It also parses the PWA manifest, checks the official WebP brand asset and parses the service-worker JavaScript.
+The menu-validation script checks category/item totals, IDs, categories, price structure, representative prices, category-image assets, PWA metadata and service-worker syntax. CI runs the same validation plus the production build and lint. A passing CI run validates code and data structure; the restaurant owner must still approve the business content and current prices.
 
-The GitHub Actions CI workflow runs the menu validation, TypeScript/Vite production build and Oxlint. Check the [Actions page](https://github.com/shiva31rama-cell/Biryani-Spot-Digital-Menu/actions) for the latest result.
-
-## Owner-confirmed restaurant configuration
-
-Edit `src/config/restaurant.ts` only with verified information:
-
-- `address`: full address customers should use
-- `phone`: phone number for the Call action
-- `whatsapp`: WhatsApp number including country code; digits only, no plus sign or spaces
-- `mapsUrl`: official Google Maps destination URL
-- `instagramUrl` and `facebookUrl`: official social profile URLs
-- `openingHours`: verified opening hours
-
-Empty values intentionally remain unconfigured; they are not replaced with invented restaurant facts. The WhatsApp function also checks the configured number before creating a `wa.me` link.
-
-## Menu and media verification
-
-Menu names, classifications and prices were transcribed from the menu supplied for this project. The validation test protects the total item count and selected representative prices, but it cannot prove every transcription matches the latest physical menu. The restaurant owner should verify every dish name, category, dietary classification, size and price before public launch.
-
-The official brand image is stored at `public/biryani-spot-brand.webp`. The current three-second intro is a CSS animation using this image; a separate MP4/WebM brand video has not been supplied or integrated. Dish-specific food photography is not fabricated; add real approved images when available.
-
-## Offline/PWA behavior
-
-The service worker precaches the app shell and built JavaScript/CSS, caches successful same-origin assets, and uses a network-first strategy for page navigations. It removes only older cache keys beginning with `biryani-spot-`, so it does not clear unrelated apps' caches on a shared origin. On first-ever use while already offline, the app cannot be downloaded; open it successfully once online first.
+Check [GitHub Actions](https://github.com/shiva31rama-cell/Biryani-Spot-Digital-Menu/actions) for workflow results.
 
 ## Deployment to Cloudflare Workers
 
-The `biryani-spot-digital-menu` Worker serves the Vite production build from `dist/` using `wrangler.jsonc`. The GitHub Actions workflow `.github/workflows/deploy.yml` builds, validates and deploys to Cloudflare Workers automatically when `main` is updated, and can also be run manually from Actions.
+The Worker name is `biryani-spot-digital-menu`. Deployment is configured in `.github/workflows/deploy.yml` and `wrangler.jsonc`.
 
-Configure these repository secrets under **Settings → Secrets and variables → Actions**:
+The workflow triggers on pushes to `main` and can be run manually. It requires these repository secrets at **Settings → Secrets and variables → Actions**:
 
-- `CLOUDFLARE_API_TOKEN`: a Cloudflare API token authorized to deploy the Worker and its static assets.
-- `CLOUDFLARE_ACCOUNT_ID`: the Cloudflare account ID that owns the `biryani-spot-digital-menu` Worker.
+- `CLOUDFLARE_API_TOKEN`: a token with the required Cloudflare Workers deployment permissions.
+- `CLOUDFLARE_ACCOUNT_ID`: the account ID that owns the Worker.
 
-Never commit either secret to the repository or put the API token in chat. If either secret is missing or invalid, the workflow will stop and report the configuration problem instead of claiming deployment succeeded.
+If either secret is absent or invalid, the deployment workflow stops before deployment. Never share the API token in chat or commit it into a file. Verify the latest workflow result before assuming that the live site has been updated.
 
-Open the [GitHub Actions page](https://github.com/shiva31rama-cell/Biryani-Spot-Digital-Menu/actions) to verify the latest deployment status and its reported URL. The Worker URL is expected to be `https://biryani-spot-digital-menu.<your-workers.dev-subdomain>.workers.dev/`. This workflow deploys to Cloudflare Workers, not GitHub Pages.
+## Launch review
 
-If the Cloudflare dashboard separately manages a Git-connected build for the same Worker, avoid maintaining conflicting build configurations. Treat `wrangler.jsonc` and this workflow as the repository-controlled deployment configuration.
+Before launch, the owner should verify every dish name, price, Half/Full size, vegetarian classification, category, image, contact detail and opening hour. Then test the site on an actual phone, including language toggle, search, dietary filters, selection quantities/totals, WhatsApp enquiry, refresh/offline revisit, and narrow-screen layout.
 
-Static asset paths use Vite's relative base and the Worker is configured for single-page-app fallback routing.
-
-## Final launch checklist
-
-- [ ] Owner confirms restaurant name and official brand asset.
-- [ ] Owner verifies all 111 menu entries, vegetarian/non-vegetarian classifications, spellings and prices against the current menu.
-- [ ] Owner provides verified address, phone, WhatsApp, Maps URL and opening hours.
-- [ ] Owner approves any social links and real food/restaurant photographs.
-- [ ] Latest CI validation, build and lint all pass.
-- [ ] Manually test QR entry, intro skip/reduced-motion, language switch, search, filters, favourites, sizes, quantities, totals, WhatsApp message contents, feedback, print and offline revisit on an actual phone.
-- [ ] Review the built site on phone, tablet and desktop.
-
-No credentials, payment collection, fake order confirmation, fake reviews, fake ratings or invented contact details are included.
+The WhatsApp feature prepares an enquiry for the customer to review and send. It is not an automated order-confirmation or payment system.
