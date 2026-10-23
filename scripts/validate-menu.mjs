@@ -119,7 +119,8 @@ for (const heading of [
   'BREADS',
   'CURRIES',
 ]) {
-  assert.ok(menuSource.includes('// ' + heading), 'Menu data needs a section heading for ' + heading);
+  const sectionHeading = new RegExp('//\\s*\\d+\\.\\s*' + heading);
+  assert.match(menuSource, sectionHeading, 'Menu data needs a numbered section heading for ' + heading);
 }
 
 // Make sure the image mapping in App.tsx and the public asset directory agree.
