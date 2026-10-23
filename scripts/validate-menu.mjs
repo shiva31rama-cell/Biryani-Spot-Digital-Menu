@@ -24,4 +24,33 @@ const manifest=JSON.parse(await readFile(new URL('public/manifest.webmanifest',r
 assert.equal(manifest.name,'Biryani Spot Family Restaurant');assert.equal(manifest.start_url,'./');assert.ok(Array.isArray(manifest.icons)&&manifest.icons.length,'PWA manifest needs an icon');
 for(const icon of manifest.icons)await stat(new URL('public/'+icon.src.replace(/^\.\//,''),root));
 assert.match(await readFile(new URL('public/favicon.svg',root),'utf8'),/<svg\b/,'A lightweight fallback app icon must remain available until the supplied restaurant logo is uploaded.');
-console.log('Repository validation passed: 13 categories, 111 unique dishes, valid Half/Full prices, PWA metadata and service-worker syntax.');
+
+/* Check the important files stay organized and all category food images exist. */
+const menuFileText = source;
+const groupStarts = [...menuFileText.matchAll(/^  group\(/gm)];
+assert.equal(groupStarts.length, 13, 'Menu data should be grouped into 13 clearly separated categories');
+for (const expected of [
+  'SOUPS',
+  'STARTERS',
+  'TANDOORI STARTERS',
+  'BIRYANIS',
+  'RICE, NOODLES AND FRIED RICE',
+  'BREADS',
+  'CURRIES',
+]) {
+  assert.ok(menuFileText.includes('// ' + expected), 'Menu file needs a section heading for ' + expected);
+}
+const appSource = await readFile(new URL('../src/App.tsx', root), 'utf8');
+const categoryPhotoFiles = [
+  'non-veg-soups.png', 'veg-soups.png', 'veg-starters.png',
+  'non-veg-starters.png', 'tandoori-starter.png', 'veg-tandoori-starter.png',
+  'biryanis.png', 'veg-friedrice.png', 'noodles.png',
+  'non-veg-friedrice.png', 'roti-naan.png', 'veg-curries.png', 'non-veg-curries.png',
+];
+for (const imageFile of categoryPhotoFiles) {
+  await stat(new URL('../public/' + imageFile, import.meta.url));
+}
+const restaurantConfig = await readFile(new URL('../src/config/restaurant.ts', root), 'utf8');
+assert.match(restaurantConfig, /\/\*\*[\s\S]*?Biryani Spot restaurant details/, 'Restaurant configuration should have a clear file-level description');
+
+console.log('Repository validation passed: menu structure, 13 categories, 111 unique dishes, price structure, category images, restaurant config, PWA metadata and service-worker syntax.');
