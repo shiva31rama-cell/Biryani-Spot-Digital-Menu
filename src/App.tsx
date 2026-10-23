@@ -41,11 +41,37 @@ const allItems = MENU.flatMap((category) => category.items);
 const customerCarePhone = '8985579991';
 
 // Reusable bilingual control used on both the welcome and menu pages.
-function LanguageToggle({ language, onChange }: { language: Language; onChange: (language: Language) => void }) {
-  return <div className="language-switch" role="group" aria-label={translateText('Language', language)}>
-    <button type="button" className={language === 'en' ? 'active' : ''} aria-pressed={language === 'en'} onClick={() => onChange('en')}>English</button>
-    <button type="button" className={language === 'te' ? 'active' : ''} aria-pressed={language === 'te'} onClick={() => onChange('te')}>తెలుగు</button>
-  </div>;
+function LanguageToggle({
+  language,
+  onChange,
+}: {
+  language: Language;
+  onChange: (language: Language) => void;
+}) {
+  return (
+    <div
+      className="language-switch"
+      role="group"
+      aria-label={translateText('Language', language)}
+    >
+      <button
+        type="button"
+        className={language === 'en' ? 'active' : ''}
+        aria-pressed={language === 'en'}
+        onClick={() => onChange('en')}
+      >
+        English
+      </button>
+      <button
+        type="button"
+        className={language === 'te' ? 'active' : ''}
+        aria-pressed={language === 'te'}
+        onClick={() => onChange('te')}
+      >
+        తెలుగు
+      </button>
+    </div>
+  );
 }
 
 // Category-level photographs. Each filename is stored directly in public/.
