@@ -1,19 +1,46 @@
 import { useEffect, useMemo, useState } from 'react';
-import { ArrowLeft, ArrowRight, Check, ChefHat, ChevronRight, Clock, Flame, Headset, Leaf, MapPin, MessageCircle, Minus, Phone, Plus, RefreshCw, Search, ShoppingBag, Truck, Utensils, X } from 'lucide-react';
+import {
+  ArrowLeft,
+  ArrowRight,
+  Check,
+  ChefHat,
+  ChevronRight,
+  Clock,
+  Flame,
+  Headset,
+  Leaf,
+  MapPin,
+  MessageCircle,
+  Minus,
+  Phone,
+  Plus,
+  RefreshCw,
+  Search,
+  ShoppingBag,
+  Truck,
+  Utensils,
+  X,
+} from 'lucide-react';
 import { MENU, MENU_ITEM_COUNT, type MenuItem, type SizeOption } from './data/menu';
 import { RESTAURANT } from './config/restaurant';
 import { translateText, type Language } from './i18n';
 
+// Shared application types and display helpers.
 type Entry = { item: MenuItem; option?: SizeOption; qty: number };
 type Selection = Record<string, Entry>;
 type Page = 'welcome' | 'menu';
+
 const heroImage = 'https://images.unsplash.com/photo-1563379091339-03246963d96a?auto=format&fit=crop&w=1400&q=88';
-const keyFor = (item: MenuItem, option?: SizeOption) => item.id + '-' + (option?.label ?? 'single');
-const slug = (name: string) => 'category-' + name.toLowerCase().replace(/[^a-z0-9]+/g, '-');
-const money = (price: number) => new Intl.NumberFormat('en-IN', { maximumFractionDigits: 0 }).format(price);
+const keyFor = (item: MenuItem, option?: SizeOption) =>
+  item.id + '-' + (option?.label ?? 'single');
+const slug = (name: string) =>
+  'category-' + name.toLowerCase().replace(/[^a-z0-9]+/g, '-');
+const money = (price: number) =>
+  new Intl.NumberFormat('en-IN', { maximumFractionDigits: 0 }).format(price);
 const allItems = MENU.flatMap((category) => category.items);
 const customerCarePhone = '8985579991';
 
+// Reusable bilingual control used on both the welcome and menu pages.
 function LanguageToggle({ language, onChange }: { language: Language; onChange: (language: Language) => void }) {
   return <div className="language-switch" role="group" aria-label={translateText('Language', language)}>
     <button type="button" className={language === 'en' ? 'active' : ''} aria-pressed={language === 'en'} onClick={() => onChange('en')}>English</button>
@@ -21,6 +48,7 @@ function LanguageToggle({ language, onChange }: { language: Language; onChange: 
   </div>;
 }
 
+// Category-level photographs. Each filename is stored directly in public/.
 const CATEGORY_PHOTOS: Record<string, string> = {
   'Non-Veg Soups': 'non-veg-soups.png',
   'Veg Soups': 'veg-soups.png',
@@ -37,6 +65,7 @@ const CATEGORY_PHOTOS: Record<string, string> = {
   'Non Veg Curries': 'non-veg-curries.png',
 };
 
+// Main screen: state, storage effects, derived menu data, and customer actions.
 export default function App() {
   const [page, setPage] = useState<Page>(() => {
     try { return sessionStorage.getItem('biryani-spot-page') === 'menu' ? 'menu' : 'welcome'; } catch { return 'welcome'; }
@@ -54,6 +83,7 @@ export default function App() {
   const [drawer, setDrawer] = useState(false);
   const [notice, setNotice] = useState('');
 
+  // Keep the language choice and customer selection across refreshes.
   useEffect(() => {
     try { localStorage.setItem('biryani-spot-language', language); } catch { /* Language still works for this session. */ }
     document.documentElement.lang = language === 'te' ? 'te' : 'en';
@@ -81,6 +111,7 @@ export default function App() {
   const whatsapp = RESTAURANT.whatsapp.replace(/\D/g, '');
   const canWhatsApp = whatsapp.length >= 8 && whatsapp.length <= 15;
 
+  // Build the visible category list from the current search and dietary filter.
   const categories = useMemo(() => {
     const term = query.trim().toLowerCase();
     return MENU.map((group) => ({
@@ -121,6 +152,7 @@ export default function App() {
     nav.scrollTo({ left: targetLeft, behavior: reduceMotion ? 'auto' : 'smooth' });
   }, [active, categories]);
 
+  // Resolve three featured dishes from the same canonical menu data.
   const featured = useMemo(() => {
     const names = ['Chicken Dum Biryani', 'Chicken Fry Biryani', 'Mutton Dum Biryani'];
     const result = names.map((name) => allItems.find((item) => item.name === name)).filter((item): item is MenuItem => Boolean(item));
@@ -128,6 +160,7 @@ export default function App() {
     return result.slice(0, 3);
   }, []);
 
+  // All selection changes go through these helpers so quantities and totals stay consistent.
   const add = (item: MenuItem, option?: SizeOption) => {
     const key = keyFor(item, option);
     setSelection((old) => ({ ...old, [key]: { item, option, qty: Math.min(99, (old[key]?.qty ?? 0) + 1) } }));
@@ -161,6 +194,7 @@ export default function App() {
     window.open('https://wa.me/' + whatsapp + '?text=' + encodeURIComponent(message), '_blank', 'noopener,noreferrer');
   };
 
+  // Page rendering is kept in one component so menu records remain the single data source.
   return <div className={count && !drawer ? 'app-shell has-selection' : 'app-shell'}>
     {page === 'welcome' ? <main className="welcome-page" id="top">
       <div className="welcome-actions">
