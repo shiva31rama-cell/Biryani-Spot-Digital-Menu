@@ -6,5 +6,5 @@ export const RESTAURANT = {
   mapsUrl: 'https://maps.app.goo.gl/Ep89kccQu3TCKHEy8?g_st=ac',
   instagramUrl: '',
   facebookUrl: '',
-  openingHours: '11:00 AM – 10:30 PM',
+  openingHours: '11:00 AM – 11:00 PM',
 } as const;
