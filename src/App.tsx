@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import { ArrowLeft, ArrowRight, Check, ChefHat, ChevronRight, Clock, Flame, Headset, Leaf, MapPin, MessageCircle, Minus, Phone, Plus, RefreshCw, Search, ShoppingBag, Soup, Truck, Utensils, X } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Check, ChefHat, ChevronRight, Clock, Flame, Headset, Leaf, MapPin, MessageCircle, Minus, Phone, Plus, RefreshCw, Search, ShoppingBag, Truck, Utensils, X } from 'lucide-react';
 import { MENU, MENU_ITEM_COUNT, type MenuItem, type SizeOption } from './data/menu';
 import { RESTAURANT } from './config/restaurant';
 import { translateText, type Language } from './i18n';
@@ -36,15 +36,6 @@ const CATEGORY_PHOTOS: Record<string, string> = {
   'Veg Curries': 'veg-curries.png',
   'Non Veg Curries': 'non-veg-curries.png',
 };
-
-function categoryIcon(name: string) {
-  const n = name.toLowerCase();
-  if (n.includes('soup')) return Soup;
-  if (n.includes('biryani') || n.includes('rice')) return ChefHat;
-  if (n.includes('starter') || n.includes('tandoori')) return Flame;
-  if (n.includes('drink')) return Leaf;
-  return Utensils;
-}
 
 export default function App() {
   const [page, setPage] = useState<Page>(() => {
@@ -231,12 +222,10 @@ export default function App() {
           <div className="navigation-count"><span>{categories.reduce((sum, c) => sum + c.items.length, 0)} {tx('dishes shown')}</span>{(query || diet !== 'all') && <button onClick={clearFilters}>{tx('Clear filters')} <X size={12}/></button>}</div>
         </section>
         {categories.length ? <div className="category-panels">{categories.map((group, index) => {
-          const Icon = categoryIcon(group.name);
           return <section id={slug(group.name)} className={'category-panel category-panel--' + (index % 5 + 1)} key={group.name}>
             <div className="category-panel-inner">
-              <div className="category-heading"><div><span className="category-eyebrow">{tx('BIRYANI SPOT')} <i/> {tx('MENU COLLECTION')}</span><h2>{tx(group.name)}</h2><p>{tx(group.description)}</p></div><span className="category-item-count">{group.items.length} {tx('ITEMS')}</span></div>
+              <div className="category-heading"><div className="category-heading-main"><img className="category-heading-photo" src={"./" + CATEGORY_PHOTOS[group.name]} alt="" loading="lazy" decoding="async" onError={(event) => { event.currentTarget.style.display = 'none'; }}/><div className="category-heading-copy"><span className="category-eyebrow">{tx('BIRYANI SPOT')} <i/> {tx('MENU COLLECTION')}</span><h2>{tx(group.name)}</h2><p>{tx(group.description)}</p></div></div><span className="category-item-count">{group.items.length} {tx('ITEMS')}</span></div>
               <div className="category-content">
-                <div className="category-visual" aria-hidden="true"><img className="category-visual-photo" src={"./" + CATEGORY_PHOTOS[group.name]} alt="" loading="lazy" decoding="async" onError={(event) => { event.currentTarget.style.display = 'none'; }}/><span className="category-visual-shade"/><span className="category-visual-ring"><Icon size={37} strokeWidth={1.2}/></span><span className="category-visual-brand">{tx('BIRYANI SPOT')}</span><span className="category-visual-line"/><span className="category-visual-subtitle">{tx(group.name)}</span></div>
                 <div className="dish-grid">{group.items.map((item) => {
                   const single = keyFor(item); const quantity = selection[single]?.qty ?? 0;
                   return <article className="menu-dish" key={item.id}>
