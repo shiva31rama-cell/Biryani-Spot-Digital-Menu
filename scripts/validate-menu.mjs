@@ -48,6 +48,7 @@ const categoryPhotoFiles = [
   'non-veg-friedrice.png', 'roti-naan.png', 'veg-curries.png', 'non-veg-curries.png',
 ];
 for (const imageFile of categoryPhotoFiles) {
+  assert.ok(appSource.includes("'" + imageFile + "'"), 'App.tsx should map category image ' + imageFile);
   await stat(new URL('../public/' + imageFile, import.meta.url));
 }
 const restaurantConfig = await readFile(new URL('../src/config/restaurant.ts', root), 'utf8');
