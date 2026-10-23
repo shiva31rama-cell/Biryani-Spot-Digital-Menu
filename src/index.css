@@ -309,3 +309,86 @@
   .dish-name { font-size: 11px; }
   .size-add { gap: 3px; padding: 4px 5px; }
 }
+
+
+/* Mobile menu layout: keep two dish columns, including on narrow phones. */
+@media (max-width: 650px) {
+  .dish-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    column-gap: 12px;
+    row-gap: 4px;
+  }
+  .menu-dish {
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 5px;
+    min-width: 0;
+    min-height: 42px;
+    padding: 7px 0;
+  }
+  .dish-main {
+    min-width: 0;
+    gap: 5px;
+  }
+  .dish-name {
+    min-width: 0;
+    font-size: clamp(9px, 2.45vw, 11px);
+    line-height: 1.25;
+    overflow-wrap: anywhere;
+  }
+  .dish-action {
+    gap: 4px;
+  }
+  .dish-price {
+    font-size: 10px;
+  }
+  .dish-add {
+    width: 23px;
+    height: 23px;
+    flex-basis: 23px;
+  }
+  .dish-size-actions {
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    gap: 3px;
+    min-width: 0;
+  }
+  .size-add {
+    min-height: 24px;
+    gap: 3px;
+    padding: 4px 4px;
+  }
+  .size-add > span {
+    font-size: 7px;
+  }
+  .size-add strong {
+    font-size: 8px;
+  }
+}
+@media (max-width: 390px) {
+  .dish-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    column-gap: 8px;
+    row-gap: 3px;
+  }
+  .menu-dish {
+    gap: 3px;
+    min-height: 43px;
+  }
+  .dish-name {
+    font-size: 9px;
+  }
+  .dish-price {
+    font-size: 9px;
+  }
+  .dish-size-actions {
+    gap: 2px;
+  }
+  .size-add {
+    gap: 2px;
+    padding: 4px 3px;
+  }
+  .size-add strong {
+    font-size: 7px;
+  }
+}
