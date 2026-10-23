@@ -1,66 +1,69 @@
 # Biryani Spot — Final Repository Checklist
 
-This checklist distinguishes automated code checks from real-world owner approval and device testing. Deployment remains paused.
+This checklist separates repository-level checks from decisions and testing that require the restaurant owner.
 
 ## Implemented in the repository
 
 - [x] React + TypeScript + Vite digital menu
-- [x] Official brand WebP used in the application and PWA/share metadata
-- [x] Three-second CSS brand intro with Skip Intro, reduced-motion behavior and once-per-session logic
-- [x] Menu data separated into a dedicated data module
-- [x] Search and category navigation
-- [x] All / Veg / Non-Veg / Saved filters
-- [x] Favourites persisted locally
-- [x] My Selection with Half/Full variants, quantity controls and estimated total
-- [x] Share menu and share selection
-- [x] WhatsApp enquiry and feedback preparation, without automatic sending
-- [x] Contact fields for address, phone, WhatsApp, Maps, social links and opening hours
-- [x] Full menu print and a separate My Selection print view
-- [x] Responsive layouts, touch-target improvements, focus states and dialog accessibility
-- [x] Offline banner, PWA manifest, app-shell asset precaching and bounded cache cleanup
-- [x] App-install prompt when supported by the browser
-- [x] Automated menu/PWA/brand/service-worker validation script in CI
-- [x] Production build and lint in CI
-- [x] Manual-only deployment workflow; no automatic publishing on pushes
+- [x] Menu data separated from the UI in `src/data/menu.ts`
+- [x] Menu data organized into seven labelled sections and 13 categories
+- [x] English / Telugu-script display labels, with menu records and prices kept unchanged
+- [x] Search, category navigation, and All / Veg / Non-Veg filters
+- [x] Customer selection with Half/Full variants, quantity controls and estimated total
+- [x] Restaurant configuration separated into `src/config/restaurant.ts`
+- [x] Category photo references documented in `CATEGORY_PHOTOS` in `src/App.tsx`
+- [x] All 13 category food-image files committed under `public/`
+- [x] Responsive layouts, visible focus states, and dialog keyboard handling
+- [x] PWA manifest, service-worker asset caching and cache-version management
+- [x] Automated menu, category-image, metadata and service-worker checks
+- [x] GitHub Actions CI workflow for menu validation, production build and lint
+- [x] Cloudflare Workers deployment workflow
+
+## Repository organization
+
+See [PROJECT_STRUCTURE.md](./PROJECT_STRUCTURE.md) for the source map, ownership rules, and standard edit workflow.
 
 ## Automated verification
 
 Run:
 
 ```bash
+npm install
 npm run test:menu
 npm run build
 npm run lint
 ```
 
-The GitHub Actions CI job executes the same checks. Check the [latest workflow results](https://github.com/shiva31rama-cell/Biryani-Spot-Digital-Menu/actions). A green CI run confirms automated checks only; it is not a replacement for testing on a physical phone.
+The CI workflow runs the validation, build and lint automatically. A passing CI run means those code checks succeeded; it does not replace manual restaurant approval or device testing.
 
-## Required owner decisions before launch
+Review recent results on the [GitHub Actions page](https://github.com/shiva31rama-cell/Biryani-Spot-Digital-Menu/actions).
 
-- [ ] Approve the exact restaurant name and official image.
-- [ ] Verify all 111 dish names, dietary tags, categories and prices against the current printed menu.
-- [ ] Add verified restaurant address.
-- [ ] Add verified phone and WhatsApp numbers (WhatsApp digits should include the country code).
-- [ ] Add official Google Maps URL and opening hours.
-- [ ] Add social links only if they are official.
-- [ ] Provide an actual 3-second MP4/WebM brand video if a video—not the current CSS animation—is required.
-- [ ] Supply approved food/restaurant photography if dish photos are desired.
+## Required owner approvals before public launch
+
+- [ ] Confirm all 111 dish names, 13 categories, dietary flags, spelling and prices against the current approved menu.
+- [ ] Confirm Half/Full prices and all item names that are size-specific.
+- [ ] Approve each category image and confirm its category mapping.
+- [ ] Confirm the restaurant address, phone, WhatsApp number, Maps link and opening hours.
+- [ ] Provide official social profile links only if the owner wants them displayed.
+- [ ] Confirm the language mode is transliteration into Telugu script (not a full semantic translation), if that remains the requirement.
+- [ ] Review the actual website on a phone, tablet and desktop.
 
 ## Manual UI/UX test plan
 
-- [ ] Scan/open the QR URL on an actual Android phone.
-- [ ] Confirm the brand intro lasts about three seconds, Skip Intro works immediately and the intro does not replay on every interaction.
-- [ ] Confirm reduced-motion users proceed directly to the menu.
-- [ ] Test All, Veg, Non-Veg and Saved filters; verify the Saved filter works from any category.
-- [ ] Search Chicken, Biryani and Paneer; test no-results recovery.
-- [ ] Test Half/Full selection, quantities, clear, persistence and totals.
-- [ ] Inspect WhatsApp message line breaks and selected-item pricing using a verified test number before launch.
-- [ ] Test feedback with/without optional name.
-- [ ] Print the full menu and My Selection; check contact details if configured.
-- [ ] Open the site once online, revisit offline and test browser Back/reload.
-- [ ] Check 360px, 390px, tablet and desktop layouts for overflow, clipping, keyboard focus and dialog close behavior.
-- [ ] Verify PWA installation prompt on a browser that supports it.
+- [ ] Open the menu from the QR/public URL on an actual phone.
+- [ ] Switch English / తెలుగు and confirm dish data and prices remain unchanged.
+- [ ] Test search, category navigation, and All / Veg / Non-Veg filters.
+- [ ] Add single-price and Half/Full dishes; adjust quantities and verify estimated totals.
+- [ ] Clear a selection and check persistence after a refresh.
+- [ ] Test restaurant phone, Maps and WhatsApp enquiry links only with owner-confirmed details.
+- [ ] Test narrow-screen layout at widths near 360px and 390px, along with tablet and desktop.
+- [ ] Open the site online once, then check reload/offline behavior.
 
-## Deployment state
+## Deployment status and prerequisites
 
-Publishing is paused. The deploy workflow is manual only. Do not start it until the owner checklist and manual UI/UX checks have been approved.
+The deployment workflow is configured to run automatically on pushes to `main`, and it also supports manual invocation from GitHub Actions. It requires the following repository secrets:
+
+- `CLOUDFLARE_API_TOKEN`
+- `CLOUDFLARE_ACCOUNT_ID`
+
+If either is missing or invalid, the workflow stops before deployment. Review the latest workflow result before claiming that production has been updated. Never place the API token in source files or chat.
