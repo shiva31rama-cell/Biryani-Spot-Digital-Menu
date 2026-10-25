@@ -58,8 +58,8 @@ const { MENU, ALL_ITEMS, MENU_ITEM_COUNT } = sandbox.module.exports;
 assert.ok(Array.isArray(MENU), 'MENU must be an array');
 assert.equal(MENU.length, MENU_CATEGORIES.length, 'Expected all menu categories');
 assert.deepEqual(Array.from(MENU, (category) => category.name), MENU_CATEGORIES);
-assert.equal(MENU_ITEM_COUNT, 111, 'Expected 111 dishes from the supplied menu');
-assert.equal(ALL_ITEMS.length, 111, 'ALL_ITEMS count must match the full menu');
+assert.equal(MENU_ITEM_COUNT, 113, 'Expected 113 dishes from the current menu data');
+assert.equal(ALL_ITEMS.length, 113, 'ALL_ITEMS count must match the full menu');
 
 // Verify stable IDs, category references, dietary flags, and price structures.
 const ids = new Set();
@@ -174,5 +174,5 @@ await stat(new URL('public/biryani-spot-logo.png', root));
 assert.match(await readRoot('public/favicon.svg'), /<svg\b/, 'favicon.svg must contain a valid SVG root element');
 
 console.log(
-  'Validation passed: 13 categories, 111 dishes, unique IDs, valid pricing, category images, restaurant configuration, PWA metadata and service-worker syntax.',
+  'Validation passed: 13 categories, 113 dishes, valid specials, unique IDs, valid pricing, category images, restaurant configuration, PWA metadata and service-worker syntax.',
 );
