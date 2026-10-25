@@ -9,6 +9,7 @@ For a high-level architecture diagram and code-ownership rules, see [docs/PROJEC
 | Path | Purpose | Edit when you need to… |
 | --- | --- | --- |
 | `src/data/menu.ts` | Canonical menu categories, dish names, dietary flags and prices | Add, remove, rename or reprice a dish |
+| `src/data/specials.ts` | Owner-managed list of currently promoted special dishes | Add or remove a homepage special without duplicating its menu price |
 | `src/config/restaurant.ts` | Restaurant address, phone, WhatsApp, Maps link and hours | Update owner-confirmed contact information |
 | `src/i18n.ts` | English-to-Telugu-script display mappings | Adjust Telugu-script labels without changing menu data |
 | `src/App.tsx` | React UI and menu interactions | Change application behavior or page structure |
@@ -33,6 +34,18 @@ All dish records live in `src/data/menu.ts`; do not maintain a second list of pr
 - `sized(name, half, full, category, veg?)` represents Half and Full prices, in that order, for example `sized('Chicken Dum Biryani', 150, 250, "Biryani's")`.
 - Keep each dish inside its matching `group(...)` category, preserve unique generated IDs and keep the dietary flag correct.
 - When editing prices, change only the approved price values. Have the restaurant owner verify all prices against the current printed menu before publishing.
+
+## Restaurant specials
+
+The homepage's current specials are managed in `src/data/specials.ts`. It currently promotes Pudina Kabab, Garlic Chicken, Punjabi Chicken Biryani, Methi Chicken, and Palak Chicken. The list can grow beyond 15 items without adding new price records.
+
+To add or remove a special:
+1. Open `src/data/specials.ts`.
+2. Add or remove the exact dish name in `SPECIAL_DISH_NAMES`.
+3. Make sure the dish already exists in `src/data/menu.ts`; its price and category are taken from that canonical menu record.
+4. Confirm `npm run test:menu` and `npm run build` pass.
+
+Do not duplicate prices in the specials file. A Half/Full dish automatically displays its existing starting price; single-price dishes display their existing menu price.
 
 ### Current categories
 
