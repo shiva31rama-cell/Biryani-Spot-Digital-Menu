@@ -104,12 +104,12 @@ assert.ok(halfFullCount > 0, 'The menu should include Half/Full items');
 const byName = new Map(ALL_ITEMS.map((item) => [item.name, item]));
 assert.equal(byName.get('Chicken Dum Biryani')?.sizes?.[0]?.price, 150);
 assert.equal(byName.get('Chicken Dum Biryani')?.sizes?.[1]?.price, 250);
-assert.equal(byName.get('Tandoori Chicken')?.sizes?.[0]?.price, 220);
-assert.equal(byName.get('Tandoori Chicken')?.sizes?.[1]?.price, 400);
+assert.equal(byName.get('Tandoori Chicken')?.sizes?.[0]?.price, 250);
+assert.equal(byName.get('Tandoori Chicken')?.sizes?.[1]?.price, 450);
 assert.equal(byName.get('Veg Noodles')?.price, 80);
 assert.equal(byName.get('Family Pack Biryani')?.price, 600);
 
- // Confirm the specials list is a unique, scalable list of existing menu records.
+// Confirm the specials list is a unique, scalable list of existing menu records.
 const specialsSource = await readRoot('src/data/specials.ts');
 const specialsBlock = specialsSource.match(
   /SPECIAL_DISH_NAMES\s*=\s*\[([\s\S]*?)\]\s*as const/,
