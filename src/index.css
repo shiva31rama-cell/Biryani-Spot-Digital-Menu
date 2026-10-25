@@ -2731,3 +2731,24 @@ to {
     padding: 3px;
   }
 }
+
+
+/* Homepage special-dish photographs (files live in public/specials/). */
+.signature-card-art .special-dish-photo {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+}
+
+.signature-card-art > i {
+  padding: 4px 7px;
+  border-radius: 4px;
+  background: rgb(43 19 13 / 62%);
+  color: #fff2d1;
+  text-shadow: 0 1px 3px rgb(0 0 0 / 55%);
+}
