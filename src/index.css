@@ -1469,15 +1469,8 @@ img {
     min-height:160px;
     border-radius:9px
   }
-.signature-card:last-child {
-    grid-column:1/-1;
-    min-height:136px
-  }
 .signature-card-art {
     height:64px
-  }
-.signature-card:last-child .signature-card-art {
-    height:55px
   }
 .signature-card-copy {
     padding:10px 11px 12px
