@@ -241,9 +241,9 @@ export default function App() {
     nav.scrollTo({ left: targetLeft, behavior: reduceMotion ? 'auto' : 'smooth' });
   }, [active, categories]);
 
-  // Resolve three featured dishes from the same canonical menu data.
-  // The owner-managed list can grow without changing the page component.
-  const featured = SPECIAL_DISHES;
+  // Specials are configured separately and resolved to the canonical menu records.
+  // Add more names in src/data/specials.ts without changing this component.
+  const specials = SPECIAL_DISHES;
 
   // Centralize item updates so quantities and estimated totals stay consistent.
   const add = (item: MenuItem, option?: SizeOption) => {
@@ -313,7 +313,7 @@ export default function App() {
 
   const menu = () => setPage('menu');
 
-  const featuredClick = (item: MenuItem) => {
+  const specialDishClick = (item: MenuItem) => {
     const parent = MENU.find((group) =>
       group.items.some((dish) => dish.id === item.id),
     );
@@ -404,11 +404,11 @@ export default function App() {
           <p>{tx('Explore the latest specials from our kitchen.')}</p>
         </div>
         <div className="signature-grid">
-          {featured.map((item, index) => (
+          {specials.map((item, index) => (
             <button
               key={item.id}
               className={'signature-card signature-card--' + (index + 1)}
-              onClick={() => featuredClick(item)}
+              onClick={() => specialDishClick(item)}
             >
               <span className="signature-card-art" aria-hidden="true">
                 <ChefHat size={28} />
