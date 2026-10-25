@@ -24,7 +24,7 @@ import {
 import { MENU, MENU_ITEM_COUNT, type MenuItem, type SizeOption } from './data/menu';
 import { RESTAURANT } from './config/restaurant';
 import { translateText, type Language } from './i18n';
-import { SPECIAL_DISHES } from './data/specials';
+import { SPECIAL_DISHES, SPECIAL_DISH_IMAGES } from './data/specials';
 
 // Shared application types and display helpers.
 type Entry = { item: MenuItem; option?: SizeOption; qty: number };
@@ -413,6 +413,16 @@ export default function App() {
               <span className="signature-card-art" aria-hidden="true">
                 <ChefHat size={28} />
                 <i>{tx(item.category)}</i>
+                <img
+                  className="special-dish-photo"
+                  src={"./specials/" + SPECIAL_DISH_IMAGES[item.name as keyof typeof SPECIAL_DISH_IMAGES]}
+                  alt=""
+                  loading="lazy"
+                  decoding="async"
+                  onError={(event) => {
+                    event.currentTarget.style.display = 'none';
+                  }}
+                />
               </span>
               <span className="signature-card-copy">
                 <small>{tx('SPECIAL ITEM')}</small>
