@@ -7,6 +7,7 @@ export type Language = 'en' | 'te';
  */
 const PHRASES: Record<string, string> = {
   'Biryani Spot Family Restaurant logo': 'బిర్యానీ స్పాట్ ఫ్యామిలీ రెస్టారెంట్ లోగో',
+  'Biryani Spot restaurant ambience': 'బిర్యానీ స్పాట్ రెస్టారెంట్ యాంబియన్స్',
   'Traditional biryani rice': 'ట్రడిషనల్ బిర్యానీ రైస్',
   'From ₹': 'ఫ్రమ్ ₹',
   'Search and menu categories': 'సెర్చ్ అండ్ మెనూ కేటగిరీస్',
