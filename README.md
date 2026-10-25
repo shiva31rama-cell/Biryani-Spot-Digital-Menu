@@ -1,6 +1,6 @@
 # Biryani Spot Digital Menu
 
-A mobile-first digital menu for Biryani Spot Family Restaurant, built with React, TypeScript and Vite. The menu currently contains **111 dishes across 13 categories** and supports English/Telugu-script display, category browsing, dietary filtering, Half/Full options where defined, and a persistent customer selection.
+A mobile-first digital menu for Biryani Spot Family Restaurant, built with React, TypeScript and Vite. The menu currently contains **113 dishes across 13 categories** and supports English/Telugu-script display, category browsing, dietary filtering, Half/Full options where defined, and a persistent customer selection.
 
 ## Repository map
 
