@@ -131,6 +131,17 @@ for (const expectedSpecial of [
   assert.ok(specialNames.includes(expectedSpecial), 'Missing owner-approved special: ' + expectedSpecial);
 }
 
+const specialImageFiles = [
+  'pudina-kabab.png',
+  'garlic-chicken.png',
+  'punjabi-chicken-biryani.png',
+  'methi-chicken.png',
+  'palak-chicken.png',
+];
+for (const imageFile of specialImageFiles) {
+  assert.ok(specialsSource.includes("'" + imageFile + "'"), 'Missing special-image mapping: ' + imageFile);
+}
+
 // Validate section headings so the menu data stays easy for the owner to navigate.
 for (const heading of [
   'SOUPS',
