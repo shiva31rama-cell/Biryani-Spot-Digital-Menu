@@ -10,6 +10,7 @@ Browser / QR visitor
       └── src/main.tsx
           └── src/App.tsx
               ├── src/data/menu.ts          canonical dish data and prices
+              ├── src/data/specials.ts      homepage specials and photo mapping
               ├── src/data/specials.ts      owner-managed homepage specials
               ├── src/config/restaurant.ts  restaurant contact/config
               ├── src/i18n.ts               English / Telugu-script labels
@@ -42,7 +43,7 @@ Quality and deployment
 | `src/index.css` | Colors, layout, responsive and interaction styles | No business data or prices should be stored here |
 | `src/main.tsx` | Mount the React application and register the service worker in production | App startup only |
 | `index.html` | Document metadata, title, icon links and the React root element | Browser/search/social-preview metadata |
-| `public/` | Images, manifest, service worker and other static assets | Public filenames are case-sensitive on deployment |
+| `public/` | Logo, category images, `specials/` food photos, manifest and service worker | Public filenames are case-sensitive on deployment |
 | `scripts/validate-menu.mjs` | Automated assertions for menu, images, metadata and service-worker syntax | Keep checks aligned with intended repository behavior |
 | `.github/workflows/build.yml` | CI: install, validate, build, lint | Runs on pushes and pull requests targeting `main` |
 | `.github/workflows/deploy.yml` | Publish built assets to Cloudflare Workers | Requires both Cloudflare repository secrets |
@@ -54,6 +55,7 @@ Quality and deployment
 ## Rules for safe edits
 
 1. Change a dish price only in `src/data/menu.ts`. Use `single()` for a single price and `sized()` for Half / Full.
+2. Edit the homepage special names and image mappings in `src/data/specials.ts`. Upload special dish photos to `public/specials/` using the exact mapped filenames. Never duplicate the prices there.
 2. Change the homepage specials list only in `src/data/specials.ts`. Use the exact dish name already defined in `menu.ts`; do not copy prices into the specials file. The list can grow past 15 entries.
 3. When adding a dish, keep the category, dietary flag, ID uniqueness and item count consistent. Update validation expectations only when the menu itself is intentionally changed.
 4. When renaming a category image, change both `CATEGORY_PHOTOS` in `src/App.tsx` and the asset list in `scripts/validate-menu.mjs`.
