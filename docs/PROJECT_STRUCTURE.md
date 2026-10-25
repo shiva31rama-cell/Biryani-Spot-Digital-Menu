@@ -10,6 +10,7 @@ Browser / QR visitor
       └── src/main.tsx
           └── src/App.tsx
               ├── src/data/menu.ts          canonical dish data and prices
+              ├── src/data/specials.ts      owner-managed homepage specials
               ├── src/config/restaurant.ts  restaurant contact/config
               ├── src/i18n.ts               English / Telugu-script labels
               └── src/index.css             visual styling and responsive layout
@@ -34,6 +35,7 @@ Quality and deployment
 | File | Single responsibility | Source-of-truth note |
 | --- | --- | --- |
 | `src/data/menu.ts` | Typed category and dish records | Only place where menu prices and dish records should be edited |
+| `src/data/specials.ts` | Names of dishes promoted in the homepage specials section | Add/remove special names here; prices still come from `menu.ts` |
 | `src/config/restaurant.ts` | Address, phone, WhatsApp, Maps, social URLs, opening hours | Values must be owner-confirmed |
 | `src/i18n.ts` | Display copy in Telugu script | Does not own menu prices, product IDs, or ordering data |
 | `src/App.tsx` | Page composition, filtering, selection state and user interactions | UI behavior; keep business data in the data/config modules |
@@ -52,11 +54,12 @@ Quality and deployment
 ## Rules for safe edits
 
 1. Change a dish price only in `src/data/menu.ts`. Use `single()` for a single price and `sized()` for Half / Full.
-2. When adding a dish, keep the category, dietary flag, ID uniqueness and item count consistent. Update validation expectations only when the menu itself is intentionally changed.
-3. When renaming a category image, change both `CATEGORY_PHOTOS` in `src/App.tsx` and the asset list in `scripts/validate-menu.mjs`.
-4. Increase the cache name in `public/sw.js` when a change needs to invalidate previously cached assets.
-5. Never commit API tokens, passwords, or other secrets. Cloudflare deployment credentials belong in GitHub Actions repository secrets.
-6. Make changes directly on `main` only when that is the chosen workflow, and inspect GitHub Actions after committing.
+2. Change the homepage specials list only in `src/data/specials.ts`. Use the exact dish name already defined in `menu.ts`; do not copy prices into the specials file. The list can grow past 15 entries.
+3. When adding a dish, keep the category, dietary flag, ID uniqueness and item count consistent. Update validation expectations only when the menu itself is intentionally changed.
+4. When renaming a category image, change both `CATEGORY_PHOTOS` in `src/App.tsx` and the asset list in `scripts/validate-menu.mjs`.
+5. Increase the cache name in `public/sw.js` when a change needs to invalidate previously cached assets.
+6. Never commit API tokens, passwords, or other secrets. Cloudflare deployment credentials belong in GitHub Actions repository secrets.
+7. Make changes directly on `main` only when that is the chosen workflow, and inspect GitHub Actions after committing.
 
 ## Standard checks
 
