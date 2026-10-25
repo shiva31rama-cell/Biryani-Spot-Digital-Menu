@@ -109,6 +109,28 @@ assert.equal(byName.get('Tandoori Chicken')?.sizes?.[1]?.price, 400);
 assert.equal(byName.get('Veg Noodles')?.price, 80);
 assert.equal(byName.get('Family Pack Biryani')?.price, 600);
 
+ // Confirm the specials list is a unique, scalable list of existing menu records.
+const specialsSource = await readRoot('src/data/specials.ts');
+const specialsBlock = specialsSource.match(
+  /SPECIAL_DISH_NAMES\s*=\s*\[([\s\S]*?)\]\s*as const/,
+);
+assert.ok(specialsBlock, 'A SPECIAL_DISH_NAMES list must be defined');
+const specialNames = [...specialsBlock[1].matchAll(/'([^']+)'/g)].map((match) => match[1]);
+assert.ok(specialNames.length >= 5, 'The specials list must contain at least five current specials');
+assert.equal(new Set(specialNames).size, specialNames.length, 'Special dish names must be unique');
+for (const name of specialNames) {
+  assert.ok(byName.has(name), 'Special dish must exist in the main menu data: ' + name);
+}
+for (const expectedSpecial of [
+  'Pudina Kabab',
+  'Garlic Chicken',
+  'Punjabi Chicken Biryani',
+  'Methi Chicken',
+  'Palak Chicken',
+]) {
+  assert.ok(specialNames.includes(expectedSpecial), 'Missing owner-approved special: ' + expectedSpecial);
+}
+
 // Validate section headings so the menu data stays easy for the owner to navigate.
 for (const heading of [
   'SOUPS',
