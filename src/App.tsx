@@ -389,7 +389,7 @@ export default function App() {
       <section className="welcome-food-feature">
         <div className="welcome-food-image">
           <img src={heroImage} alt={tx('Biryani Spot restaurant ambience')} loading="eager" onError={(event) => { event.currentTarget.style.display = 'none'; }}/>
-          <div className="welcome-food-overlay"/><span className="image-caption">{tx('FLAVOUR IN EVERY SERVING')}</span>
+          <div className="welcome-food-overlay"/>
         </div>
         <div className="welcome-food-copy">
           <span className="section-kicker"><Flame size={14}/> {tx('SIGNATURE FAVOURITES')}</span>
