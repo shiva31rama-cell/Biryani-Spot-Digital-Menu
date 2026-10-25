@@ -31,7 +31,8 @@ type Entry = { item: MenuItem; option?: SizeOption; qty: number };
 type Selection = Record<string, Entry>;
 type Page = 'welcome' | 'menu';
 
-const heroImage = 'https://images.unsplash.com/photo-1563379091339-03246963d96a?auto=format&fit=crop&w=1400&q=88';
+// Local welcome-page ambience image; upload it to public/welcome-food-showcase.png.
+const heroImage = './welcome-food-showcase.png';
 const keyFor = (item: MenuItem, option?: SizeOption) =>
   item.id + '-' + (option?.label ?? 'single');
 const slug = (name: string) =>
@@ -387,7 +388,7 @@ export default function App() {
       </section>
       <section className="welcome-food-feature">
         <div className="welcome-food-image">
-          <img src={heroImage} alt={tx('Traditional biryani rice')} loading="eager" onError={(event) => { event.currentTarget.style.display = 'none'; }}/>
+          <img src={heroImage} alt={tx('Biryani Spot restaurant ambience')} loading="eager" onError={(event) => { event.currentTarget.style.display = 'none'; }}/>
           <div className="welcome-food-overlay"/><span className="image-caption">{tx('FLAVOUR IN EVERY SERVING')}</span>
         </div>
         <div className="welcome-food-copy">
