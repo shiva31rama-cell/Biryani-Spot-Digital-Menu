@@ -15,6 +15,18 @@ export const SPECIAL_DISH_NAMES = [
   'Palak Chicken',
 ] as const;
 
+/**
+ * Image filenames for the homepage cards.
+ * Upload the matching image files into public/specials/.
+ */
+export const SPECIAL_DISH_IMAGES: Record<(typeof SPECIAL_DISH_NAMES)[number], string> = {
+  'Pudina Kabab': 'pudina-kabab.png',
+  'Garlic Chicken': 'garlic-chicken.png',
+  'Punjabi Chicken Biryani': 'punjabi-chicken-biryani.png',
+  'Methi Chicken': 'methi-chicken.png',
+  'Palak Chicken': 'palak-chicken.png',
+};
+
 const menuItemsByName = new Map(
   MENU.flatMap((category) => category.items).map((item) => [item.name, item]),
 );
