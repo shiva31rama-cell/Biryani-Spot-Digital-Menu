@@ -63,6 +63,20 @@ Do not duplicate prices in the specials file. A Half/Full dish automatically dis
 12. Veg Curries
 13. Non Veg Curries
 
+## Homepage special-dish photos
+
+The five current homepage specials use image files stored in `public/specials/`. Upload the files with these exact names:
+
+- `pudina-kabab.png`
+- `garlic-chicken.png`
+- `punjabi-chicken-biryani.png`
+- `methi-chicken.png`
+- `palak-chicken.png`
+
+The mapping is maintained in `src/data/specials.ts`. The image files are photos for the special cards only; dish names and prices remain sourced from `src/data/menu.ts`. If a photo has not been uploaded yet, the UI falls back to the category artwork.
+
+Open the [GitHub upload folder](https://github.com/shiva31rama-cell/Biryani-Spot-Digital-Menu/tree/main/public/specials) and choose **Add file → Upload files** to add them directly to `public/specials/`.
+
 ## Category-image conventions
 
 Category image references are declared in `CATEGORY_PHOTOS` in `src/App.tsx`. The files are expected directly inside `public/` and their filenames must match exactly. They are category-level photos, not a separate photo assigned to every dish. If a category image is renamed, update the mapping and the validation test together.
