@@ -24,6 +24,7 @@ import {
 import { MENU, MENU_ITEM_COUNT, type MenuItem, type SizeOption } from './data/menu';
 import { RESTAURANT } from './config/restaurant';
 import { translateText, type Language } from './i18n';
+import { SPECIAL_DISHES } from './data/specials';
 
 // Shared application types and display helpers.
 type Entry = { item: MenuItem; option?: SizeOption; qty: number };
@@ -37,7 +38,6 @@ const slug = (name: string) =>
   'category-' + name.toLowerCase().replace(/[^a-z0-9]+/g, '-');
 const money = (price: number) =>
   new Intl.NumberFormat('en-IN', { maximumFractionDigits: 0 }).format(price);
-const allItems = MENU.flatMap((category) => category.items);
 const customerCarePhone = '8985579991';
 
 // Reusable bilingual control used on both the welcome and menu pages.
@@ -242,21 +242,8 @@ export default function App() {
   }, [active, categories]);
 
   // Resolve three featured dishes from the same canonical menu data.
-  const featured = useMemo(() => {
-    const names = ['Chicken Dum Biryani', 'Chicken Fry Biryani', 'Mutton Dum Biryani'];
-    const result = names
-      .map((name) => allItems.find((item) => item.name === name))
-      .filter((item): item is MenuItem => Boolean(item));
-
-    for (const item of allItems) {
-      if (result.length >= 3) break;
-      if (!result.some((featuredItem) => featuredItem.id === item.id)) {
-        result.push(item);
-      }
-    }
-
-    return result.slice(0, 3);
-  }, []);
+  // The owner-managed list can grow without changing the page component.
+  const featured = SPECIAL_DISHES;
 
   // Centralize item updates so quantities and estimated totals stay consistent.
   const add = (item: MenuItem, option?: SizeOption) => {
@@ -411,12 +398,35 @@ export default function App() {
         </div>
       </section>
       <section className="signature-section">
-        <div className="section-heading"><span className="section-kicker"><ChefHat size={14}/> {tx('FROM OUR MENU')}</span><h2>{tx('Popular picks')}</h2><p>{tx('A few favourites to get you started.')}</p></div>
-        <div className="signature-grid">{featured.map((item, index) => <button key={item.id} className={'signature-card signature-card--' + (index + 1)} onClick={() => featuredClick(item)}>
-          <span className="signature-card-art" aria-hidden="true"><ChefHat size={28}/><i>{tx(item.category)}</i></span>
-          <span className="signature-card-copy"><small>{tx('MENU FAVOURITE')}</small><strong>{tx(item.name)}</strong><span>{item.sizes ? tx('From ₹') + money(item.sizes[0].price) : '₹' + money(item.price ?? 0)}</span></span>
-          <span className="signature-arrow"><ArrowRight size={15}/></span>
-        </button>)}</div>
+        <div className="section-heading">
+          <span className="section-kicker"><ChefHat size={14}/> {tx('CURRENT SPECIALS')}</span>
+          <h2>{tx("Today's Specials")}</h2>
+          <p>{tx('Explore the latest specials from our kitchen.')}</p>
+        </div>
+        <div className="signature-grid">
+          {featured.map((item, index) => (
+            <button
+              key={item.id}
+              className={'signature-card signature-card--' + (index + 1)}
+              onClick={() => featuredClick(item)}
+            >
+              <span className="signature-card-art" aria-hidden="true">
+                <ChefHat size={28} />
+                <i>{tx(item.category)}</i>
+              </span>
+              <span className="signature-card-copy">
+                <small>{tx('SPECIAL ITEM')}</small>
+                <strong>{tx(item.name)}</strong>
+                <span>
+                  {item.sizes
+                    ? tx('From ₹') + money(item.sizes[0].price)
+                    : '₹' + money(item.price ?? 0)}
+                </span>
+              </span>
+              <span className="signature-arrow"><ArrowRight size={15}/></span>
+            </button>
+          ))}
+        </div>
       </section>
       <section className="welcome-promise"><span className="promise-icon"><Utensils size={19}/></span><div><strong>{tx('Good food. Good company.')}</strong><p>{tx('Take a look at the menu and discover something delicious.')}</p></div><button className="promise-cta" onClick={menu}>{tx('View menu')} <ArrowRight size={15}/></button></section>
       <footer className="welcome-footer"><img className="footer-logo" src="./biryani-spot-logo.png" alt={tx('Biryani Spot Family Restaurant')} width="449" height="449" loading="lazy" decoding="async"/><div className="restaurant-details"><p><Clock size={15}/><span><strong>{tx('Opening hours')}</strong>{RESTAURANT.openingHours}</span></p><a href={RESTAURANT.mapsUrl} target="_blank" rel="noreferrer"><MapPin size={15}/><span><strong>{tx('Visit us')}</strong>{RESTAURANT.address}</span></a></div><div className="footer-contact footer-contact--actions" aria-label={tx('Restaurant contact options')}><a className="footer-contact-link footer-contact-link--delivery" href={"tel:" + RESTAURANT.phone.replace(/[^+\d]/g, "")}><Truck size={15}/><span><strong>{tx('Home Delivery')}</strong><small>{RESTAURANT.phone.replace("+91 ", "")}</small></span></a><a className="footer-contact-link footer-contact-link--care" href={"tel:+91" + customerCarePhone} aria-label={tx('Call customer care')}><Headset size={15}/><span><strong>{tx('Customer Care')}</strong><small>{tx('Contact support')}</small></span></a><a className="footer-contact-link footer-contact-link--whatsapp" href={"https://wa.me/" + whatsapp} target="_blank" rel="noreferrer"><MessageCircle size={15}/><span><strong>{tx('WhatsApp')}</strong><small>{tx('Chat with restaurant')}</small></span></a></div><p>{tx('Menu prices and availability may change. Please confirm with the restaurant.')}</p></footer>
