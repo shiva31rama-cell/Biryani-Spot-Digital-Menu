@@ -7,6 +7,8 @@ This checklist separates repository-level checks from decisions and testing that
 - [x] React + TypeScript + Vite digital menu
 - [x] Menu data separated from the UI in `src/data/menu.ts`
 - [x] Menu data organized into seven labelled sections and 13 categories
+- [x] Homepage specials maintained separately from the canonical menu and prices
+- [x] Five current owner-provided specials displayed, with the list structured to scale beyond 15 items
 - [x] English / Telugu-script display labels, with menu records and prices kept unchanged
 - [x] Search, category navigation, and All / Veg / Non-Veg filters
 - [x] Customer selection with Half/Full variants, quantity controls and estimated total
@@ -41,6 +43,7 @@ Review recent results on the [GitHub Actions page](https://github.com/shiva31ram
 ## Required owner approvals before public launch
 
 - [ ] Confirm all 111 dish names, 13 categories, dietary flags, spelling and prices against the current approved menu.
+- [ ] Confirm the current specials list and any subsequent additions with the owner before promotion.
 - [ ] Confirm Half/Full prices and all item names that are size-specific.
 - [ ] Approve each category image and confirm its category mapping.
 - [ ] Confirm the restaurant address, phone, WhatsApp number, Maps link and opening hours.
