@@ -233,19 +233,6 @@ img {
   background:linear-gradient(0deg,#200f0ba6,transparent 58%);
   pointer-events:none
 }
-.image-caption {
-  position:absolute;
-  left:18px;
-  bottom:17px;
-  padding:8px 10px;
-  border:1px solid #fff2d780;
-  border-radius:3px;
-  background:#35170e61;
-  color:#fff8e8;
-  font-size:8px;
-  font-weight:800;
-  letter-spacing:.19em
-}
 .welcome-food-copy {
   display:flex;
   flex-direction:column;
