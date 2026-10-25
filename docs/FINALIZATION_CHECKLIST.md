@@ -42,7 +42,7 @@ Review recent results on the [GitHub Actions page](https://github.com/shiva31ram
 
 ## Required owner approvals before public launch
 
-- [ ] Confirm all 111 dish names, 13 categories, dietary flags, spelling and prices against the current approved menu.
+- [ ] Confirm all 113 dish names, 13 categories, dietary flags, spelling and prices against the current approved menu.
 - [ ] Confirm the current specials list and any subsequent additions with the owner before promotion.
 - [ ] Confirm Half/Full prices and all item names that are size-specific.
 - [ ] Approve each category image and confirm its category mapping.
