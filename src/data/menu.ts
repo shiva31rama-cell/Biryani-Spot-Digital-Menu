@@ -119,7 +119,7 @@ export const MENU: MenuCategory[] = [
     sized('Tandoori Chicken', 250, 450, 'Tandoori Starter'),
     sized('Tandoori Kabab', 140, 280, 'Tandoori Starter'),
     sized('Chicken Tikka', 150, 300, 'Tandoori Starter'),
-    sized('Pudina Kabab', 250, 500, 'Tandoori Starter'),
+    sized('Pudina Kabab', 300, 600, 'Tandoori Starter'),
     sized('Pudina Tikka', 150, 300, 'Tandoori Starter'),
     sized('Garlic Kabab', 300, 600, 'Tandoori Starter'),
     sized('Garlic Tikka', 150, 300, 'Tandoori Starter'),
