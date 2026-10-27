@@ -73,7 +73,7 @@ The five current homepage specials use image files stored in `public/specials/`.
 - `methi-chicken.png`
 - `palak-chicken.png`
 
-The mapping is maintained in `src/data/specials.ts`. The image files are photos for the special cards only; dish names and prices remain sourced from `src/data/menu.ts`. If a photo has not been uploaded yet, the UI falls back to the category artwork.
+The mapping is maintained in `src/data/specials.ts`. The Garlic Kabab card deliberately reuses `garlic-chicken.png` as requested. The image files are photos for the special cards only; dish names and prices remain sourced from `src/data/menu.ts`. If a photo has not been uploaded yet, the UI falls back to the category artwork.
 
 Open the [GitHub upload folder](https://github.com/shiva31rama-cell/Biryani-Spot-Digital-Menu/tree/main/public/specials) and choose **Add file → Upload files** to add them directly to `public/specials/`.
 
