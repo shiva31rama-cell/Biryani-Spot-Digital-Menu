@@ -37,7 +37,7 @@ All dish records live in `src/data/menu.ts`; do not maintain a second list of pr
 
 ## Restaurant specials
 
-The homepage's current specials are managed in `src/data/specials.ts`. It currently promotes Pudina Kabab, Garlic Chicken, Punjabi Chicken Biryani, Methi Chicken, and Palak Chicken. The list can grow beyond 15 items without adding new price records.
+The homepage's current specials are managed in `src/data/specials.ts`. It currently promotes Pudina Kabab, Garlic Kabab, Punjabi Chicken Biryani, Methi Chicken, and Palak Chicken. The list can grow beyond 15 items without adding new price records.
 
 To add or remove a special:
 1. Open `src/data/specials.ts`.
