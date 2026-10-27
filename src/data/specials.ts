@@ -12,7 +12,7 @@ export const SPECIAL_DISH_NAMES = [
   'Garlic Kabab',
   'Punjabi Chicken Biryani',
   'Methi Chicken',
-  'Palak Chicken',
+  'Palak Paneer',
 ] as const;
 
 /**
@@ -24,7 +24,7 @@ export const SPECIAL_DISH_IMAGES: Record<(typeof SPECIAL_DISH_NAMES)[number], st
   'Garlic Kabab': 'garlic-chicken.png',
   'Punjabi Chicken Biryani': 'punjabi-chicken-biryani.png',
   'Methi Chicken': 'methi-chicken.png',
-  'Palak Chicken': 'palak-chicken.png',
+  'Palak Paneer': 'palak-paneer.png',
 };
 
 const menuItemsByName = new Map(
