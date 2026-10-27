@@ -126,7 +126,7 @@ for (const expectedSpecial of [
   'Garlic Kabab',
   'Punjabi Chicken Biryani',
   'Methi Chicken',
-  'Palak Chicken',
+  'Palak Paneer',
 ]) {
   assert.ok(specialNames.includes(expectedSpecial), 'Missing owner-approved special: ' + expectedSpecial);
 }
@@ -136,7 +136,7 @@ const specialImageFiles = [
   'garlic-chicken.png',
   'punjabi-chicken-biryani.png',
   'methi-chicken.png',
-  'palak-chicken.png',
+  'palak-paneer.png',
 ];
 for (const imageFile of specialImageFiles) {
   assert.ok(specialsSource.includes("'" + imageFile + "'"), 'Missing special-image mapping: ' + imageFile);
