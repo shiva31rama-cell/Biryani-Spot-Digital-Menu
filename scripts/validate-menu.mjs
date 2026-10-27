@@ -123,7 +123,7 @@ for (const name of specialNames) {
 }
 for (const expectedSpecial of [
   'Pudina Kabab',
-  'Garlic Chicken',
+  'Garlic Kabab',
   'Punjabi Chicken Biryani',
   'Methi Chicken',
   'Palak Chicken',
